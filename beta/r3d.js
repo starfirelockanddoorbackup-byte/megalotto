@@ -69,7 +69,10 @@ function shared(){
  const tower=new THREE.BoxGeometry(1,1,1);tower.translate(0,.5,0);GEO.tower=tower;const mesa=new THREE.CylinderGeometry(.42,.55,1,7);mesa.translate(0,.5,0);GEO.mesa=mesa;
  MAT.rock=new THREE.MeshStandardMaterial({color:'#4a3060',roughness:.85,flatShading:true,emissive:'#14061e'});
  MAT.fire=new THREE.MeshStandardMaterial({color:'#5a2010',roughness:.6,flatShading:true,emissive:'#ff5a10',emissiveIntensity:.9});
- MAT.drone=new THREE.MeshStandardMaterial({color:'#0c2a36',roughness:.3,metalness:.6,flatShading:true,emissive:'#0a4a5a'});
+ MAT.rockOb=new THREE.MeshStandardMaterial({color:'#9a6cc4',roughness:.6,flatShading:true,emissive:'#6a1f8f',emissiveIntensity:1.1});
+ MAT.edgeHaz=new THREE.MeshBasicMaterial({color:new COL('#ff4fd8').multiplyScalar(1.8),side:THREE.BackSide,toneMapped:false});
+ MAT.edgeRed=new THREE.MeshBasicMaterial({color:new COL('#ff3355').multiplyScalar(1.8),side:THREE.BackSide,toneMapped:false});
+ MAT.drone=new THREE.MeshStandardMaterial({color:'#1c4a5e',roughness:.3,metalness:.5,flatShading:true,emissive:'#1a8aa6',emissiveIntensity:1.2});
  MAT.gate=new THREE.MeshBasicMaterial({color:new COL('#ffd23f').multiplyScalar(2.2),toneMapped:false});
  MAT.gateUsed=new THREE.MeshBasicMaterial({color:'#5a4a18',toneMapped:false});
  MAT.red=new THREE.MeshBasicMaterial({color:new COL('#ff3355').multiplyScalar(2.5),toneMapped:false});
@@ -107,8 +110,8 @@ const RIVAL_GEO={};function racerMesh(colHex,gold){const key=colHex+(gold?'g':''
 /* ---------- entities ---------- */
 function makeEnt(e){const g=new THREE.Group();let m;
  switch(e.t){
-  case'rock':m=new THREE.Mesh(GEO.rock,e.fire?MAT.fire:MAT.rock);g.add(m);if(e.fire)g.add(glow(new COL('#ff7a20').multiplyScalar(1.6),3.2));if(e.moss){const c=new THREE.Mesh(GEO.box,MAT.green);c.scale.set(1.1,.08,1.1);c.position.y=.82;g.add(c)}g.userData.spin=new V3(Math.random(),Math.random(),Math.random()).normalize();break;
-  case'drone':m=new THREE.Mesh(GEO.oct,MAT.drone);m.scale.set(1.5,.6,1);g.add(m);{const eye=new THREE.Mesh(GEO.sph,MAT.red);eye.scale.setScalar(.25);eye.position.z=.6;g.add(eye);g.add(glow(new COL('#ff3355').multiplyScalar(2),1.4))}break;
+  case'rock':m=new THREE.Mesh(GEO.rock,e.fire?MAT.fire:MAT.rockOb);g.add(m);{const ed=new THREE.Mesh(GEO.rock,e.fire?MAT.edgeRed:MAT.edgeHaz);ed.scale.setScalar(1.13);g.add(ed)}if(!e.fire)g.add(glow(new COL('#ff4fd8').multiplyScalar(1.1),2.6));if(e.fire)g.add(glow(new COL('#ff7a20').multiplyScalar(1.6),3.2));if(e.moss){const c=new THREE.Mesh(GEO.box,MAT.green);c.scale.set(1.1,.08,1.1);c.position.y=.82;g.add(c)}g.userData.spin=new V3(Math.random(),Math.random(),Math.random()).normalize();break;
+  case'drone':m=new THREE.Mesh(GEO.oct,MAT.drone);m.scale.set(1.5,.6,1);g.add(m);{const ed=new THREE.Mesh(GEO.oct,MAT.edgeRed);ed.scale.set(1.7,.72,1.15);g.add(ed)}{const eye=new THREE.Mesh(GEO.sph,MAT.red);eye.scale.setScalar(.25);eye.position.z=.6;g.add(eye);g.add(glow(new COL('#ff3355').multiplyScalar(2),1.4))}break;
   case'gate':m=new THREE.Mesh(GEO.sq,MAT.gate);m.rotation.z=Math.PI/4;m.scale.setScalar(1.41);g.add(m);g.userData.m=m;break;
   case'pad':g.add(new THREE.Mesh(GEO.ring,MAT.cyan));for(let k=0;k<3;k++)for(const s of[-1,1]){const b=new THREE.Mesh(GEO.box,MAT.green);b.scale.set(.75,.08,.05);b.position.set(s*.32,-.4+k*.42,0);b.rotation.z=-s*.6;g.add(b)}break;
   case'coin':m=new THREE.Mesh(GEO.oct,MAT.gold);m.scale.set(.7,1,.7);g.add(m);g.add(glow(new COL('#ffd23f').multiplyScalar(1.6),2.2));break;
@@ -119,7 +122,7 @@ function makeEnt(e){const g=new THREE.Group();let m;
    const core=new THREE.Mesh(GEO.cyl,new THREE.MeshBasicMaterial({color:new COL('#ffffff').multiplyScalar(3),toneMapped:false,transparent:true}));g.add(core);g.userData.core=core}break;
   case'well':{const core=new THREE.Mesh(GEO.sph,MAT.black);core.scale.setScalar(.3);g.add(core);const d=new THREE.Mesh(GEO.disk,MAT.disk);d.scale.setScalar(.42);d.rotation.x=1.25;g.add(d);g.userData.disk=d;
    const lens=new THREE.Mesh(GEO.ring,new THREE.MeshBasicMaterial({color:new COL('#9ad8ff').multiplyScalar(1.4),toneMapped:false,transparent:true,opacity:.6}));g.add(lens);g.add(glow(new COL('#ffb070').multiplyScalar(1.2),3))}break;
-  case'adsat':{const b=new THREE.Mesh(GEO.box,MAT.metal);b.scale.setScalar(.6);g.add(b);for(const s of[-1,1]){const p=new THREE.Mesh(GEO.box,MAT.panel);p.scale.set(1,.35,.05);p.position.x=s*.95;g.add(p)}
+  case'adsat':{const b=new THREE.Mesh(GEO.box,MAT.metal);b.scale.setScalar(.6);g.add(b);g.add(glow(new COL('#ffd23f').multiplyScalar(1.4),3));{const ed=new THREE.Mesh(GEO.box,MAT.edgeHaz);ed.scale.setScalar(.7);g.add(ed)}for(const s of[-1,1]){const p=new THREE.Mesh(GEO.box,MAT.panel);p.scale.set(1,.35,.05);p.position.x=s*.95;g.add(p)}
    const t=new THREE.Mesh(GEO.plane,new THREE.MeshBasicMaterial({map:textCached(e.txt),transparent:true,toneMapped:false,side:THREE.DoubleSide}));t.scale.set(3.2,.8,1);t.position.y=1.1;g.add(t)}break;
   case'tower':if(e.style==='mesa'){m=new THREE.Mesh(GEO.mesa,MAT.mesa);g.add(m)}else{m=new THREE.Mesh(GEO.tower,MAT.tower);g.add(m);const cap=new THREE.Mesh(GEO.box,new THREE.MeshBasicMaterial({color:new COL(e.col).multiplyScalar(2.2),toneMapped:false}));cap.scale.set(1.02,.03,1.02);cap.position.y=1;g.add(cap)}g.userData.m=m;break;
   case'rival':g.add(racerMesh(RC.rivals[e.ri].c,false));break;

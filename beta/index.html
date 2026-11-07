@@ -128,7 +128,7 @@ input.nm{font:700 20px Rajdhani,sans-serif;background:#ffffff10;color:var(--tx);
 .rb{position:fixed;z-index:4;border-radius:50%;padding:0;font:700 12px Orbitron,sans-serif;display:none;touch-action:none;-webkit-user-select:none;user-select:none;cursor:pointer}
 #bst{left:16px;bottom:calc(var(--sab) + 20px);width:98px;height:98px;background:#19f3ff22;color:var(--cy);border:2px solid var(--cy);box-shadow:0 0 18px #19f3ff66}
 #bst.on{background:var(--mg);color:#fff;border-color:var(--mg);box-shadow:0 0 28px var(--mg)}
-#rkt{left:126px;bottom:calc(var(--sab) + 30px);width:72px;height:72px;color:var(--am);border:2px solid var(--am);background:conic-gradient(#ffd23f55 var(--cd,100%),#05030b88 0);box-shadow:0 0 14px #ffd23f55}
+#rkt{left:29px;bottom:calc(var(--sab) + 132px);width:72px;height:72px;color:var(--am);border:2px solid var(--am);background:conic-gradient(#ffd23f55 var(--cd,100%),#05030b88 0);box-shadow:0 0 14px #ffd23f55}
 #pz{left:12px;top:calc(var(--sat) + 96px);width:40px;height:40px;border-radius:6px;background:#05030b99;color:var(--tx);border:1px solid #ffffff33;font-size:15px}
 #toast{position:fixed;left:50%;top:calc(var(--sat) + 124px);transform:translate(-50%,-20px);opacity:0;z-index:9;font:700 15px Rajdhani,sans-serif;background:#05030bee;border:1px solid var(--am);color:var(--am);padding:10px 16px;transition:.25s;pointer-events:none;width:max-content;max-width:90vw;text-align:center}
 #toast.on{opacity:1;transform:translate(-50%,0)}
@@ -1129,7 +1129,7 @@ function kill(e){if(e.dead)return;e.dead=1;AU.sfx('boom');kick(e.t==='rival'?5:1
  if(e.t==='adsat'){RC.cash+=100;RC.score+=40;boom(e,'#ff2bd6',22);RC.msg='Ad destroyed. +¥100. Good.';RC.msgT=2.2;AU.sfx('cash')}
  if(e.t==='bully'){RC.bullies++;RC.kills++;RC.cash+=60;RC.score+=150;boom(e,e.c,24);RC.msg=e.envKill?`${e.n} ate ${e.envKill}. +¥60`:`${e.n} WRECKED. +¥60`;RC.msgT=1.8;buzz(40)}
  if(e.t==='rival'){const r=RC.rivals[e.ri];r.p-=.05;r.live=0;RC.kills++;RC.cash+=250;RC.score+=200;boom(e,r.c,30);RC.msg=`${r.n} WRECKED. +¥250.`;RC.msgT=2.6;RC.shake=.25;buzz(60)}}
-function fireRocket(){if(mode!=='race'||RC.over||RC.paused||RC.count>0||RC.rkT>0)return;RC.rkT=RC.ship.rk?1.1:2.2;
+function fireRocket(){if(mode!=='race'||RC.over||RC.paused||RC.count>0||RC.rkT>0)return;RC.rkT=RC.ship.rk?.55:1.1;
  let tg=null,bd=99;const T0=RC.target;if(T0&&T0.state===1&&T0.z<70)tg=T0;
  else if(RC.lock&&!RC.lock.dead)tg=RC.lock;
  else for(const e of RC.E)if(HIT[e.t]&&!e.dead&&e.z<70&&e.z>3){const d=e.z*.02+Math.hypot(e.x-RC.px,e.y-RC.py);if(d<bd){bd=d;tg=e}}
@@ -1229,7 +1229,7 @@ function raceUpd(dt){RC.t+=dt;
   else{shot(0,0,0,0,{dmg:3,pierce:1,spd:260});RC.railFlash=.12}
   if(sh.spr)shot(rr(-.12,.12),0,rr(-.04,.04),rr(-.03,.03));AU.sfx('shoot')}
  RC.railFlash=Math.max(0,RC.railFlash-dt);
- RC.rkT=Math.max(0,RC.rkT-dt);$('#rkt').style.setProperty('--cd',((1-RC.rkT/(sh.rk?1.1:2.2))*100)+'%');
+ RC.rkT=Math.max(0,RC.rkT-dt);$('#rkt').style.setProperty('--cd',((1-RC.rkT/(sh.rk?.55:1.1))*100)+'%');
  for(const l of RC.L){const dz=l.spd*dt;l.z+=dz;l.x+=(l.vx||0)*dz;l.y+=(l.vy||0)*dz;
   if(l.rk){const g=l.tg;if(g&&!g.dead&&(g.t!=='target'||g.state===1)){l.x+=(g.x-l.x)*Math.min(1,dt*5);l.y+=(g.y-l.y)*Math.min(1,dt*5)}
    if(R()<.7){const[sx,sy,s]=P(l.x,l.y,l.z);RC.P.push({x:sx,y:sy,vx:rr(-15,15),vy:rr(-15,15),l:.35,c:'#ffd23f',z:Math.max(1.5,4*s)})}}
