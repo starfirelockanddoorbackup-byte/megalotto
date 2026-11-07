@@ -293,8 +293,9 @@ const DOORS=[
  {id:'clinic',x:360,sign:'CLINIC',n:'Back-Alley Clinic',col:'#7dff6b',d:'New parts for your body. No refunds.'},
  {id:'chop',x:880,sign:'CHOP SHOP',n:'Chop Shop',col:'#ffd23f',d:'New parts for your ship. Also no refunds.'},
  {id:'syn',x:1400,sign:'SYNDICATE',n:'Race Syndicate',col:'#ff2bd6',d:'Sign up for worse races. Better money.'},
- {id:'bar',x:1920,sign:'THE RUSTY AIRLOCK',n:'Bar & Fixers',col:'#19f3ff',d:'Gossip, tips and drinks that move.'}];
-const FILLER=[{x:110,s:'NOODLES',c:'#ff7ac8'},{x:620,s:'PAWN // ORGANS',c:'#ff3355'},{x:1140,s:'CLONE REPAIR',c:'#b06bff'},{x:1660,s:'KARAOKE',c:'#ffd23f'},{x:2180,s:'NO LOITERING (PAID)',c:'#19f3ff'}];
+ {id:'bar',x:1920,sign:'THE RUSTY AIRLOCK',n:'Bar & Fixers',col:'#19f3ff',d:'Gossip, tips and drinks that move.'},
+ {id:'ninja',x:2190,sign:'NINJA ALLEY',n:'Ninja Alley',col:'#ff3355',d:'Ninjas. In an alley. At night. Bring a broom. Beat 3 waves for ¥8,000.'}];
+const FILLER=[{x:110,s:'NOODLES',c:'#ff7ac8'},{x:620,s:'PAWN // ORGANS',c:'#ff3355'},{x:1140,s:'CLONE REPAIR',c:'#b06bff'},{x:1660,s:'KARAOKE',c:'#ffd23f'}];
 const WORLD=2300;
 
 /* ===========================================================================
@@ -1695,7 +1696,7 @@ function hubDraw(){if(!HUB.L)buildHubLayers();const L=HUB.L,G=L.G,cam=cl(HUB.x-W
  const ty=SAT+64;c.fillStyle='#05030bcc';c.fillRect(0,ty,W,22);c.fillStyle='#ff3355';c.fillRect(0,ty,64,22);c.font='700 10px Orbitron,sans-serif';c.textAlign='left';c.fillStyle='#fff';c.fillText('LIVE',16,ty+15);
  if(!HUB.news){HUB.news=Array.from({length:4},()=>T('NEWS')).join('   ///   ');HUB.nx=W}c.save();c.beginPath();c.rect(66,ty,W-66,22);c.clip();c.font='500 11px "IBM Plex Mono",monospace';c.fillStyle='#ffd23f';c.fillText(HUB.news,HUB.nx,ty+15);c.restore();HUB.nx-=.9;if(HUB.nx<-c.measureText(HUB.news).width){HUB.news=null}
  const vg=c.createRadialGradient(W/2,H*.55,Math.min(W,H)*.35,W/2,H*.55,Math.max(W,H)*.75);vg.addColorStop(0,'rgba(5,2,12,0)');vg.addColorStop(1,'rgba(5,2,12,.55)');c.fillStyle=vg;c.fillRect(0,0,W,H)}
-ACT.enter=id=>{AU.sfx('door');AU.play('lounge');buzz([10,30,10]);({clinic:scrClinic,chop:()=>scrGun('shop'),syn:()=>S.runDone?scrSyndicate():scrRunBrief(),bar:scrBar})[id]()};
+ACT.enter=id=>{AU.sfx('door');AU.play('lounge');buzz([10,30,10]);({clinic:scrClinic,chop:()=>scrGun('shop'),syn:()=>S.runDone?scrSyndicate():scrRunBrief(),bar:scrBar,ninja:()=>NJ.enter()})[id]()};
 ACT.hub=()=>{setLegs(BASE_LEGS);scrHub()};
 function crPill(){return`<div class="pill${S.cr<0?' debt':''}" id=gcr>${S.cr<0?'DEBT ':''}${money(S.cr)}</div>`}
 function scrClinic(){mode='hubshop';
@@ -1835,11 +1836,12 @@ function loop(ts){const dt=Math.min(.05,(ts-last)/1000||.016);last=ts;
  if(innerWidth!==W||innerHeight!==H)rs();
  if(mode!=='race'&&R3DON){R3DON=false;window.R3D&&R3D.stop()}
  if(W<4||H<4){requestAnimationFrame(loop);return} // window not laid out yet: skip the frame
- try{if(mode==='race'){raceUpd(dt);if(mode==='race')raceDraw(dt)}else if(mode==='hub'){hubUpd(dt);hubDraw();postFX(.36,0)}else if(mode==='intro'){introDraw(dt);postFX(.5,ISH*.9+IFL*.6)}else{menuDraw(dt);postFX(.32,0)}
+ try{if(mode==='race'){raceUpd(dt);if(mode==='race')raceDraw(dt)}else if(mode==='hub'){hubUpd(dt);hubDraw();postFX(.36,0)}else if(mode==='ninja'){NJ.frame(dt)}else if(mode==='intro'){introDraw(dt);postFX(.5,ISH*.9+IFL*.6)}else{menuDraw(dt);postFX(.32,0)}
   // auto quality: if the phone can't hold ~40fps in a race, drop chromatic aberration and soften bloom
   if(mode==='race'&&!RC.paused){FT=lerp(FT,dt,.03);if(++FTN>150&&FT>.025&&FXQ>0){FXQ=0;FTN=0}}if(PV)PV(ts/1000)}catch(err){console.error(err)}
  requestAnimationFrame(loop)}
 load();rs();HAP.init();if(!S.pilot&&S.runs)S.pilot=randPilot();makeIcon();scrBoot();requestAnimationFrame(loop);
 </script>
+<script src="./ninja.js"></script>
 <script type="module" src="./r3d.js"></script>
 </body></html>
