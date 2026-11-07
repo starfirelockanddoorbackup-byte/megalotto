@@ -64,6 +64,22 @@ p.lead{max-width:380px;margin:0 auto 14px;color:#cfe6f5}
 .term div{margin-bottom:8px}
 .term .hl{color:var(--am)}.term .rd{color:var(--rd)}.term .gr{color:var(--gr)}.term .mu{color:#8a80a8}
 .term.red{border-color:#ff335566;border-left-color:var(--rd)}.term.grn{border-color:#7dff6b55;border-left-color:var(--gr)}
+.fh{margin:2px 0 4px}
+canvas.pv.pvs{width:min(300px,31vh,100%)!important;height:auto;margin:4px auto}
+input.nm.nms{font-size:17px;padding:6px 10px;margin:6px auto;width:min(300px,100%)}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 0 4px}
+.fc{display:flex;align-items:stretch;background:#19f3ff10;border:1px solid #19f3ff66;min-height:44px}
+.fc.on{border-color:var(--mg);background:#ff2bd618;box-shadow:0 0 10px #ff2bd633}
+.fc.wide{grid-column:1/-1}
+.fa{flex:none;width:34px;background:none;border:0;color:var(--cy);font:700 24px/1 Rajdhani,sans-serif;touch-action:manipulation;cursor:pointer;padding:0}
+.fa:active,.fv:active{background:#ffffff14}
+.fv{flex:1;min-width:0;background:none;border:0;color:var(--tx);padding:3px 0 2px;touch-action:manipulation;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+.fv b{font:700 9.5px 'IBM Plex Mono',monospace;letter-spacing:.12em;color:var(--am);text-transform:uppercase}
+.fv span{font:700 15px Rajdhani,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.fv i{display:flex;gap:3px;height:4px}.fv em{width:4px;height:4px;border-radius:50%;background:#ffffff30}.fv em.d1{background:var(--cy)}
+.fc.on .fv em.d1{background:var(--mg)}
+.frow{display:flex;gap:8px;margin-top:8px}.frow .btn{flex:1;min-width:0;padding-left:8px;padding-right:8px;font-size:15px;margin:0}
+@media (max-height:700px){canvas.pv.pvs{width:min(300px,25vh,100%)!important}.fc{min-height:40px}.fh{font-size:20px}}
 canvas.pv{display:block;margin:6px auto;max-width:100%;border:1px solid #ff2bd655;background:#0b0618}
 input.nm{font:700 20px Rajdhani,sans-serif;background:#ffffff10;color:var(--tx);border:1px solid var(--cy);padding:10px;width:min(280px,86%);text-align:center;margin:8px auto;display:block;border-radius:0;user-select:text;-webkit-user-select:text;outline:none}
 .row{margin:12px 0}.row b{display:block;font:700 11px 'IBM Plex Mono',monospace;letter-spacing:.12em;color:var(--am);margin-bottom:6px;text-transform:uppercase}
@@ -872,22 +888,23 @@ function scrTicket(){mode='menu';AU.play('menu');
    11. SCREENS — Phase 2: Identity Forge & Warzone Gunsmith
    =========================================================================== */
 let FORGE_EDIT=false,FORGE_SNAP=null;
-function scrForge(edit){FORGE_EDIT=!!edit;if(!S.pilot)S.pilot=plainPilot();FORGE_SNAP=JSON.stringify(S.pilot);const p=S.pilot;
- show(`<div class=kick>${edit?'SPACEPORT // CLINIC // NEW LOOK':'PHASE 2 // IDENTITY FORGE'}</div><h2>${edit?'New look':'Make your pilot'}</h2>${edit?'':'<p class=lead style="font-size:15px">Scars, chrome, bad decisions. This face goes on the memorial wall, so make it count.</p>'}
- <canvas id=pv class=pv></canvas><input id=nm class=nm maxlength=18 aria-label="Pilot name" value="${esc(p.name)}"><div id=op></div>
- <button class="btn alt" data-a=rand>⚄ Random</button><button class="btn" data-a=forgeDone>${edit?'Save look (¥250)':'Lock it in →'}</button>
- ${edit?'<button class="btn ghost wide" data-a=forgeCancel>Never mind</button>':''}`);
+function scrForge(edit,fresh){FORGE_EDIT=!!edit;if(!S.pilot)S.pilot=plainPilot();FORGE_SNAP=JSON.stringify(S.pilot);
+ if(fresh){const o=S.pilot;S.pilot=Object.assign(plainPilot(),{name:o.name,quote:o.quote})}const p=S.pilot;
+ show(`<div class=kick>${edit?'SPACEPORT // CLINIC // NEW LOOK':'PHASE 2 // IDENTITY FORGE'}</div><h2 class=fh>${edit?'New look':'Make your pilot'}</h2>
+ <canvas id=pv class="pv pvs"></canvas><input id=nm class="nm nms" maxlength=18 aria-label="Pilot name" value="${esc(p.name)}"><div id=op class=fg></div>
+ <div class=frow><button class="btn alt" data-a=rand>⚄ Random</button>${edit?'<button class="btn ghost" data-a=forgeCancel>Never mind</button>':''}<button class="btn" data-a=forgeDone>${edit?'Save (¥250)':'Lock it in →'}</button></div>`);
  $('#nm').oninput=e=>{p.name=e.target.value};renderForge();
  const x=prepPV('#pv',300,300);PV=t=>{x.clearRect(0,0,300,300);portraitBG(x,300,300,NEON[S.pilot.col],t);drawPilot(x,150,132,1.32,S.pilot,t);
-  const g=x.createLinearGradient(0,214,0,260);g.addColorStop(0,'rgba(7,4,15,0)');g.addColorStop(1,'rgba(7,4,15,.9)');x.fillStyle=g;x.fillRect(0,214,300,46);x.fillStyle='#ffffff';x.font='700 13px "IBM Plex Mono",monospace';x.textAlign='center';x.fillText('“'+S.pilot.quote+'”',150,250)}}
-function renderForge(){const p=S.pilot,qs=[...new Set(TABLES.QUOTE.map(e=>Array.isArray(e)?e[0]:e))].slice(0,7);if(!qs.includes(p.quote))qs.unshift(p.quote);
- const rows=[['Body','body',OPT.body],['Skin','skin',OPT.skin],['Hair','hair',OPT.hair],['Jacket','out',OPT.out],['Optics','optics',OPT.optics],['Face Cover','mask',OPT.mask],['Headgear','gear',OPT.gear],['Scars & Ink','scar',OPT.scar],['Cyberware','cyber',OPT.cyber],['Neon','col',OPT.col]];
- $('#op').innerHTML=rows.map(([l,k,a])=>`<div class=row><b>${l}</b><div class=chips>${a.map((n,i)=>`<button class="ch${(p[k]|0)===i?' on':''}" data-a=opt data-v="${k}:${i}">${n}</button>`).join('')}</div></div>`).join('')+
- `<div class=row><b>Last Words</b><div class=chips>${qs.map(q=>`<button class="ch${p.quote===q?' on':''}" data-a=quote data-v="${esc(q)}">${esc(q)}</button>`).join('')}</div></div>`}
+  const g=x.createLinearGradient(0,250,0,300);g.addColorStop(0,'rgba(7,4,15,0)');g.addColorStop(1,'rgba(7,4,15,.9)');x.fillStyle=g;x.fillRect(0,250,300,50);x.fillStyle='#ffffff';x.font='700 13px "IBM Plex Mono",monospace';x.textAlign='center';x.fillText('“'+S.pilot.quote+'”',150,286)}}
+const FORGE_ROWS=[['Body','body'],['Skin','skin'],['Hair','hair'],['Jacket','out'],['Optics','optics'],['Face Cover','mask'],['Headgear','gear'],['Scars & Ink','scar'],['Cyberware','cyber'],['Neon','col']];
+function forgeQuotes(){const p=S.pilot,qs=[...new Set(TABLES.QUOTE.map(e=>Array.isArray(e)?e[0]:e))].slice(0,7);if(!qs.includes(p.quote))qs.unshift(p.quote);return qs}
+function renderForge(){const p=S.pilot,qs=forgeQuotes(),cell=(l,k,val,i,n,wide,on)=>`<div class="fc${wide?' wide':''}${on?' on':''}"><button class=fa data-a=cyc data-v="${k}:-1" aria-label="Previous ${l}">‹</button><button class=fv data-a=cyc data-v="${k}:1"><b>${l}</b><span>${esc(val)}</span><i>${Array.from({length:n},(_,j)=>j===i?'<em class=d1></em>':'<em></em>').join('')}</i></button><button class=fa data-a=cyc data-v="${k}:1" aria-label="Next ${l}">›</button></div>`;
+ $('#op').innerHTML=FORGE_ROWS.map(([l,k])=>{const a=OPT[k],i=p[k]|0;return cell(l,k,a[i],i,a.length,0,i>0&&!['body','skin','out','col'].includes(k))}).join('')+cell('Last Words','quote',p.quote,-1,qs.length,1,0).replace(/<i>.*?<\/i>/,`<i>${qs.map(q=>q===p.quote?'<em class=d1></em>':'<em></em>').join('')}</i>`)}
+ACT.cyc=v=>{const[k,d]=v.split(':'),p=S.pilot;if(k==='quote'){const qs=forgeQuotes(),i=qs.indexOf(p.quote);p.quote=qs[(i+ +d+qs.length)%qs.length]}else{const n=OPT[k].length;p[k]=((p[k]|0)+ +d+n)%n}AU.sfx('ui');buzz(8);renderForge()};
 ACT.opt=v=>{const[k,i]=v.split(':');S.pilot[k]=+i;renderForge()};
 ACT.quote=v=>{S.pilot.quote=v;renderForge()};
 ACT.rand=()=>{const n=S.pilot.name;S.pilot=randPilot();S.pilot.name=n;renderForge()};
-ACT.forge=()=>scrForge(false);
+ACT.forge=()=>scrForge(false,true);
 ACT.forgeCancel=()=>{S.pilot=JSON.parse(FORGE_SNAP);scrClinic()};
 ACT.forgeDone=()=>{const p=S.pilot;p.name=(p.name||'').trim()||'Contestant #'+ri(1000,9999);
  if(FORGE_EDIT){if(S.cr<250){AU.sfx('deny');buzz([30,30,30]);toast("Not enough cash. Debt isn't money. Yet.");return}S.cr-=250;save();AU.sfx('buy');toast('New face. Same debt.');scrClinic()}
@@ -1483,7 +1500,7 @@ function renderAugs(){$('#augs').innerHTML=AUGS.map(a=>{const own=hasAug(a.id);r
 ACT.aug=id=>{const a=AUGS.find(q=>q.id===id);if(hasAug(id)){toast("Already in you. We don't do removals.");return}
  if(S.cr<a.price){AU.sfx('deny');buzz([30,30,30]);toast('No cash. The surgeon still likes you. Barely.');return}
  S.cr-=a.price;S.aug.push(id);save();AU.sfx('buy');buzz([40,30,60]);toast(`${a.n} installed. Mostly painless.`);$('#gcr').textContent=money(S.cr);renderAugs()};
-ACT.aes=()=>scrForge(true);
+ACT.aes=()=>scrForge(true,true);
 function scrSyndicate(){mode='hubshop';
  show(`<div class=kick>SPACEPORT // RACE SYNDICATE</div><h2>Races</h2>${crPill()}
  <p class=lead style="font-size:15px">Deadlier races pay more. Win to unlock. The Syndicate loves how committed you are to dying.</p>
