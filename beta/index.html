@@ -295,12 +295,13 @@ const DOORS=[
  {id:'syn',x:1400,sign:'SYNDICATE',n:'Race Syndicate',col:'#ff2bd6',d:'Sign up for worse races. Better money.'},
  {id:'bar',x:1920,sign:'THE RUSTY AIRLOCK',n:'Bar & Fixers',col:'#19f3ff',d:'Gossip, tips and drinks that move.'},
  {id:'down',x:2190,sign:'LOWER MARKET',n:'Stairs to the Lower Market',col:'#b06bff',d:'Clothes, Ninja Alley and your apartment. Mind the puddles.'}];
-const LWORLD=1950,LDOORS=[
+const LWORLD=2400,LDOORS=[
  {id:'threads',x:250,sign:'THREADS',n:'Threads',col:'#ffd23f',d:'Jackets, hats, shades, masks and neon. ¥150 a piece.'},
  {id:'noodle',x:690,sign:'SLURP HOUSE',n:'Slurp House',col:'#ff7a20',d:'Noodle stand. The chef needs a hand. Cook to the beat for tips.'},
  {id:'ninja',x:1130,sign:'NINJA ALLEY',n:'Ninja Alley',col:'#ff3355',d:'Ninjas. In an alley. At night. Bring a broom. Beat 3 waves for ¥8,000.'},
- {id:'apt',x:1560,sign:'APARTMENTS',n:'Bravo Tower Apartments',col:'#7dff6b',d:'Your place. Save your game and change your look in the mirror. Free.'},
- {id:'up',x:1850,sign:'STREET',n:'Stairs up',col:'#19f3ff',d:'Back up to the street.'}];
+ {id:'arcade',x:1570,sign:'VECTOR ARCADE',n:'Vector Arcade',col:'#19f3ff',d:'One cabinet: TIDE RUNNER. Speedboat time trial through flooded Miami. Beat your ghost.'},
+ {id:'apt',x:2010,sign:'APARTMENTS',n:'Bravo Tower Apartments',col:'#7dff6b',d:'Your place. Save your game and change your look in the mirror. Free.'},
+ {id:'up',x:2300,sign:'STREET',n:'Stairs up',col:'#19f3ff',d:'Back up to the street.'}];
 const hubW=()=>HUB.lvl?LWORLD:WORLD,hubDoors=()=>HUB.lvl?LDOORS:DOORS;
 const FILLER=[{x:110,s:'NOODLES',c:'#ff7ac8'},{x:620,s:'PAWN // ORGANS',c:'#ff3355'},{x:1140,s:'CLONE REPAIR',c:'#b06bff'},{x:1660,s:'KARAOKE',c:'#ffd23f'}];
 const WORLD=2300;
@@ -1718,7 +1719,7 @@ function streetDraw(){if(!HUB.L)buildHubLayers();const L=HUB.L,G=L.G,cam=cl(HUB.
  if(!HUB.news){HUB.news=Array.from({length:4},()=>T('NEWS')).join('   ///   ');HUB.nx=W}c.save();c.beginPath();c.rect(66,ty,W-66,22);c.clip();c.font='500 11px "IBM Plex Mono",monospace';c.fillStyle='#ffd23f';c.fillText(HUB.news,HUB.nx,ty+15);c.restore();HUB.nx-=.9;if(HUB.nx<-c.measureText(HUB.news).width){HUB.news=null}
  const vg=c.createRadialGradient(W/2,H*.55,Math.min(W,H)*.35,W/2,H*.55,Math.max(W,H)*.75);vg.addColorStop(0,'rgba(5,2,12,0)');vg.addColorStop(1,'rgba(5,2,12,.55)');c.fillStyle=vg;c.fillRect(0,0,W,H)}
 /* ---------- Lower Market: stairs, jib camera, underground street ---------- */
-const STAIR_X=2190,LOW_ARRIVE=1810,UPD=()=>LDOORS.find(d=>d.id==='up'),ease=k=>k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;
+const STAIR_X=2190,LOW_ARRIVE=2260,UPD=()=>LDOORS.find(d=>d.id==='up'),ease=k=>k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;
 function stairWell(c,xx,G,t){if(xx<-80||xx>W+80)return;c.save();c.fillStyle='#04020a';c.fillRect(xx-30,G-88,60,88);
  for(let i=0;i<7;i++){const y=G-80+i*12,w=56-i*4;c.fillStyle=i%2?'#1a1030':'#24183c';c.fillRect(xx-28+i*3,y,w,7);c.fillStyle='#b06bff55';c.fillRect(xx-28+i*3,y,w,1)}
  c.strokeStyle='#b06bff';c.shadowColor='#b06bff';c.shadowBlur=10;c.lineWidth=2;c.beginPath();c.moveTo(xx-30,G-88);c.lineTo(xx-30,G);c.moveTo(xx+30,G-88);c.lineTo(xx+30,G);c.stroke();
@@ -1758,6 +1759,7 @@ function lowerDraw(cam,full){const c=ctx,G=H*.74,t=HUB.tick,ceil=H*.17;
   else{g=c.createLinearGradient(0,G-90,0,G);g.addColorStop(0,rgba(col,near?.6:.38));g.addColorStop(1,rgba(col,near?.22:.1));c.fillStyle=g;c.fillRect(xx-30,G-90,60,90);c.strokeStyle=col;c.lineWidth=near?3:2;c.shadowColor=col;c.shadowBlur=near?16:6;c.strokeRect(xx-30,G-90,60,90);c.shadowBlur=0;
    for(const sd of[-1,1]){const wx=xx+sd*78-34,wy=G-120;c.fillStyle='rgba(255,255,255,.06)';c.fillRect(wx,wy,68,92);c.strokeStyle=rgba(col,.35);c.lineWidth=1;c.strokeRect(wx,wy,68,92);
     if(d.id==='threads'){for(let m=0;m<2;m++){const mx=wx+18+m*32,my=wy+30,oc=[ '#ff2bd6','#19f3ff','#ffd23f','#7dff6b'][(m+sd+2)%4];c.fillStyle='#d8d0e8';c.beginPath();c.arc(mx,my-12,6,0,TAU);c.fill();c.fillStyle=oc;c.beginPath();c.moveTo(mx-11,my-4);c.lineTo(mx+11,my-4);c.lineTo(mx+8,my+30);c.lineTo(mx-8,my+30);c.closePath();c.fill();c.fillStyle='#2a2440';c.fillRect(mx-1,my+30,2,22)}}
+    else if(d.id==='arcade'){for(let m=0;m<2;m++){const mx=wx+8+m*32,my=wy+14;c.fillStyle='#0a0614';c.fillRect(mx,my,26,70);c.fillStyle=['#ff2bd6','#19f3ff'][m];c.globalAlpha=.6+.4*Math.sin(t*5+m*2);c.fillRect(mx+3,my+8,20,16);c.globalAlpha=1;c.fillStyle='#ffd23f';c.fillRect(mx+5,my+34,6,4);c.fillStyle='#ff3355';c.beginPath();c.arc(mx+18,my+36,3,0,TAU);c.fill()}}
     else if(d.id==='noodle'){for(let m=0;m<2;m++){const mx=wx+18+m*32,my=wy+56;c.fillStyle='#e8e0f0';c.beginPath();c.moveTo(mx-13,my);c.quadraticCurveTo(mx,my+18,mx+13,my);c.closePath();c.fill();c.fillStyle='#c8662a';c.beginPath();c.ellipse(mx,my,13,4,0,0,TAU);c.fill();c.fillStyle=`rgba(255,240,230,${.25+.15*Math.sin(t*2+m)})`;for(let k2=0;k2<3;k2++){c.beginPath();c.arc(mx-5+k2*5,my-10-((t*14+k2*7+m*5)%22),3,0,TAU);c.fill()}}c.fillStyle='#ff4a3a';c.beginPath();c.ellipse(wx+34,wy+16,8,10,0,0,TAU);c.fill()}
     else{for(let r2=0;r2<4;r2++)for(let q=0;q<4;q++){c.fillStyle=(r2*4+q)%5?'#2a2440':'#7dff6b55';c.fillRect(wx+6+q*15,wy+8+r2*14,12,10)}c.fillStyle='#7dff6b';c.font='700 9px Orbitron,sans-serif';c.fillText('▲ 4C',wx+34,wy+80)}}}
   c.save();c.globalCompositeOperation='lighter';for(let i=0;i<8;i++){const ry=G+6+i*(H-G)*.08,wob=Math.sin(t*3+i*1.7+d.x)*3;c.fillStyle=rgba(col,(fl?.09:.03)*(1-i/8));c.fillRect(xx-tw/2*.8+wob,ry,tw*.8,(H-G)*.05)}c.restore()}
@@ -1793,7 +1795,7 @@ function scrApt(){mode='hubshop';const slot=S.slot!=null?`SLOT ${S.slot+1}`:S.sl
  const x=prepPV('#pv',300,300);PV=tt=>{x.clearRect(0,0,300,300);portraitBG(x,300,300,NEON[S.pilot.col],tt);drawPilot(x,150,132,1.32,S.pilot,tt)}}
 ACT.aptMirror=()=>scrForge(true,false,'apt');
 ACT.aptSave=()=>{if(S.slot==null){const f=S.slots.indexOf(null);if(f<0){AU.sfx('deny');toast('All 3 save slots are full. Free one up on the title screen.');return}claimSlot(f)}else save();AU.sfx('buy');buzz([15,30,15]);toast(`Saved to slot ${S.slot+1}.`);scrApt()};
-ACT.enter=id=>{if(id==='down'||id==='up'){hubStairs(id==='down'?1:-1);return}AU.sfx('door');AU.play('lounge');buzz([10,30,10]);({clinic:scrClinic,chop:()=>scrGun('shop'),syn:()=>S.runDone?scrSyndicate():scrRunBrief(),bar:scrBar,ninja:()=>NJ.enter(),noodle:()=>ND.menu(),threads:()=>scrForge(true,false,'threads'),apt:scrApt})[id]()};
+ACT.enter=id=>{if(id==='down'||id==='up'){hubStairs(id==='down'?1:-1);return}AU.sfx('door');AU.play('lounge');buzz([10,30,10]);({clinic:scrClinic,chop:()=>scrGun('shop'),syn:()=>S.runDone?scrSyndicate():scrRunBrief(),bar:scrBar,ninja:()=>NJ.enter(),noodle:()=>ND.menu(),arcade:()=>TR.menu(),threads:()=>scrForge(true,false,'threads'),apt:scrApt})[id]()};
 ACT.hub=()=>{setLegs(BASE_LEGS);scrHub()};
 function crPill(){return`<div class="pill${S.cr<0?' debt':''}" id=gcr>${S.cr<0?'DEBT ':''}${money(S.cr)}</div>`}
 function scrClinic(){mode='hubshop';
@@ -1933,7 +1935,7 @@ function loop(ts){const dt=Math.min(.05,(ts-last)/1000||.016);last=ts;
  if(innerWidth!==W||innerHeight!==H)rs();
  if(mode!=='race'&&R3DON){R3DON=false;window.R3D&&R3D.stop()}
  if(W<4||H<4){requestAnimationFrame(loop);return} // window not laid out yet: skip the frame
- try{if(mode==='race'){raceUpd(dt);if(mode==='race')raceDraw(dt)}else if(mode==='hub'){hubUpd(dt);hubDraw();postFX(.36,0)}else if(mode==='ninja'){NJ.frame(dt)}else if(mode==='noodle'){ND.frame(dt)}else if(mode==='intro'){introDraw(dt);postFX(.5,ISH*.9+IFL*.6)}else{menuDraw(dt);postFX(.32,0)}
+ try{if(mode==='race'){raceUpd(dt);if(mode==='race')raceDraw(dt)}else if(mode==='hub'){hubUpd(dt);hubDraw();postFX(.36,0)}else if(mode==='ninja'){NJ.frame(dt)}else if(mode==='noodle'){ND.frame(dt)}else if(mode==='tide'){TR.frame(dt)}else if(mode==='intro'){introDraw(dt);postFX(.5,ISH*.9+IFL*.6)}else{menuDraw(dt);postFX(.32,0)}
   // auto quality: if the phone can't hold ~40fps in a race, drop chromatic aberration and soften bloom
   if(mode==='race'&&!RC.paused){FT=lerp(FT,dt,.03);if(++FTN>150&&FT>.025&&FXQ>0){FXQ=0;FTN=0}}if(PV)PV(ts/1000)}catch(err){console.error(err)}
  requestAnimationFrame(loop)}
@@ -1941,5 +1943,6 @@ load();rs();HAP.init();if(!S.pilot&&S.runs)S.pilot=randPilot();makeIcon();scrBoo
 </script>
 <script src="./ninja.js"></script>
 <script src="./noodle.js"></script>
+<script src="./tide.js"></script>
 <script type="module" src="./r3d.js"></script>
 </body></html>
