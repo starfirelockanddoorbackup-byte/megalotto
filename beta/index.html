@@ -264,6 +264,18 @@ const LEGS=[
   mix:{gate:.24,coin:.3,drone:.15,pad:.16,rock:.15},pal:{grid:'#ffd0f0',grid2:'#5af0ff'},
   mood:{sky:['#1a0a3a','#c0407a','#ffb070'],below:['#ff9ab0','#04203a'],neb:'#ff5ab4',haze:'#ffb0a0',mote:'#ffd6ea',rim:'#ff9ad5',sun:{x:0,y:.07,r:88,c:'#ffd27a',stripes:1},clouds:{top:'#ffd6e4',bot:'#a04a8a',n:6}}}];
 const LEG_END=(()=>{let a=0;return LEGS.map(l=>(a+=l.f))})();
+/* Blockade Run — the trip back to Mars: sunken Miami → up through the city → orbital blockade → hyperspace portal */
+const BASE_LEGS=LEGS.slice(),RUN_LEGS=[
+ {n:'THE DEEP',sub:'Old Miami, 40 metres down. Hold your breath.',msg:'You are underwater. The ship is not happy about it.',f:.24,scen:'deep',under:1,trk:{cx:1.25,cy:.75,by:.35,rk:1},
+  pal:{grid:'#5af0ff',grid2:'#3a8aff'},mood:{sky:['#010612','#032234','#0a5a6a'],below:['#06384a','#010610'],neb:'#1a8aaa',haze:'#0a4a5a',mote:'#bfffff',rim:'#5af0ff',sun:{x:0,y:.42,r:34,c:'#9af0ff'}}},
+ {n:'THE BREACH',sub:'Straight up through downtown. Mind the penthouses.',msg:'Surface! Now climb.',f:.24,scen:'miami',towers:'deco',water:1,trk:{cx:1.4,cy:.6,by:-.7,rk:1.15},
+  pal:{grid:'#ffd0f0',grid2:'#5af0ff'},mood:{sky:['#0a0420','#5a1a5a','#ff6a8a'],below:['#ff9ab0','#04203a'],neb:'#ff5ab4',haze:'#c06a9a',mote:'#ffd6ea',rim:'#ff9ad5',sun:{x:.2,y:.12,r:30,c:'#ffd27a'},clouds:{top:'#ffb0d0',bot:'#5a2a6a',n:6}}},
+ {n:'ORBITAL BLOCKADE',sub:'They see you. They are not happy.',msg:'Blockade ahead. They shoot first.',f:.36,scen:'fleet',trk:{cx:1.3,cy:1,rk:1.3},
+  pal:{grid:'#ffc49a',grid2:'#ff4a5a'},mood:{sky:['#02020a','#0a0a2a','#2a4a8a'],below:['#2a6aff','#02040c'],neb:'#ff4a5a',haze:'#3a4a8a',mote:'#dfe8ff',rim:'#ffa070',stars:1,sun:{x:.4,y:.2,r:26,c:'#fff2d0'}}},
+ {n:'HYPERSPACE PORTAL',sub:'Hit the light. Do not stop.',msg:'PORTAL LOCK. GO GO GO.',f:.16,scen:'worm',tunnel:1,trk:{cx:1.1,cy:1.1,spin:1.5},
+  pal:{grid:'#ffffff',grid2:'#5af0ff'},mood:{sky:['#020008','#1a0640','#5af0ff'],below:['#3a0a5a','#020008'],neb:'#5af0ff',haze:'#a0e0ff',mote:'#ffffff',rim:'#5af0ff',stars:1}}];
+function setLegs(arr){if(LEGS[0]===arr[0]&&LEGS.length===arr.length)return;LEGS.splice(0,LEGS.length,...arr);LEG_END.length=0;let a=0;for(const l of arr)LEG_END.push(a+=l.f);SKY={}}
+const RUN_C={id:'run',n:'Blockade Run',d:'Back to Mars.',pay:0,len:.6,diff:1.2,req:0,mod:{}};
 /* Mid-race choices. fx: cr (cash), hull, en, dist, risk, ads, msg */
 const EVENTS=[
  {t:'SPONSOR OFFER',q:'{SPONSOR} pays ¥800 to bolt their ad on your windshield.',a:[{l:'Take the cash',fx:{cr:800,ads:1,msg:'Ad on. Can you see? Kinda.'}},{l:'No thanks',fx:{msg:'Pride kept. Worth zero.'}}]},
@@ -1093,7 +1105,7 @@ function trk(d){const tot=RC.total||2300,i=legAt(cl(d/tot,0,.99999)),L=LEGS[i],P
  return{cx,cy,roll}}
 function computeBends(){for(let i=0;i<BZ.length;i++){const z=BZ[i],T=trk(RC.dist+z*.5);BX[i]=.00135*T.cx*z*z;BY[i]=.00135*T.cy*z*z}}
 
-function raceStart(cid){const c=CIRCUITS.find(q=>q.id===cid)||CIRCUITS[0],sh=computeShip();S.lastCirc=cid;
+function raceStart(cid,run){setLegs(run?RUN_LEGS:BASE_LEGS);const c=run?RUN_C:(CIRCUITS.find(q=>q.id===cid)||CIRCUITS[0]),sh=computeShip();if(!run)S.lastCirc=cid;
  const names=[];for(let i=0;names.length<3&&i<40;i++){const n=T('RIVAL');if(n&&!names.includes(n))names.push(n)}while(names.length<3)names.push('UNIT '+ri(10,99));
  for(const k in RC)delete RC[k];
  Object.assign(RC,{c,mod:c.mod||{},ship:sh,total:2300*c.len,dist:0,t:0,hull:sh.hp,mx:sh.hp,en:100,px:0,py:.3,tx:0,ty:.3,vx:0,vy:0,E:[],B:[],L:[],P:[],spd:0,slow:0,boost:false,boostT:0,
@@ -1102,7 +1114,7 @@ function raceStart(cid){const c=CIRCUITS.find(q=>q.id===cid)||CIRCUITS[0],sh=com
   motes:Array.from({length:46},()=>({x:rr(-4,4),y:rr(-2.4,2),z:rr(0,88),ph:R()*6})),
   dmgX:.3+.35*c.diff,intel:S.intel,target:c.mod&&c.mod.target?{state:0,hp:30,mx:30,x:0,y:-.2,z:85,f:1.5,t:'target',r:.3}:null,
   rivals:names.map((n,i)=>({n,c:['#ff2bd6','#ffd23f','#7dff6b'][i],k:[.93,.99,1.04][i]*(.9+.1*c.diff),p:0,live:0})),rank:4});
- S.intel=0;save();drag=null;bh=false;setLimits();computeBends();
+ if(run)Object.assign(RC,{run:1,rivals:[],target:null,ads:false,events:99,bulT:1e9,dmgX:.45,megaT:45,intel:0});else S.intel=0;save();drag=null;bh=false;setLimits();computeBends();
  mode='race';hideUI();setHud(true);AU.play('race');AU.int=0;legStart(0,true);AU.sfx('beep');buzz(15);
  R3DON=!!(window.R3D&&R3D.ok&&S.set.r3d);if(R3DON){try{R3D.start()}catch(err){console.warn('3D start failed, using 2D',err);R3DON=false}}}
 function legStart(i,first){const L=LEGS[i];RC.prevLeg=first?i:RC.leg;RC.leg=i;RC.legBlend=first?1:0;RC.banner=2.8;RC.risk=1;RC.towerT=0;
@@ -1111,7 +1123,8 @@ function legStart(i,first){const L=LEGS[i];RC.prevLeg=first?i:RC.leg;RC.leg=i;RC
  if(L.tunnel){RC.msg='Gravity is off. Up is wherever.';RC.msgT=3}
  if(L.trk.half){RC.msg='Dodge the beams. Skim black holes for boost.';RC.msgT=3}
  if(L.burn){RC.msg=RC.ship.c.id==='shroud'?'Heat shroud on. Nice.':'No heat shroud. You will cook.';RC.msgT=3.5}
- if(L.water){RC.msg='Welcome to Miami. Mostly underwater.';RC.msgT=3}}
+ if(L.water){RC.msg='Welcome to Miami. Mostly underwater.';RC.msgT=3}
+ if(L.msg){RC.msg=L.msg;RC.msgT=3}}
 let XL=1,YL=.75,YU=.75;function setLimits(){const port=innerHeight>innerWidth;XL=port?1.1:1.04;YU=port?1.3:.82;YL=port?.8:.78}
 function hurt(n,cause){if(RC.over)return;if(RC.br&&RC.br.t<.5){if(!RC.br.dodged){RC.br.dodged=1;RC.dodges++;RC.score+=50;RC.msg='DODGED!';RC.msgT=.9;AU.sfx('gate');buzz(10)}return}kick(11);RC.caHit=.7;RC.hull-=n*RC.dmgX;if(n>=10){RC.en=Math.max(0,RC.en-15);RC.score=Math.max(0,RC.score-40);RC.hits=(RC.hits||0)+1;if(RC.msgT<.4){RC.msg=pick(['IMPACT // −15% BOOST','HULL HIT // −40','THAT LEFT A MARK']);RC.msgT=.8}}if(!RC.ship.pain)RC.slow=1.5;RC.shake=.35;RC.flash=.35;RC.fc='#ff2b4d';AU.sfx('hit');buzz([45,25,45]);if(RC.hull<=0)raceEnd(false,cause)}
 const MEGA={0:{k:'mesa',n:'MOUNTAIN',ax:'x',cause:'a Martian mountain. It did not move'},4:{k:'destroyer',n:'DESTROYER',ax:'y',cause:'a star destroyer. It had right of way'},6:{k:'tower',n:'BUILDING',ax:'x',cause:'a Miami high-rise. Penthouse delivery'}};
@@ -1124,10 +1137,21 @@ function spawnMega(w){const M=w.M,s=w.s,g=.42,o={t:'mega',k:M.k,n:M.n,ax:M.ax,s,
  if(M.ax==='x'){const edge=XL*(1-2*g);if(s>0){o.x0=-XL-3;o.x1=edge}else{o.x0=-edge;o.x1=XL+3}o.y0=-YU-3.2;o.y1=1.5}
  else{const rg=YU+YL;o.x0=-XL-3.5;o.x1=XL+3.5;if(s<0){o.y0=-YU+g*rg;o.y1=YL+1.4}else{o.y0=-YU-1.4;o.y1=YL-g*rg}}
  o.x=cl(RC.px,o.x0,o.x1);o.y=cl(RC.py,o.y0,o.y1);RC.E.push(o)}
+const RUN_MEGA={reef:{k:'reef',n:'WRECK',ax:'x',cause:'a sunken freighter. Still sinking'},tower:{k:'tower',n:'TOWER',ax:'x',cause:'a drowned skyscraper'},destroyer:{k:'destroyer',n:'DESTROYER',ax:'y',cause:'the blockade. They did warn you'}},RUN_KINDS=[['reef','tower','reef'],['tower','tower','reef'],['destroyer'],[]];
+function runMegaTick(dt){if(RC.over)return;const ks=RUN_KINDS[RC.leg]||[];RC.megaT-=RC.spd*dt;
+ if(ks.length&&RC.megaT<=0&&!RC.megaOn&&RC.dist<RC.total-150){RC.megaT=rr(55,90);const M=RUN_MEGA[pick(ks)],s=R()<.5?-1:1;RC.megaOn=1;RC.megaW={M,s,t:.45};
+  RC.E=RC.E.filter(e=>!(e.z>70&&HIT[e.t]));RC.msg='⚠ '+M.n+' // '+megaDir(M.k,s);RC.msgT=2;AU.sfx('warn');buzz([30,30,30])}
+ const w=RC.megaW;if(w&&w.t>0){w.t-=dt;if(w.t<=0)spawnMega(w)}}
+function runSpawn(){const i=RC.leg,r=R(),big=n=>{for(let k=0;k<n;k++)add({t:'rock',x:rr(-.9,.9),y:rr(-.65,.65),r:rr(.3,.5),hp:9,sh:Array.from({length:8},()=>rr(.7,1.1)),rot:0,sp:rr(-1.5,1.5),z:k*5,moss:i===0})},
+ las=()=>add({t:'laser',vert:R()<.5,p:rr(-.6,.6),ph:R()*TAU,per:rr(1.3,1.9),r:0}),beam=()=>add({t:'beam',ang:rr(-1,1),off:rr(-.45,.45),c:pick(['#ff3355','#5ab0ff']),r:0}),pad=()=>add({t:'pad',x:rr(-.6,.6),y:rr(-.4,.45),r:.3});
+ if(i===0){r<.65?big(1+(R()<.4)):r<.88?las():pad()}
+ else if(i===1){r<.5?big(1+(R()<.5)):r<.8?las():pad()}
+ else if(i===2){r<.35?big(2):r<.85?beam():las()}
+ else{r<.5?big(1):r<.75?las():pad()}}
 function megaHit(e){const m=.09,inside=RC.px>e.x0-m&&RC.px<e.x1+m&&RC.py>e.y0-m&&RC.py<e.y1+m;RC.megaOn=0;RC.megaW=null;
- if(inside){const rolled=RC.br&&RC.br.t<.5;hurt(RC.mx*.5/RC.dmgX,e.cause);
+ if(inside){const rolled=RC.br&&RC.br.t<.5;hurt(RC.mx*(RC.run?.34:.5)/RC.dmgX,e.cause);
   if(rolled){RC.score+=250;RC.msg='YOU BARREL ROLLED THROUGH A '+e.n+'?! +250';RC.msgT=2}
-  else if(!RC.over){RC.msg=pick(['HALF YOUR HULL. GONE.','THAT WAS LOAD-BEARING.','THE '+e.n+' WINS THAT ONE.']);RC.msgT=2;RC.shake=.9;RC.flash=.6;kick(16);boomAt(W/2,H*.55,1.6,'#ff7a20',40)}}
+  else if(!RC.over){RC.msg=pick([RC.run?'BIG HIT. KEEP GOING.':'HALF YOUR HULL. GONE.','THAT WAS LOAD-BEARING.','THE '+e.n+' WINS THAT ONE.']);RC.msgT=2;RC.shake=.9;RC.flash=.6;kick(16);boomAt(W/2,H*.55,1.6,'#ff7a20',40)}}
  else{RC.score+=150;RC.near++;RC.msg=pick(['CLEARED THE '+e.n+' +150','THREADED IT +150','NOT TODAY, '+e.n+' +150']);RC.msgT=1.6;AU.sfx('gate');buzz([15,15,15]);kick(5);RC.flash=.2;RC.fc='#7dff6b'}}
 function drawMega(){const w=RC.megaW,e=RC.E.find(o=>o.t==='mega'&&!o.hit);if(!e&&!(w&&w.t>0))return;const k=e?e.k:w.M.k,s=e?e.s:w.s,ax=e?e.ax:w.M.ax;
  const a=.55+.45*Math.sin(RC.t*14),cx=ax==='x'?W/2+s*Math.min(W*.3,170):W/2,cy=ax==='x'?H*.4:H*.46+s*Math.min(H*.24,170),sz=Math.min(W,H)*.07;
@@ -1154,7 +1178,7 @@ function spawnFrom(L){const m=Object.assign({},L.mix),M=RC.mod;m.repair=.045+(RC
  else if(ty==='pad')add({t:'pad',x:rr(-.6,.6),y:rr(-.4,.45),r:.3*rf})}
 const HIT={rock:1,drone:1,adsat:1,rival:1,bully:1};
 const BULLY_N=['BUMPER','TAILGATER','LIL MEAN','ROAD RAGE','SHOVEL','KAREN-9','NO BRAKES','CUTTER'];
-function damage(e,d){e.hp-=d;if(e.t==='rival')RC.rivals[e.ri].p-=.0015*d;const[sx,sy,s]=P(e.x,e.y,e.z);boomAt(sx,sy,s,'#19f3ff',3);if(e.hp<=0)kill(e)}
+function damage(e,d){if(RC.run){const[sx,sy,s]=P(e.x,e.y,e.z);boomAt(sx,sy,s,'#9aa',2);if(!RC.rkMsg){RC.rkMsg=1;RC.msg='Weapons do nothing here. FLY.';RC.msgT=1.8}return}e.hp-=d;if(e.t==='rival')RC.rivals[e.ri].p-=.0015*d;const[sx,sy,s]=P(e.x,e.y,e.z);boomAt(sx,sy,s,'#19f3ff',3);if(e.hp<=0)kill(e)}
 function kill(e){if(e.dead)return;e.dead=1;AU.sfx('boom');kick(e.t==='rival'?5:1.4);
  if(e.t==='rock'){RC.score+=10;RC.cash+=2;boom(e,e.fire?'#ffb020':'#ff9ad5')}
  if(e.t==='drone'){RC.score+=25;RC.cash+=15;RC.kills++;boom(e,'#19f3ff',18)}
@@ -1210,8 +1234,8 @@ function raceUpd(dt){RC.t+=dt;
   RC.E.push({t:'bully',mode:push?'push':'speed',st:0,n:pick(BULLY_N),c:pick(['#ff6a3a','#b06bff','#3aff9a','#ff3a8a']),x:cl(RC.px+side*.7,-XL,XL),y:cl(RC.py+rr(-.3,.3),-YU,YL),z:push?-9:-12,r:.22,hp:3,ph:R()*6,side});
   RC.msg=push?'Bully on your tail!':'Speeder incoming!';RC.msgT=1.4;AU.sfx('warn')}}
  // hazards + flanking scenery
- RC.spT-=RC.spd*dt;if(RC.spT<=0){RC.spT=rr(6.4,10.6)*(1.15-pr*.35)/(RC.risk*(.85+.15*RC.c.diff));if(!RC.megaOn)spawnFrom(L)}
- megaTick(dt,pr);
+ RC.spT-=RC.spd*dt;if(RC.spT<=0){RC.spT=rr(6.4,10.6)*(1.15-pr*.35)/(RC.risk*(.85+.15*RC.c.diff));if(!RC.megaOn)(RC.run?runSpawn():spawnFrom(L))}
+ RC.run?runMegaTick(dt):megaTick(dt,pr);
  if(L.towers){RC.towerT-=RC.spd*dt;if(RC.towerT<=0){RC.towerT=rr(3.5,6.5);for(const s of[-1,1])if(R()<.85)add({t:'tower',x:s*rr(1.9,3.4),y:0,h:L.towers==='mesa'?rr(1.4,3):rr(2.6,6.5),w:rr(.55,1.05),style:L.towers,seed:ri(1,9999),col:pick(['#ff5ab4','#3af0ff','#ffd27a','#b07aff']),r:0})}}
  // assassination target
  const tg=RC.target;
@@ -1356,7 +1380,7 @@ function drawTrack(){const L=LEGS[RC.leg],Lp=LEGS[RC.prevLeg],b=RC.legBlend;
  ctx.globalAlpha=1;
  const M=L.mood,vp=RC.vp,hz=ctx.createRadialGradient(vp[0],vp[1],0,vp[0],vp[1],Math.max(W,H)*.55);hz.addColorStop(0,rgba(M.haze,.32));hz.addColorStop(1,rgba(M.haze,0));ctx.fillStyle=hz;ctx.fillRect(0,0,W,H)}
 /* ---------- Entities ---------- */
-function drawE(e){if(e.z<-1.5)return;if(e.t==='mega'){if(e.z<.2)return;const lim=v=>cl(v,-XL-1.4,XL+1.4),A=P(lim(e.x0),cl(e.y0,-YU-1.6,1.5),e.z),B=P(lim(e.x1),cl(e.y1,-YU-1.6,1.5),e.z),c=e.k==='mesa'?['#5a2018','#ff7a20']:e.k==='tower'?['#1a1030','#ff4fd8']:['#1c2030','#ff3355'];
+function drawE(e){if(e.z<-1.5)return;if(e.t==='mega'){if(e.z<.2)return;const lim=v=>cl(v,-XL-1.4,XL+1.4),A=P(lim(e.x0),cl(e.y0,-YU-1.6,1.5),e.z),B=P(lim(e.x1),cl(e.y1,-YU-1.6,1.5),e.z),c=e.k==='reef'?['#0a3a3a','#5af0ff']:e.k==='mesa'?['#5a2018','#ff7a20']:e.k==='tower'?['#1a1030','#ff4fd8']:['#1c2030','#ff3355'];
  ctx.globalAlpha=cl((110-e.z)/20,0,1);ctx.beginPath();ctx.rect(A[0],A[1],B[0]-A[0],B[1]-A[1]);ctx.fillStyle=c[0];ctx.fill();glowStroke(ctx,c[1],3);
  if(e.k==='tower'){ctx.fillStyle='#ffd6a0';const cw=(B[0]-A[0])/9,ch=(B[1]-A[1])/18;for(let i=1;i<9;i+=2)for(let j=1;j<18;j+=2)if((i*7+j*3)%5)ctx.fillRect(A[0]+i*cw,A[1]+j*ch,cw*.6,ch*.5)}
  ctx.globalAlpha=1;return}const[sx,sy,s]=P(e.x,e.y,Math.max(e.z,.01)),r=e.r*U*s,pal=LEGS[RC.leg].pal;ctx.globalAlpha=cl((92-e.z)/22,0,1);ctx.beginPath();
@@ -1450,7 +1474,7 @@ function raceDraw3D(dt){R3D.frame(dt);ctx.clearRect(0,0,W,H);const M=LEGS[RC.leg
  if(!RC.over||RC.win)raceHUD()}
 function raceHUD(){const pr=cl(RC.dist/RC.total,0,1),L=LEGS[RC.leg];
  drawMap(12,SAT+10,W-24,46,false,RC.rivals.map(r=>({p:r.p,c:r.c})).concat(RC.target&&RC.target.state===1?[{p:pr+RC.target.z*.00017,c:'#ffd23f'}]:[]).concat([{p:pr,c:NEON[S.pilot.col],me:1}]));
- ctx.font='900 18px Orbitron,monospace';ctx.textAlign='left';ctx.fillStyle='#19f3ff';ctx.fillText('P'+RC.rank+'/4',14,SAT+86);
+ ctx.font='900 18px Orbitron,monospace';ctx.textAlign='left';ctx.fillStyle='#19f3ff';ctx.fillText(RC.run?'RUN':'P'+RC.rank+'/4',14,SAT+86);
  ctx.font='700 10px "IBM Plex Mono",monospace';ctx.fillStyle='#c8bce8';ctx.fillText(L.n,66,SAT+84);
  ctx.textAlign='right';ctx.font='700 15px Orbitron,monospace';ctx.fillStyle='#e8f7ff';ctx.fillText(fmt(RC.spd*37)+' km/s',W-14,SAT+84);
  ctx.font='700 12px Orbitron,monospace';ctx.fillStyle='#ffd23f';ctx.fillText('¥'+fmt(RC.cash),W-14,SAT+103);
@@ -1484,7 +1508,7 @@ function scrScores(cid){mode='menu';const ids=CIRCUITS.map(c=>c.id),cur=cid||S.l
  <button class="btn ghost wide" data-a=${SCORE_BACK}>Back</button>`)}
 let SCORE_BACK='title';ACT.scores=v=>scrScores(v);ACT.scoresT=()=>{SCORE_BACK='title';scrScores()};ACT.scoresS=()=>{SCORE_BACK='syn';scrScores()};ACT.syn=()=>scrSyndicate();
 function receipt(rows){return`<div class=rcpt>${rows.map(([l,v,c])=>`<div class="${c||''}"><span>${esc(l)}</span><span>${v}</span></div>`).join('')}</div>`}
-function outcomeDeath(){const c=RC.c,sh=RC.ship,pr=cl(RC.dist/RC.total,0,1),pct=Math.round(pr*100);
+function outcomeDeath(){if(RC.run)return runFail();S.runDone=0;const c=RC.c,sh=RC.ship,pr=cl(RC.dist/RC.total,0,1),pct=Math.round(pr*100);
  const clean=Math.round((400+RC.mx*3+c.pay*.08)*sh.debtx),dmg=ri(200,900)+RC.kills*120,before=S.cr;
  S.cr-=clean+dmg;S.deaths++;S.runs++;S.best=Math.max(S.best,pct);save();
  mode=S.hub?'hubshop':'menu';AU.play('dread');
@@ -1499,7 +1523,7 @@ function outcomeDeath(){const c=RC.c,sh=RC.ship,pr=cl(RC.dist/RC.total,0,1),pct=
   x.strokeStyle='#ff3355';x.lineWidth=2;x.strokeRect(6,6,288,208);x.fillStyle='#0b0618';x.fillRect(7,192,286,21);x.fillStyle='#ff3355';x.font='700 11px "IBM Plex Mono",monospace';x.textAlign='center';x.fillText('STATUS: SOLD FOR PARTS',150,207)}}
 ACT.ticket=()=>scrTicket();
 ACT.wake=()=>scrHub('Clinic stitched you back together. Bill attached.');
-function outcomeWin(){const c=RC.c,sh=RC.ship,rank=1+RC.rivals.filter(r=>r.p>=1).length,pm=[1.5,1,.7,.5][rank-1];
+function outcomeWin(){if(RC.run)return runWin();S.runDone=0;const c=RC.c,sh=RC.ship,rank=1+RC.rivals.filter(r=>r.p>=1).length,pm=[1.5,1,.7,.5][rank-1];
  let purse=Math.round(c.pay*pm);const rows=[[`Prize (${['1ST','2ND','3RD','4TH'][rank-1]} ×${pm})`,'+'+money(purse),'p']];
  if(c.mod&&c.mod.target){if(RC.target.state===2){const b=Math.round(c.pay*.5);rows.push(['Nephew bonus','+'+money(b),'p']);purse+=b}else{const lost=Math.round(purse*.7);rows.push(['Job cancelled (he lived)','−'+money(lost),'n']);purse-=lost}}
  const spon=Math.round(purse*(sh.pay-1));if(spon)rows.push(['Sponsor + implant bonus','+'+money(spon),'p']);
@@ -1660,8 +1684,8 @@ function hubDraw(){if(!HUB.L)buildHubLayers();const L=HUB.L,G=L.G,cam=cl(HUB.x-W
  const ty=SAT+64;c.fillStyle='#05030bcc';c.fillRect(0,ty,W,22);c.fillStyle='#ff3355';c.fillRect(0,ty,64,22);c.font='700 10px Orbitron,sans-serif';c.textAlign='left';c.fillStyle='#fff';c.fillText('LIVE',16,ty+15);
  if(!HUB.news){HUB.news=Array.from({length:4},()=>T('NEWS')).join('   ///   ');HUB.nx=W}c.save();c.beginPath();c.rect(66,ty,W-66,22);c.clip();c.font='500 11px "IBM Plex Mono",monospace';c.fillStyle='#ffd23f';c.fillText(HUB.news,HUB.nx,ty+15);c.restore();HUB.nx-=.9;if(HUB.nx<-c.measureText(HUB.news).width){HUB.news=null}
  const vg=c.createRadialGradient(W/2,H*.55,Math.min(W,H)*.35,W/2,H*.55,Math.max(W,H)*.75);vg.addColorStop(0,'rgba(5,2,12,0)');vg.addColorStop(1,'rgba(5,2,12,.55)');c.fillStyle=vg;c.fillRect(0,0,W,H)}
-ACT.enter=id=>{AU.sfx('door');AU.play('lounge');buzz([10,30,10]);({clinic:scrClinic,chop:()=>scrGun('shop'),syn:scrSyndicate,bar:scrBar})[id]()};
-ACT.hub=()=>scrHub();
+ACT.enter=id=>{AU.sfx('door');AU.play('lounge');buzz([10,30,10]);({clinic:scrClinic,chop:()=>scrGun('shop'),syn:()=>S.runDone?scrSyndicate():scrRunBrief(),bar:scrBar})[id]()};
+ACT.hub=()=>{setLegs(BASE_LEGS);scrHub()};
 function crPill(){return`<div class="pill${S.cr<0?' debt':''}" id=gcr>${S.cr<0?'DEBT ':''}${money(S.cr)}</div>`}
 function scrClinic(){mode='hubshop';
  show(`<div class=kick>SPACEPORT BRAVO // BACK-ALLEY CLINIC</div><h2>The Clinic</h2>${crPill()}<canvas id=pv class=pv></canvas>
@@ -1674,6 +1698,19 @@ ACT.aug=id=>{const a=AUGS.find(q=>q.id===id);if(hasAug(id)){toast("Already in yo
  if(S.cr<a.price){AU.sfx('deny');buzz([30,30,30]);toast('No cash. The surgeon still likes you. Barely.');return}
  S.cr-=a.price;S.aug.push(id);save();AU.sfx('buy');buzz([40,30,60]);toast(`${a.n} installed. Mostly painless.`);$('#gcr').textContent=money(S.cr);renderAugs()};
 ACT.aes=()=>scrForge(true,true);
+function scrRunBrief(){mode='hubshop';AU.sfx('warn');buzz([20,30,20]);
+ show(`<div class=kick>RACE SYNDICATE // EARTH OFFICE</div><h2>The races are on Mars.</h2>${crPill()}
+ <div class=term><div>&gt; Earth exit permit: REQUIRED.</div><div>&gt; Permit office: underwater since the flood.</div><div>&gt; Orbital blockade: VERY ANGRY.</div></div>
+ <p class=lead style="font-size:15px">Get through the blockade the old way. Start in the drowned city, punch up through downtown, slip past the fleet, and dive into the hyperspace portal. Weapons won’t scratch any of it. Just fly.</p>
+ <button class="btn wide" data-a=runGo>🚀 Run the blockade</button><button class="btn ghost wide" data-a=hub>Back to the street</button>`)}
+ACT.runGo=()=>{AU.sfx('ui');buzz(15);raceStart('run',1)};
+function runWin(){const t=RC.t,hp=Math.round(cl(RC.hull/RC.mx,0,1)*100),near=RC.near;setLegs(BASE_LEGS);S.runDone=1;save();mode='hubshop';AU.play('lounge');
+ show(`<div class=kick>HYPERSPACE // ARRIVAL: MARS ORBIT</div><h2>You made it through.</h2><p class=lead style="font-size:15px">The blockade is filing a complaint. The Syndicate is impressed. Mars is right there.</p>
+ <div class=term><div>&gt; Time: ${t.toFixed(1)}s</div><div>&gt; Hull left: ${hp}%</div><div>&gt; Close calls: ${near}</div></div>
+ <button class="btn wide" data-a=syn>Race Syndicate →</button>`)}
+function runFail(){const pct=Math.round(cl(RC.dist/RC.total,0,1)*100),why=RC.cause;setLegs(BASE_LEGS);mode='hubshop';AU.play('lounge');
+ show(`<div class=kick>BLOCKADE // TURNED BACK</div><h2>Shot down at ${pct}%</h2><p class=lead style="font-size:15px">Taken out by ${esc(why)}. The Syndicate fishes you out of the bay. No charge. This time.</p>
+ <button class="btn wide" data-a=runGo>Try again (free)</button><button class="btn ghost wide" data-a=hub>Back to the street</button>`)}
 function scrSyndicate(){mode='hubshop';
  show(`<div class=kick>SPACEPORT BRAVO // RACE SYNDICATE</div><h2>Races</h2>${crPill()}
  <p class=lead style="font-size:15px">Deadlier races pay more. The Syndicate admires your commitment to dying.</p>

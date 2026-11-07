@@ -44,7 +44,7 @@ const TXT=new Map();function textCached(t){if(!TXT.has(t))TXT.set(t,textTex(t,'#
 /* ---------- leg moods → colours (blended on leg change) ---------- */
 function buildMoods(){LEGS.forEach((L,i)=>{const M=L.mood,s=M.sun;MOOD[i]={top:C(M.sky[0]),mid:C(M.sky[1]),hor:C(M.sky[2]),b0:C(M.below[0]),b1:C(M.below[1]),haze:C(M.haze),
   sunC:s?C(s.c):C('#000000'),sunDir:new V3(s?s.x*1.3:.3,s?s.y*1.5+.03:.2,-1).normalize(),sunSize:s?s.r*.0011:0,stars:M.stars?1:0,stripes:s&&s.stripes?1:0,
-  grid:C(L.pal.grid),grid2:C(L.pal.grid2),rim:C(M.rim),fogFar:L.tunnel?800:(M.stars?1100:760),fogNear:L.tunnel?140:110}})}
+  grid:C(L.pal.grid),grid2:C(L.pal.grid2),rim:C(M.rim),fogFar:L.under?330:L.tunnel?800:(M.stars?1100:760),fogNear:L.under?25:L.tunnel?140:110}})}
 const cur={};function moodNow(){const a=MOOD[RC.prevLeg]||MOOD[0],b=MOOD[RC.leg]||MOOD[0],k=RC.legBlend;
  for(const key of['top','mid','hor','b0','b1','haze','sunC','grid','grid2','rim']){cur[key]=(cur[key]||new COL()).copy(a[key]).lerp(b[key],k)}
  cur.sunDir=(cur.sunDir||new V3()).copy(a.sunDir).lerp(b.sunDir,k).normalize();
@@ -85,6 +85,7 @@ function shared(){
  MAT.mesa=new THREE.MeshStandardMaterial({color:'#9a4232',roughness:.95,flatShading:true});
  MAT.megaRock=new THREE.MeshStandardMaterial({color:'#b0503a',roughness:.9,flatShading:true,emissive:'#3a0c06',emissiveIntensity:1});
  MAT.hullD=new THREE.MeshStandardMaterial({color:'#5a6488',metalness:.5,roughness:.4,flatShading:true,emissive:'#2a3466',emissiveIntensity:1.3});
+ MAT.reef=new THREE.MeshStandardMaterial({color:'#2a6a6a',roughness:.85,flatShading:true,emissive:'#06303a',emissiveIntensity:1});
  MAT.orange=new THREE.MeshBasicMaterial({color:new COL('#ff7a20').multiplyScalar(2.4),toneMapped:false});
  MAT.pink=new THREE.MeshBasicMaterial({color:new COL('#ff4fd8').multiplyScalar(2.4),toneMapped:false});
  MAT.tower=new THREE.MeshStandardMaterial({color:'#1a1030',roughness:.6,metalness:.2,emissiveMap:winTex,emissive:'#ffffff',emissiveIntensity:1.4,map:winTex});
@@ -137,10 +138,10 @@ function makeEnt(e){const g=new THREE.Group();let m;
  return g}
 function megaMesh(e,g){const W=(e.x1-e.x0)*SX,H=(e.y1-e.y0)*SY,cx=(e.x0+e.x1)/2*SX,cy=-(e.y0+e.y1)/2*SY,D=(e.k==='destroyer'?7:5)*SZ,box=(mat,w,h,d,x,y,z)=>{const m=new THREE.Mesh(GEO.box,mat);m.scale.set(w,h,d);m.position.set(x,y,z);g.add(m);return m};
  const ex=(e.s>0?e.x1:e.x0)*SX,ey=-(e.s<0?e.y0:e.y1)*SY;g.userData.muz=[];
- if(e.k==='mesa'){const geo=new THREE.BoxGeometry(1,1,1,7,9,3),pa=geo.attributes.position;for(let i=0;i<pa.count;i++){const y=pa.getY(i),k=.5-y;pa.setX(i,pa.getX(i)*(1-k*.08)+(Math.random()-.5)*.05);pa.setZ(i,pa.getZ(i)+(Math.random()-.5)*.08)}geo.computeVertexNormals();
-  const m=new THREE.Mesh(geo,MAT.megaRock);m.scale.set(W,H,D);m.position.set(cx,cy,-D/2);g.add(m);
-  for(let i=0;i<4;i++){const r=new THREE.Mesh(GEO.rock,MAT.megaRock);const sc=W*(.16+Math.random()*.14);r.scale.set(sc,sc*1.6,sc);r.position.set(cx+(i-1.5)*W*.22,cy+H/2+sc*.6,-D*(.3+Math.random()*.4));g.add(r)}
-  box(MAT.orange,.22,H,.22,ex-e.s*.12,cy,.05);for(let k=0;k<6;k++){const s=glow(new COL('#ff7a20').multiplyScalar(1.6),3);s.position.set(ex,cy-H/2+H*(k+.5)/6,.3);g.add(s)}}
+ if(e.k==='mesa'||e.k==='reef'){const RM=e.k==='reef'?MAT.reef:MAT.megaRock,EC=e.k==='reef'?'#5af0ff':'#ff7a20';const geo=new THREE.BoxGeometry(1,1,1,7,9,3),pa=geo.attributes.position;for(let i=0;i<pa.count;i++){const y=pa.getY(i),k=.5-y;pa.setX(i,pa.getX(i)*(1-k*.08)+(Math.random()-.5)*.05);pa.setZ(i,pa.getZ(i)+(Math.random()-.5)*.08)}geo.computeVertexNormals();
+  const m=new THREE.Mesh(geo,RM);m.scale.set(W,H,D);m.position.set(cx,cy,-D/2);g.add(m);
+  for(let i=0;i<4;i++){const r=new THREE.Mesh(GEO.rock,RM);const sc=W*(.16+Math.random()*.14);r.scale.set(sc,sc*1.6,sc);r.position.set(cx+(i-1.5)*W*.22,cy+H/2+sc*.6,-D*(.3+Math.random()*.4));g.add(r)}
+  box(e.k==='reef'?MAT.cyan:MAT.orange,.22,H,.22,ex-e.s*.12,cy,.05);for(let k=0;k<6;k++){const s=glow(new COL(EC).multiplyScalar(1.6),3);s.position.set(ex,cy-H/2+H*(k+.5)/6,.3);g.add(s)}}
  else if(e.k==='tower'){const tex=winTex.clone();tex.needsUpdate=true;tex.wrapS=tex.wrapT=THREE.RepeatWrapping;tex.repeat.set(3,6);const mat=MAT.tower.clone();mat.map=tex;mat.emissiveMap=tex;
   box(mat,W,H,D,cx,cy,-D/2);box(MAT.pink,W*1.02,.3,D*1.02,cx,cy+H/2,-D/2);box(MAT.pink,.24,H,.24,ex-e.s*.12,cy,.05);box(MAT.cyan,W*1.01,.12,.12,cx,cy+H*.25,.04);
   const an=box(MAT.metal,.15,6,.15,cx,cy+H/2+3,-D/2);const b=glow(new COL('#ff3355').multiplyScalar(2),2.4);b.position.set(cx,cy+H/2+6,-D/2);g.add(b)}
@@ -223,7 +224,15 @@ function buildRoute(){if(route){scene.remove(route);route.traverse(n=>{if(n.geom
  const wm=new THREE.MeshBasicMaterial({map:chevTex,vertexColors:true,transparent:true,side:THREE.DoubleSide,depthWrite:false,toneMapped:false});
  for(const s of[-1.8,1.8]){const w=ribbon(-8,end,[s,s],[1.5,1.02],2,wm,'grid2',.33);const uv=w.geometry.attributes.uv;for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getY(i),i%2);route.add(w)}
  // per-leg grounds & scenery
+ if(RC.run){const P=new V3(),Q=new QT(),pg=new THREE.Group();abs(RC.total+4,0,0,P,Q);pg.position.copy(P);pg.quaternion.copy(Q);
+  const ring=new THREE.Mesh(GEO.ring,MAT.cyan);ring.scale.setScalar(2.6*SX);pg.add(ring);const r2=new THREE.Mesh(GEO.ring,MAT.pink);r2.scale.setScalar(2.2*SX);pg.add(r2);
+  const d=new THREE.Mesh(GEO.sph,new THREE.MeshBasicMaterial({color:new COL('#bff8ff').multiplyScalar(1.6),toneMapped:false,transparent:true,opacity:.55,depthWrite:false}));d.scale.set(2.3*SX,2.3*SX,.5);pg.add(d);
+  pg.add(glow(new COL('#5af0ff').multiplyScalar(2),9*SX));route.add(pg);route.userData.portal=pg}
  LEGS.forEach((L,i)=>{const[a,b]=legRange(i);
+  if(L.under){const sand=dustMat();sand.fragmentShader=sand.fragmentShader.replace('vec3(.32,.12,.08),vec3(.62,.3,.2)','vec3(.04,.16,.18),vec3(.16,.34,.3)');route.add(ribbon(a-30,b+20,[-90,-30,-8,-2.2,2.2,8,30,90],2.1,4,sand,null,.05));
+   const sm=waterMat();sm.side=THREE.DoubleSide;route.add(ribbon(a-30,b+40,[-90,-30,-8,-2.2,2.2,8,30,90],-3.6,4,sm,null,.05));
+   const im=new THREE.InstancedMesh(GEO.tower,MAT.tower,140),M4=new THREE.Matrix4(),P=new V3(),Q=new QT(),Sc=new V3();for(let k=0;k<140;k++){const d=a-20+Math.random()*(b-a+40),side=Math.random()<.5?-1:1;abs(d,side*rr(5,50),2.1,P,Q);Q.multiply(new QT().setFromAxisAngle(new V3(0,0,1),rr(-.25,.25)));Sc.set(rr(6,16),rr(14,30),rr(6,16));M4.compose(P,Q,Sc);im.setMatrixAt(k,M4)}im.instanceMatrix.needsUpdate=true;im.computeBoundingSphere();route.add(im);
+   const rm=new THREE.MeshBasicMaterial({color:new COL('#9af8ff'),transparent:true,opacity:.07,blending:THREE.AdditiveBlending,depthWrite:false,toneMapped:false});for(let k=0;k<36;k++){const m=new THREE.Mesh(GEO.cyl,rm);abs(a+Math.random()*(b-a),rr(-6,6),-1,m.position,m.quaternion);m.rotateZ(rr(-.35,.35));m.scale.set(rr(.6,2.2),14,rr(.6,2.2));route.add(m)}}
   if(L.scen==='canyon'){route.add(ribbon(a-20,b+30,[-70,-20,-6,-2.2,2.2,6,20,70],[1.9,1.9,1.9,1.7,1.7,1.9,1.9,1.9],4,dustMat(),null,.05));
    const im=new THREE.InstancedMesh(GEO.mesa,MAT.mesa,140),M4=new THREE.Matrix4(),P=new V3(),Q=new QT(),Sc=new V3();for(let k=0;k<140;k++){const d=a+Math.random()*(b-a),side=Math.random()<.5?-1:1;abs(d,side*rr(5,30),1.9,P,Q);Sc.set(rr(6,22),rr(10,60),rr(6,22));M4.compose(P,Q,Sc);im.setMatrixAt(k,M4)}im.instanceMatrix.needsUpdate=true;im.computeBoundingSphere();route.add(im)}
   if(L.scen==='belt'){const im=new THREE.InstancedMesh(GEO.rock,MAT.rock,300),M4=new THREE.Matrix4(),P=new V3(),Q=new QT(),Sc=new V3();for(let k=0;k<300;k++){const d=a-40+Math.random()*(b-a+80),side=Math.random()<.5?-1:1;abs(d,side*rr(4,40),rr(-14,9),P,Q);Q.random();Sc.setScalar(rr(1.5,9));M4.compose(P,Q,Sc);im.setMatrixAt(k,M4)}im.instanceMatrix.needsUpdate=true;im.computeBoundingSphere();route.add(im)}
@@ -232,8 +241,8 @@ function buildRoute(){if(route){scene.remove(route);route.traverse(n=>{if(n.geom
    const bm=[];for(let k=0;k<6;k++){const m=new THREE.Mesh(GEO.cyl,new THREE.MeshBasicMaterial({color:new COL(k%2?'#5ab0ff':'#ff4a5a').multiplyScalar(3),toneMapped:false,transparent:true}));route.add(m);bm.push(m)}route.userData.beams={bm,a,b}}
   if(L.scen==='entry'){const g=new THREE.PlaneGeometry(6000,6000);const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({map:cloudTex,color:'#ffc8a0',transparent:true,opacity:.85,depthWrite:false}));m.material.map=m.material.map.clone();m.material.map.wrapS=m.material.map.wrapT=THREE.RepeatWrapping;m.material.map.repeat.set(30,30);m.material.map.needsUpdate=true;
    const P=new V3(),Q=new QT();let lo=1e9;for(let d=a;d<=b+300;d+=10){abs(d,0,0,P,Q);lo=Math.min(lo,P.y)}abs((a+b)/2,0,0,P,Q);m.position.set(P.x,lo-90,P.z);route.userData.sea=m;m.rotation.x=-Math.PI/2;route.add(m)}
-  if(L.water){route.add(ribbon(a-30,b+300,[-90,-30,-8,-2.2,2.2,8,30,90],1.7,3,waterMat(),null,.05));
-   const im=new THREE.InstancedMesh(GEO.tower,MAT.tower,180),M4=new THREE.Matrix4(),P=new V3(),Q=new QT(),Sc=new V3();for(let k=0;k<180;k++){const d=a-20+Math.random()*(b-a+320),side=Math.random()<.5?-1:1;abs(d,side*rr(9,70),1.7,P,Q);Sc.set(rr(8,20),rr(30,140),rr(8,20));M4.compose(P,Q,Sc);im.setMatrixAt(k,M4)}im.instanceMatrix.needsUpdate=true;im.computeBoundingSphere();route.add(im)}
+  if(L.water){const ext=i===LEGS.length-1?300:20;route.add(ribbon(a-30,b+ext,[-90,-30,-8,-2.2,2.2,8,30,90],1.7,3,waterMat(),null,.05));
+   const im=new THREE.InstancedMesh(GEO.tower,MAT.tower,180),M4=new THREE.Matrix4(),P=new V3(),Q=new QT(),Sc=new V3();for(let k=0;k<180;k++){const d=a-20+Math.random()*(b-a+ext),side=Math.random()<.5?-1:1;abs(d,side*rr(9,70),1.7,P,Q);Sc.set(rr(8,20),rr(30,140),rr(8,20));M4.compose(P,Q,Sc);im.setMatrixAt(k,M4)}im.instanceMatrix.needsUpdate=true;im.computeBoundingSphere();route.add(im)}
   if(L.mood.clouds&&!L.tunnel){for(let k=0;k<26;k++){const d=a+Math.random()*(b-a),side=Math.random()<.5?-1:1,sp=new THREE.Sprite(new THREE.SpriteMaterial({map:cloudTex,color:new COL(L.mood.clouds.top).multiplyScalar(.85),transparent:true,depthWrite:false,opacity:.72}));abs(d,side*rr(38,130),rr(-40,-8),sp.position);sp.scale.set(rr(45,100),rr(20,40),1);route.add(sp)}}});}
 function capitalShip(lit){const g=new THREE.Group(),hull=new THREE.MeshStandardMaterial({color:'#1a141e',metalness:.6,roughness:.5,emissive:'#05030a'});
  const add=(sx,sy,sz,x,y,z)=>{const m=new THREE.Mesh(GEO.box,hull);m.scale.set(sx,sy,sz);m.position.set(x,y,z);g.add(m)};
@@ -286,7 +295,7 @@ function init(){try{glc=document.createElement('canvas');glc.id='gl';glc.style.c
  entRoot=new THREE.Group();scene.add(entRoot);shared();buildMoods();buildSky();
  composer=new EffectComposer(renderer);composer.addPass(new RenderPass(scene,camera));bloom=new UnrealBloomPass(new THREE.Vector2(256,256),.6,.42,.86);composer.addPass(bloom);composer.addPass(new OutputPass());fxPass=new ShaderPass(FXShader);composer.addPass(fxPass);
  resize();addEventListener('resize',resize);R3D.ok=true}catch(err){console.warn('3D engine unavailable, falling back to 2D',err);R3D.ok=false}}
-function start(){for(const[e,o]of MAP)entRoot.remove(o);MAP.clear();buildFrames();buildRoute();buildShip();glc.style.display='block';resize()}
+function start(){buildMoods();for(const[e,o]of MAP)entRoot.remove(o);MAP.clear();buildFrames();buildRoute();buildShip();glc.style.display='block';resize()}
 function stop(){if(glc)glc.style.display='none'}
 
 /* ---------- per-frame ---------- */
@@ -311,7 +320,9 @@ function frame(dt){const t=RC.t,M=moodNow(),pr=cl(RC.dist/RC.total,0,1);
  const fwd=TMP.w;{const q=new QT(),p=new V3();frameAt(RC.dist+300,p,q);fwd.set(0,0,-1).applyQuaternion(q);const upv=new V3(0,1,0).applyQuaternion(q),rt=new V3(1,0,0).applyQuaternion(q);
   const showE=RC.leg<=4||(RC.prevLeg<=4&&RC.legBlend<1);earthG.visible=showE;if(showE){const R=60+pr*pr*900;earthG.position.copy(camera.position).addScaledVector(fwd,2400).addScaledVector(upv,R*.25+40);earthG.scale.setScalar(R);earthG.rotation.y=t*.01;earthG.userData.clouds.rotation.y=t*.004}
   marsM.visible=RC.leg<=2;if(marsM.visible){const R=Math.max(10,260*(1-pr*2.4));marsM.position.copy(camera.position).add(fwd.clone().multiplyScalar(.55).addScaledVector(rt,-.62).addScaledVector(upv,.5).normalize().multiplyScalar(2400));marsM.scale.setScalar(R);marsM.rotation.y=t*.02}
-  phobosM.visible=RC.leg===1||(RC.leg===2&&RC.legBlend<1);if(phobosM.visible){phobosM.position.copy(camera.position).add(fwd.clone().multiplyScalar(.7).addScaledVector(rt,.55).addScaledVector(upv,.3).normalize().multiplyScalar(1600));phobosM.scale.setScalar(70);phobosM.rotation.set(t*.05,t*.03,0)}}
+  phobosM.visible=RC.leg===1||(RC.leg===2&&RC.legBlend<1);
+  if(RC.run){phobosM.visible=false;earthG.visible=RC.leg===2;if(earthG.visible){const R=900;earthG.position.copy(camera.position).addScaledVector(fwd,1500).addScaledVector(upv,-R-260);earthG.scale.setScalar(R);earthG.rotation.y=t*.01}
+   marsM.visible=RC.leg>=2;if(marsM.visible){const R=18+pr*110;marsM.position.copy(camera.position).add(fwd.clone().addScaledVector(upv,.18).normalize().multiplyScalar(2400));marsM.scale.setScalar(R);marsM.rotation.y=t*.02}}if(phobosM.visible){phobosM.position.copy(camera.position).add(fwd.clone().multiplyScalar(.7).addScaledVector(rt,.55).addScaledVector(upv,.3).normalize().multiplyScalar(1600));phobosM.scale.setScalar(70);phobosM.rotation.set(t*.05,t*.03,0)}}
  // capital fleet crossfire
  const bd=route&&route.userData.beams;if(bd){const caps=route.userData.caps;bd.bm.forEach((m,k)=>{const on=Math.sin(t*1.9+k*1.7)>.35;m.visible=on&&caps&&RC.dist>bd.a-200&&RC.dist<bd.b+200;if(!m.visible)return;const A=caps[k%2].position.clone().add(new V3(rr(-30,30),rr(-6,10),rr(-60,60))),B=caps[1-k%2].position.clone().add(new V3(rr(-30,30),rr(-6,10),rr(-60,60)));
   m.position.copy(A).add(B).multiplyScalar(.5);m.scale.set(.6+k*.15,A.distanceTo(B),.6+k*.15);m.quaternion.setFromUnitVectors(new V3(0,1,0),B.sub(A).normalize())})}
