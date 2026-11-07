@@ -83,6 +83,10 @@ function shared(){
  MAT.panel=new THREE.MeshStandardMaterial({color:'#2a3a8a',metalness:.4,roughness:.3,emissive:'#0a1440'});
  MAT.black=new THREE.MeshBasicMaterial({color:'#000000'});
  MAT.mesa=new THREE.MeshStandardMaterial({color:'#9a4232',roughness:.95,flatShading:true});
+ MAT.megaRock=new THREE.MeshStandardMaterial({color:'#b0503a',roughness:.9,flatShading:true,emissive:'#3a0c06',emissiveIntensity:1});
+ MAT.hullD=new THREE.MeshStandardMaterial({color:'#5a6488',metalness:.5,roughness:.4,flatShading:true,emissive:'#2a3466',emissiveIntensity:1.3});
+ MAT.orange=new THREE.MeshBasicMaterial({color:new COL('#ff7a20').multiplyScalar(2.4),toneMapped:false});
+ MAT.pink=new THREE.MeshBasicMaterial({color:new COL('#ff4fd8').multiplyScalar(2.4),toneMapped:false});
  MAT.tower=new THREE.MeshStandardMaterial({color:'#1a1030',roughness:.6,metalness:.2,emissiveMap:winTex,emissive:'#ffffff',emissiveIntensity:1.4,map:winTex});
  MAT.disk=new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,uniforms:{uT:{value:0}},
   vertexShader:'varying vec2 vP;void main(){vP=position.xy;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
@@ -125,14 +129,36 @@ function makeEnt(e){const g=new THREE.Group();let m;
   case'adsat':{const b=new THREE.Mesh(GEO.box,MAT.metal);b.scale.setScalar(.6);g.add(b);g.add(glow(new COL('#ffd23f').multiplyScalar(1.4),3));{const ed=new THREE.Mesh(GEO.box,MAT.edgeHaz);ed.scale.setScalar(.7);g.add(ed)}for(const s of[-1,1]){const p=new THREE.Mesh(GEO.box,MAT.panel);p.scale.set(1,.35,.05);p.position.x=s*.95;g.add(p)}
    const t=new THREE.Mesh(GEO.plane,new THREE.MeshBasicMaterial({map:textCached(e.txt),transparent:true,toneMapped:false,side:THREE.DoubleSide}));t.scale.set(3.2,.8,1);t.position.y=1.1;g.add(t)}break;
   case'tower':if(e.style==='mesa'){m=new THREE.Mesh(GEO.mesa,MAT.mesa);g.add(m)}else{m=new THREE.Mesh(GEO.tower,MAT.tower);g.add(m);const cap=new THREE.Mesh(GEO.box,new THREE.MeshBasicMaterial({color:new COL(e.col).multiplyScalar(2.2),toneMapped:false}));cap.scale.set(1.02,.03,1.02);cap.position.y=1;g.add(cap)}g.userData.m=m;break;
+  case'mega':megaMesh(e,g);break;
   case'rival':g.add(racerMesh(RC.rivals[e.ri].c,false));break;
   case'bully':g.add(racerMesh(e.c,false));break;
   case'target':g.add(racerMesh('#ffd23f',true));break;
   default:return null}
  return g}
+function megaMesh(e,g){const W=(e.x1-e.x0)*SX,H=(e.y1-e.y0)*SY,cx=(e.x0+e.x1)/2*SX,cy=-(e.y0+e.y1)/2*SY,D=(e.k==='destroyer'?7:5)*SZ,box=(mat,w,h,d,x,y,z)=>{const m=new THREE.Mesh(GEO.box,mat);m.scale.set(w,h,d);m.position.set(x,y,z);g.add(m);return m};
+ const ex=(e.s>0?e.x1:e.x0)*SX,ey=-(e.s<0?e.y0:e.y1)*SY;g.userData.muz=[];
+ if(e.k==='mesa'){const geo=new THREE.BoxGeometry(1,1,1,7,9,3),pa=geo.attributes.position;for(let i=0;i<pa.count;i++){const y=pa.getY(i),k=.5-y;pa.setX(i,pa.getX(i)*(1-k*.08)+(Math.random()-.5)*.05);pa.setZ(i,pa.getZ(i)+(Math.random()-.5)*.08)}geo.computeVertexNormals();
+  const m=new THREE.Mesh(geo,MAT.megaRock);m.scale.set(W,H,D);m.position.set(cx,cy,-D/2);g.add(m);
+  for(let i=0;i<4;i++){const r=new THREE.Mesh(GEO.rock,MAT.megaRock);const sc=W*(.16+Math.random()*.14);r.scale.set(sc,sc*1.6,sc);r.position.set(cx+(i-1.5)*W*.22,cy+H/2+sc*.6,-D*(.3+Math.random()*.4));g.add(r)}
+  box(MAT.orange,.22,H,.22,ex-e.s*.12,cy,.05);for(let k=0;k<6;k++){const s=glow(new COL('#ff7a20').multiplyScalar(1.6),3);s.position.set(ex,cy-H/2+H*(k+.5)/6,.3);g.add(s)}}
+ else if(e.k==='tower'){const tex=winTex.clone();tex.needsUpdate=true;tex.wrapS=tex.wrapT=THREE.RepeatWrapping;tex.repeat.set(3,6);const mat=MAT.tower.clone();mat.map=tex;mat.emissiveMap=tex;
+  box(mat,W,H,D,cx,cy,-D/2);box(MAT.pink,W*1.02,.3,D*1.02,cx,cy+H/2,-D/2);box(MAT.pink,.24,H,.24,ex-e.s*.12,cy,.05);box(MAT.cyan,W*1.01,.12,.12,cx,cy+H*.25,.04);
+  const an=box(MAT.metal,.15,6,.15,cx,cy+H/2+3,-D/2);const b=glow(new COL('#ff3355').multiplyScalar(2),2.4);b.position.set(cx,cy+H/2+6,-D/2);g.add(b)}
+ else{box(MAT.hullD,W,H,D,cx,cy,-D/2);box(MAT.hullD,W*.92,H*.7,D*.6,cx,cy,-D*1.2);
+  for(let k=1;k<5;k++)box(MAT.panel,W,.08,.1,cx,cy-H/2+H*k/5,.03);for(let k=-6;k<=6;k++)box(MAT.metal,.12,H,.12,cx+k*W/14,cy,.04);
+  box(MAT.red,W,.18,.2,cx,ey,.06);const tz=-D*.3;
+  for(let i=0;i<5;i++){const tx=(i-2)*.4*e.XL*.95*SX,dir=e.s<0?1:-1,base=box(MAT.metal,1.3,.7,1.3,tx,ey+dir*.35,tz);base.material=MAT.hullD;
+   const bar=new THREE.Mesh(GEO.cyl,MAT.metal);bar.scale.set(.14,2.4,.14);bar.rotation.x=Math.PI/2;bar.position.set(tx,ey+dir*.5,tz+1.4);g.add(bar);
+   const mz=glow(new COL('#ff7a20').multiplyScalar(2.2),.01);mz.position.set(tx,ey+dir*.5,tz+2.7);g.add(mz);g.userData.muz.push(mz)}
+  for(let k=0;k<10;k++){const s=glow(new COL('#ff3355').multiplyScalar(1.5),1.6);s.position.set(cx-W*.45+W*.9*k/9,ey,.3);g.add(s)}
+  {const oy=-(e.s<0?e.y1:e.y0)*SY,od=e.s<0?-1:1;box(MAT.hullD,W*.5,2.2,D*.8,cx-W*.08,oy+od*1.1,-D*.55);box(MAT.hullD,W*.16,3.4,D*.5,cx+W*.06,oy+od*3.2,-D*.5);
+   box(MAT.cyan,W*.15,.16,.1,cx+W*.06,oy+od*3.6,-D*.25+.02);box(MAT.cyan,W*.48,.12,.1,cx-W*.08,oy+od*1.2,-D*.15+.02);box(MAT.metal,.12,3,.12,cx+W*.1,oy+od*6.2,-D*.5);
+   for(let k=0;k<14;k++)box(MAT.cyan,.35,.18,.08,cx-W*.42+W*.84*k/13,cy+(e.s<0?1:-1)*H*.3,.05)}
+  for(const sx of[-1,1]){const s=glow(new COL('#19f3ff').multiplyScalar(1.8),9);s.position.set(cx+sx*W*.47,cy,-D*.6);g.add(s)}}}
 function placeEnt(e,o,t){const q=TMP.q;
  if(e.t==='laser'||e.t==='beam'){t2w(0,0,Math.max(e.z,-2),o.position,q);o.quaternion.copy(q)}
  else if(e.t==='tower'){t2w(e.x,1.5,e.z,o.position,q);o.quaternion.copy(q);o.userData.m.scale.set(e.w*SX,e.h*SY,e.w*SX);if(o.children[1]){o.children[1].scale.set(e.w*SX*1.02,.25,e.w*SX*1.02);o.children[1].position.y=e.h*SY}return}
+ else if(e.t==='mega'){t2w(0,0,e.z,o.position,q);o.quaternion.copy(q)}
  else{t2w(e.x,e.y,e.z,o.position,q);o.quaternion.copy(q)}
  const fade=cl((96-e.z)/26,0,1);o.visible=fade>.02;
  switch(e.t){
@@ -148,6 +174,7 @@ function placeEnt(e,o,t){const q=TMP.q;
   case'beam':{const ux=Math.cos(e.ang),uy=Math.sin(e.ang),cx=-uy*e.off*SX,cy=-(ux*e.off)*SY,live=e.z<30,b=o.userData.beam,c=o.userData.core,ang=Math.atan2(-uy*SY,ux*SX);
    for(const m of[b,c]){m.position.set(cx,cy,0);m.rotation.set(0,0,ang-Math.PI/2)}const th=live?.16:.025;b.scale.set(th,9*SX,th);c.scale.set(th*.35,9*SX,th*.35);b.material.opacity=live?1:(.4+.4*Math.sin(t*20));c.material.opacity=live?1:0}break;
   case'well':o.scale.setScalar(e.r*SX);o.userData.disk.rotation.z=t*1.5;MAT.disk.uniforms.uT.value=t;break;
+  case'mega':o.visible=true;o.userData.muz.forEach((m,i)=>m.scale.setScalar(e.mf>0&&e.mi===i?4.5:.01));break;
   case'adsat':o.scale.setScalar(.22*SX*1.4);o.rotateZ(Math.sin(t+e.z)*.2);break;
   case'rival':o.rotateZ(Math.sin(t*1.4+e.ph)*.3);break;
   case'bully':o.rotateZ(e.bank||0);break;
