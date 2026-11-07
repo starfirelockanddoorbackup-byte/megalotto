@@ -1114,6 +1114,7 @@ function raceStart(cid,run){setLegs(run?RUN_LEGS:BASE_LEGS);const c=run?RUN_C:(C
   motes:Array.from({length:46},()=>({x:rr(-4,4),y:rr(-2.4,2),z:rr(0,88),ph:R()*6})),
   dmgX:.3+.35*c.diff,intel:S.intel,target:c.mod&&c.mod.target?{state:0,hp:30,mx:30,x:0,y:-.2,z:85,f:1.5,t:'target',r:.3}:null,
   rivals:names.map((n,i)=>({n,c:['#ff2bd6','#ffd23f','#7dff6b'][i],k:[.93,.99,1.04][i]*(.9+.1*c.diff),p:0,live:0})),rank:4});
+ if(!run&&!S.runs)Object.assign(RC,{tut:0,events:99});
  if(run)Object.assign(RC,{run:1,rivals:[],target:null,ads:false,events:99,bulT:1e9,dmgX:.45,megaT:45,intel:0});else S.intel=0;save();drag=null;bh=false;setLimits();computeBends();
  mode='race';hideUI();setHud(true);AU.play('race');AU.int=0;legStart(0,true);AU.sfx('beep');buzz(15);
  R3DON=!!(window.R3D&&R3D.ok&&S.set.r3d);if(R3DON){try{R3D.start()}catch(err){console.warn('3D start failed, using 2D',err);R3DON=false}}}
@@ -1190,6 +1191,14 @@ function fireRocket(){if(mode!=='race'||RC.over||RC.paused||RC.count>0||RC.rkT>0
  else if(RC.lock&&!RC.lock.dead)tg=RC.lock;
  else for(const e of RC.E)if(HIT[e.t]&&!e.dead&&e.z<70&&e.z>3){const d=e.z*.02+Math.hypot(e.x-RC.px,e.y-RC.py);if(d<bd){bd=d;tg=e}}
  RC.L.push({x:RC.px,y:RC.py+.05,z:1,vx:0,vy:0,dmg:6,rk:1,spd:85,tg});AU.sfx('rocket');buzz(25);kick(1.6)}
+/* First race for a new pilot: scripted cards instead of random calls */
+const TUT=[{at:.05,k:'FLIGHT SCHOOL // 1 OF 2',t:'Grab the good stuff',rows:[['#ffd23f','▢','GOLD GATES','Fly through to refill boost.'],['#7dff6b','»','GREEN PADS','Free burst of speed.'],['#7dff6b','✚','GREEN CROSSES','Patch your hull.']],b:'Got it'},
+ {at:.16,k:'FLIGHT SCHOOL // 2 OF 2',t:'How you win',rows:[['#19f3ff','⏱','FASTEST TIME','Speed pays the most points.'],['#7dff6b','♥','CLEANEST HULL','Every hit costs points.'],['#ff2bd6','⟳','CLOSE CALLS','Near misses and barrel rolls pay extra.']],foot:'Fast + clean = high score.',b:"Let's race"}];
+function tutCard(c){RC.paused=1;bh=false;$('#bst').classList.remove('on');setHud(false);AU.sfx('warn');buzz([20,30,20]);
+ show(`<div class="mid pe"><div class=card style="text-align:center;padding:18px"><div class=kick style="color:var(--am)">${c.k}</div><h2 style="font-size:22px">${c.t}</h2>
+ ${c.rows.map(([col,ic,h,d])=>`<div style="display:flex;align-items:center;gap:12px;text-align:left;margin:10px 0"><div style="flex:0 0 40px;height:40px;border:2px solid ${col};color:${col};display:grid;place-items:center;font-size:22px;font-weight:900;box-shadow:0 0 12px ${col}88">${ic}</div><div><b style="color:${col};letter-spacing:.06em">${h}</b><div style="font-size:15px">${d}</div></div></div>`).join('')}
+ ${c.foot?`<p style="font-size:17px;margin:12px 0 4px;color:#ffd23f"><b>${c.foot}</b></p>`:''}<button class="btn wide" data-a=tutOk style="margin-top:10px">${c.b}</button></div></div>`,'clear')}
+ACT.tutOk=()=>{hideUI();setHud(true);RC.paused=0;AU.sfx('ui')};
 function raceEvent(){const E=pick(EVENTS);RC.paused=1;RC.events++;bh=false;$('#bst').classList.remove('on');setHud(false);AU.sfx('warn');buzz([20,30,20]);
  RC.curEvt=E;show(`<div class="mid pe"><div class=card style="text-align:center;padding:18px"><div class=kick style="color:var(--am)">INCOMING CALL</div><h2 style="font-size:22px">${esc(fill(E.t))}</h2><p style="font-size:17px;margin-bottom:12px">${esc(fill(E.q))}</p>${E.a.map((a,i)=>`<button class="btn wide ${i?'ghost':''}" data-a=evt data-v=${i}>${esc(a.l)}</button>`).join('')}</div></div>`,'clear')}
 ACT.evt=i=>{const fx=RC.curEvt.a[+i].fx;if(fx.cr)RC.cash+=fx.cr;if(fx.hull)RC.hull=cl(RC.hull+fx.hull,1,RC.mx);if(fx.en)RC.en=cl(RC.en+fx.en,0,100);if(fx.dist)RC.dist=Math.max(0,RC.dist+fx.dist);if(fx.risk)RC.risk=1.5;if(fx.ads)RC.ads=true;
@@ -1226,6 +1235,7 @@ function raceUpd(dt){RC.t+=dt;
  const L=LEGS[RC.leg];
  RC.legBlend=Math.min(1,RC.legBlend+dt/1.5);RC.banner=Math.max(0,RC.banner-dt);RC.msgT=Math.max(0,RC.msgT-dt);
  if(RC.evtT>0){RC.evtT-=dt;if(RC.evtT<=0){raceEvent();return}}
+ if(RC.tut!=null&&RC.tut<TUT.length&&pr>=TUT[RC.tut].at&&!RC.over){tutCard(TUT[RC.tut++]);return}
  // rivals (progress model)
  RC.rivals.forEach((r,i)=>{if(!r.live)r.p=Math.min(1,r.p+25*r.k*(1+.07*Math.sin(RC.t*.6+i*2.1))*(1+r.p*.15)*dt/RC.total);
   if(!r.live&&r.p>pr&&r.p-pr<.012&&R()<dt*.6&&pr>.03&&pr<.97){r.live=1;add({t:'rival',ri:i,x:rr(-.7,.7),y:rr(-.45,.3),r:.24,hp:8,z:-20,ph:R()*6})}});
