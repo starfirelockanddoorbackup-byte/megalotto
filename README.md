@@ -7,6 +7,8 @@ A mobile arcade death-race from **Matthews Operations Lab // Interactive Divisio
 ▶ **Play:** https://starfirelockanddoorbackup-byte.github.io/megalotto/
 On a phone: open the link, tap **Share → Add to Home Screen** for full-screen play.
 
+🧪 **3D Beta:** https://starfirelockanddoorbackup-byte.github.io/megalotto/beta/ (WebGL race engine, separate save file)
+
 ## The loop
 1. **The Ticket:** you won. Read the fine print.
 2. **Identity Forge:** body (male / female / android), skin, hair, jacket, optics, face cover, headgear, scars, cyberware, neon colour, last words.
@@ -29,8 +31,15 @@ Spaceport → Bar → **Back room: Data Terminal** (or Settings → Data Termina
 - `tables`: weighted `["text", weight]` lists for sponsors, hazards, rivals, ads, rumors, news, death causes and last words.
 - `sprites`: map `"slot.id"` (for example `"hull.needle"`) to a PNG URL or data URI to swap in hand-drawn ship layers.
 
+## 3D Beta (`/beta`)
+The same game with the race rebuilt in WebGL (Three.js r170, vendored in `beta/lib`, MIT):
+- the coaster track as a real 3D spline: banks, climbs, dives, wormhole barrel rolls
+- toon-shaded 3D ship built from your equipped parts; 3D rocks, drones, gates, black holes, crossfire beams, capital ships, asteroid field, Miami towers + water
+- sky dome shader per leg, fog, NASA-derived Earth (day map, clouds, city lights from the three.js examples), procedural Mars and Phobos
+- GPU bloom, chromatic aberration, heat shimmer, vignette and grain
+- falls back to the 2D renderer automatically if WebGL is unavailable (Settings → 3D Engine)
+
 ## Roadmap
-- `3d` branch: full WebGL rebuild of the race (real 3D track, ships, capital fleets and Miami), shader post-processing, layered music.
 - Native app wrapper (Capacitor) for app stores and proper iPhone haptics.
 
 © Matthews Operations Lab
