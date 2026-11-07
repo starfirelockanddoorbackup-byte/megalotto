@@ -469,14 +469,19 @@ function paintPilot(x,p){
  const ell=(cx,cy,rx,ry,col,rot)=>{x.fillStyle=col;x.beginPath();x.ellipse(cx,cy,rx,ry,rot||0,0,TAU);x.fill()};
  const soft=(cx,cy,r,col,al)=>{const g=x.createRadialGradient(cx,cy,0,cx,cy,r);g.addColorStop(0,rgba(col,al));g.addColorStop(1,rgba(col,0));x.fillStyle=g;x.fillRect(cx-r,cy-r,r*2,r*2)};
  const strands=(n,gen,c1,c2,lw,al)=>{for(let i=0;i<n;i++){const s=gen(i);x.strokeStyle=mix(c1,c2,rnd());x.globalAlpha=al*(.5+.5*rnd());x.lineWidth=lw*(.55+.9*rnd());x.beginPath();x.moveTo(s[0],s[1]);x.quadraticCurveTo(s[2],s[3],s[4],s[5]);x.stroke()}x.globalAlpha=1};
+ const braid=(x0,y0,x1,y1,w,al)=>{const n=Math.ceil(Math.hypot(x1-x0,y1-y0)/4);for(let j=0;j<n;j++){const u=j/n,bx=x0+(x1-x0)*u+Math.sin(u*4+x0)*1.2,by=y0+(y1-y0)*u;x.globalAlpha=al;const g=x.createLinearGradient(bx-w,0,bx+w,0);g.addColorStop(0,j%2?hairD:hairC);g.addColorStop(1,mix(hairD,'#000',.3));x.fillStyle=g;x.beginPath();x.ellipse(bx,by,w,2.7,j%2?.6:-.6,0,TAU);x.fill();x.strokeStyle=rgba(hairL,.4);x.lineWidth=.5;x.beginPath();x.moveTo(bx-w*.5,by+(j%2?1:-1));x.lineTo(bx+w*.5,by-(j%2?1:-1));x.stroke()}x.globalAlpha=1;ell(x1,y1+1.5,w*.8,2.2,a);ell(x1,y1+5,w*.55,2.6,hairD)};
+ const crown=(vol,pX,hl)=>{x.beginPath();x.moveTo(-28,-4);x.bezierCurveTo(-31-vol,-20,-33-vol,-44,-14,-50-vol*.6);x.quadraticCurveTo(0,-53-vol,14,-50-vol*.6);x.bezierCurveTo(33+vol,-44,31+vol,-20,28,-4);x.bezierCurveTo(28,-16,22,-26+hl,12,-29+hl);x.quadraticCurveTo(pX+4,-33+hl,pX,-31+hl);x.quadraticCurveTo(pX-6,-33+hl,-12,-29+hl);x.bezierCurveTo(-22,-26+hl,-28,-16,-28,-4);x.closePath()};
+ const sheen=(path,cx,cy,rx,ry)=>{x.save();path();x.clip();x.strokeStyle='rgba(255,255,255,.2)';x.lineWidth=5;x.beginPath();x.ellipse(cx,cy,rx,ry,0,Math.PI*1.1,Math.PI*1.8);x.stroke();x.strokeStyle='rgba(255,255,255,.12)';x.lineWidth=10;x.stroke();x.restore()};
  const head=()=>{const[ja,jy,cw]=JA;x.beginPath();x.moveTo(0,-46);x.bezierCurveTo(17,-46,29,-37,29,-19);x.bezierCurveTo(29.5,-6,30,2,ja,jy);x.bezierCurveTo(ja-2.5,jy+11,cw+7,33,cw,35);x.quadraticCurveTo(0,37.5,-cw,35);x.bezierCurveTo(-cw-7,33,-ja+2.5,jy+11,-ja,jy);x.bezierCurveTo(-30,2,-29.5,-6,-29,-19);x.bezierCurveTo(-29,-37,-17,-46,0,-46);x.closePath()};
  const body=()=>{x.beginPath();x.moveTo(-nw-1,44);x.bezierCurveTo(-nw-14,50,-sw*.6,54,-sw,82);x.bezierCurveTo(-sw-8,96,-sw-10,140,-sw-10,200);x.lineTo(sw+10,200);x.bezierCurveTo(sw+10,140,sw+8,96,sw,82);x.bezierCurveTo(sw*.6,54,nw+14,50,nw+1,44);x.closePath()};
  x.lineCap='round';x.lineJoin='round';
  // ---------- back layers ----------
  const hoodC=mix(oc,'#05030b',.3);
  if(p.gear===1){const g=x.createLinearGradient(-60,0,60,0);g.addColorStop(0,mix(hoodC,'#ffffff',.12));g.addColorStop(1,mix(hoodC,'#000',.4));x.fillStyle=g;x.beginPath();x.moveTo(-60,100);x.bezierCurveTo(-68,20,-60,-68,0,-70);x.bezierCurveTo(60,-68,68,20,60,100);x.closePath();x.fill()}
- if(p.hair===2&&p.gear!==1){x.fillStyle=hairD;x.beginPath();x.moveTo(-31,-24);x.bezierCurveTo(-48,10,-52,62,-46,108);x.lineTo(46,108);x.bezierCurveTo(52,62,48,10,31,-24);x.closePath();x.fill();
-  strands(70,()=>{const s=rnd()<.5?-1:1,x0=s*R2(18,30);return[x0,-26+rnd()*8,s*R2(36,50),R2(20,60),s*R2(30,48),R2(90,110)]},hairC,hairL,1.1,.7)}
+ if(p.hair===2&&p.gear!==1){const bg=x.createLinearGradient(0,-60,0,112);bg.addColorStop(0,hairC);bg.addColorStop(.55,hairD);bg.addColorStop(1,mix(hairD,'#000',.35));x.fillStyle=bg;
+  x.beginPath();x.moveTo(0,-56);x.bezierCurveTo(30,-56,42,-36,41,-6);x.bezierCurveTo(44,30,50,64,47,100);for(let j=1;j<=8;j++)x.lineTo(47-j*94/8,100+(j%2?9:0)+R2(-2,2));x.bezierCurveTo(-50,64,-44,30,-41,-6);x.bezierCurveTo(-42,-36,-30,-56,0,-56);x.fill();
+  strands(120,()=>{const s=rnd()<.5?-1:1,x0=s*R2(14,36);return[x0,R2(-44,-10),s*R2(38,50),R2(20,60),s*R2(30,48),R2(92,108)]},hairC,hairL,1,.5)}
+ if(p.hair===3&&p.gear!==1)for(let j=0;j<12;j++){const s=j%2?1:-1,k=j>>1;braid(s*(20+k*3.4),-14+k*2.4,s*(26+k*4.6+R2(0,8)),R2(84,106),3.1,.85)}
  if(p.out===1){x.fillStyle=mix(oc,'#ffffff',.06);for(const s of[-1,1]){x.beginPath();x.moveTo(s*(nw-2),48);x.lineTo(s*(nw+6),4);x.lineTo(s*(nw+24),44);x.closePath();x.fill();x.strokeStyle=rgba(a,.8);x.lineWidth=1.2;L(s*(nw+6),4,s*(nw+24),44)}}
  // ---------- torso / jacket ----------
  body();let g=x.createLinearGradient(-sw,0,sw,0);g.addColorStop(0,mix(oc,'#ffffff',.22));g.addColorStop(.5,oc);g.addColorStop(1,mix(oc,'#000000',.5));x.fillStyle=g;x.fill();
@@ -589,13 +594,19 @@ function paintPilot(x,p){
  const capFill=(path)=>{path();const cg=x.createLinearGradient(-30,-50,30,0);cg.addColorStop(0,hairL);cg.addColorStop(.4,hairC);cg.addColorStop(1,hairD);x.fillStyle=cg;x.fill()};
  if(p.hair===0){capFill(()=>{x.beginPath();x.moveTo(-8,-40);x.quadraticCurveTo(-12,-64,-2,-82);x.quadraticCurveTo(10,-66,8,-40);x.closePath()});
   strands(110,()=>{const x0=R2(-7,7),y0=-43+Math.abs(x0)*.3,tx=x0*1.8+R2(-5,4),ty=-82+Math.abs(x0)*2+R2(-4,8);return[x0,y0,x0*1.2+R2(-3,3),(y0+ty)/2-R2(0,5),tx,ty]},hairC,hairL,1,.9)}
- if(p.hair===1){capFill(()=>{x.beginPath();x.moveTo(-26,-24);x.bezierCurveTo(-30,-52,8,-60,31,-37);x.bezierCurveTo(34,-22,32,-10,27,0);x.quadraticCurveTo(20,-18,10,-25);x.quadraticCurveTo(-6,-30,-26,-24);x.closePath()});
-  strands(120,()=>{const x0=R2(-22,-4),y0=R2(-48,-40);return[x0,y0,R2(0,18),R2(-62,-50),R2(16,31),R2(-28,-2)]},hairC,hairL,.9,.75);x.strokeStyle=rgba(a,.5);x.lineWidth=1.4;x.beginPath();x.moveTo(-10,-48);x.quadraticCurveTo(14,-56,28,-30);x.stroke()}
- if(p.hair===2){capFill(()=>{x.beginPath();x.moveTo(-31,-6);x.bezierCurveTo(-34,-50,34,-50,31,-6);x.bezierCurveTo(26,-30,10,-38,2,-40);x.bezierCurveTo(-8,-36,-24,-28,-31,-6);x.closePath()});
-  for(const s of[-1,1]){capFill(()=>{x.beginPath();x.moveTo(s*30,-14);x.bezierCurveTo(s*37,12,s*36,44,s*31,80);x.lineTo(s*23,78);x.bezierCurveTo(s*25,44,s*25,8,s*21,-26);x.closePath()})}
-  strands(130,()=>{const s=rnd()<.5?-1:1,x0=s*R2(0,10);return[x0,-44,s*R2(26,38),R2(-30,10),s*R2(23,33),R2(20,80)]},hairC,hairL,.9,.8)}
- if(p.hair===3){capFill(()=>{x.beginPath();x.moveTo(-30,-10);x.bezierCurveTo(-33,-50,33,-50,30,-10);x.quadraticCurveTo(0,-34,-30,-10);x.closePath()});x.strokeStyle=rgba(hairL,.55);x.lineWidth=1;for(let i=-4;i<=4;i++){x.beginPath();x.moveTo(i*5,-44);x.quadraticCurveTo(i*7,-30,i*6.5,-16);x.stroke()}
-  for(const s of[-1,1]){for(let i=0;i<9;i++){const by=4+i*10,bx=s*(32+Math.sin(i*.7)*2);const bg=x.createRadialGradient(bx-1,by-2,0,bx,by,6.5);bg.addColorStop(0,hairL);bg.addColorStop(1,hairD);x.fillStyle=bg;x.beginPath();x.ellipse(bx,by,5.2,6.4,s*(i%2?.4:-.4),0,TAU);x.fill()}ell(s*32,96,3.6,3.6,a)}}
+ if(p.hair===1){capFill(()=>{x.beginPath();x.moveTo(-26,-24);x.bezierCurveTo(-31,-58,8,-68,33,-40);x.bezierCurveTo(36,-24,33,-10,27,0);x.quadraticCurveTo(20,-18,10,-25);x.quadraticCurveTo(-6,-30,-26,-24);x.closePath()});
+  strands(120,()=>{const x0=R2(-22,-4),y0=R2(-48,-40);return[x0,y0,R2(0,18),R2(-68,-56),R2(16,32),R2(-30,-2)]},hairC,hairL,.9,.75);x.strokeStyle=rgba(a,.5);x.lineWidth=1.4;x.beginPath();x.moveTo(-10,-48);x.quadraticCurveTo(14,-56,28,-30);x.stroke();sheen(()=>{x.beginPath();x.moveTo(-26,-24);x.bezierCurveTo(-31,-58,8,-68,33,-40);x.lineTo(27,0);x.lineTo(-26,-24);x.closePath()},2,-36,26,16)}
+ if(p.hair===2){capFill(()=>crown(3,-6,0));sheen(()=>crown(3,-6,0),-2,-30,24,16);
+  x.strokeStyle=rgba(hairD,.85);x.lineWidth=1;x.beginPath();x.moveTo(-6,-31);x.quadraticCurveTo(-8,-42,-4,-53);x.stroke();
+  strands(150,()=>{const s=rnd()<.42?-1:1,x0=-6+R2(-2,2),y0=R2(-53,-34);return[x0,y0,s*R2(16,30),R2(-50,-30),s*R2(27,34),R2(-16,6)]},mix(hairC,hairL,.3),hairL,.55,.45);
+  for(const s of[-1,1]){const cp=()=>{x.beginPath();x.moveTo(-6+s*2,-32);x.bezierCurveTo(s*14,-37,s*32,-28,s*33,-6);x.bezierCurveTo(s*36,24,s*39,58,s*(s<0?38:35),96);x.lineTo(s*31,90);x.lineTo(s*27,97);x.lineTo(s*23,89);x.bezierCurveTo(s*25,58,s*24,24,s*22,2);x.bezierCurveTo(s*21,-14,s*13,-25,-6+s*5,-29);x.closePath()};
+   cp();const cg=x.createLinearGradient(s*20,-30,s*36,90);cg.addColorStop(0,hairL);cg.addColorStop(.25,hairC);cg.addColorStop(1,hairD);x.fillStyle=cg;x.fill();
+   x.save();cp();x.clip();strands(70,()=>[s*R2(22,32),R2(-24,0),s*R2(27,37),R2(26,56),s*R2(24,37),R2(80,98)],hairC,hairL,.8,.8);x.fillStyle=rgba(skD,.25);x.fillRect(s>0?20:-26,-10,6,40);x.restore()}}
+ if(p.hair===3){capFill(()=>crown(1.5,0,2));x.save();crown(1.5,0,2);x.clip();
+  for(let j=-5;j<=5;j++){const hx0=j*5.2,hy0=-28+Math.abs(j)*.7,tx=j*7.6,ty=-58;x.strokeStyle=rgba(mix(sk,'#000',.45),.6);x.lineWidth=.9;x.beginPath();x.moveTo(hx0+2.6,hy0);x.quadraticCurveTo(j*6.8+2.6,-44,tx+3.8,ty);x.stroke();
+   x.strokeStyle=rgba(hairL,.45);x.lineWidth=.6;for(let q=0;q<7;q++){const u=q/7,qx=hx0+(tx-hx0)*u,qy=hy0+(ty-hy0)*u;x.beginPath();x.moveTo(qx-1.6,qy+1);x.lineTo(qx+1.4,qy-1);x.stroke()}}x.restore();
+  sheen(()=>crown(1.5,0,2),0,-34,22,14);
+  for(const s of[-1,1])for(let k=0;k<3;k++)braid(s*(25+k*2.8),-8+k*3,s*(28+k*4+R2(0,4)),R2(72,94),3,1)}
  if(p.hair===4&&!droid){x.save();head();x.clip();const cg=x.createLinearGradient(-30,-46,30,-10);cg.addColorStop(0,'#f6f9ff');cg.addColorStop(.35,'#a8b2c6');cg.addColorStop(.7,'#5a6278');cg.addColorStop(1,'#2a3040');x.fillStyle=cg;x.beginPath();x.moveTo(-31,-14);x.quadraticCurveTo(0,-22,31,-14);x.lineTo(31,-50);x.lineTo(-31,-50);x.closePath();x.fill();
   x.strokeStyle='#2a3040';x.lineWidth=1;x.beginPath();x.moveTo(-31,-14);x.quadraticCurveTo(0,-22,31,-14);x.stroke();x.fillStyle='#2a3040';for(let i=-4;i<=4;i++){x.beginPath();x.arc(i*6.5,-17-Math.cos(i/4)*2.5,.9,0,TAU);x.fill()}x.fillStyle='rgba(255,255,255,.7)';x.beginPath();x.ellipse(-11,-34,4,10,-.6,0,TAU);x.fill();x.restore()}
  // ---------- optics ----------
