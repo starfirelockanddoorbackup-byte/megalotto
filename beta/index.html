@@ -64,8 +64,8 @@ p.lead{max-width:380px;margin:0 auto 14px;color:#cfe6f5}
 .term div{margin-bottom:8px}
 .term .hl{color:var(--am)}.term .rd{color:var(--rd)}.term .gr{color:var(--gr)}.term .mu{color:#8a80a8}
 .term.red{border-color:#ff335566;border-left-color:var(--rd)}.term.grn{border-color:#7dff6b55;border-left-color:var(--gr)}
-.ttl{font-size:clamp(40px,13vw,60px);margin:8px 0 0;letter-spacing:.02em}
-.ttl2{font:900 clamp(18px,6vw,26px) Orbitron,sans-serif;color:var(--am);text-shadow:0 0 18px #ffd23f88;letter-spacing:.12em}
+.ttl{font-size:clamp(28px,10.5vw,60px);white-space:nowrap;display:inline-block;margin:8px 0 0;letter-spacing:.02em}
+.ttl2{font:900 clamp(16px,5.5vw,26px) Orbitron,sans-serif;white-space:nowrap;display:inline-block;color:var(--am);text-shadow:0 0 18px #ffd23f88;letter-spacing:.12em}
 .btn.lockd{background:#2a2440;color:#8a80a8;box-shadow:none}
 .slot{display:flex;align-items:center;gap:12px}.slot.empty{opacity:.55;min-height:74px}
 .slot canvas.sp{flex:none;width:74px;height:74px;border:1px solid #ff2bd655}
@@ -899,9 +899,10 @@ function introDraw(dt){IT+=dt;const c=ctx,t=IT,once=(k,f)=>{if(!IEV[k]){IEV[k]=1
   drawShip3D(c,Math.sin(u*2)*M*.05,M*.02+e*M*.55,size,computeShip(),{yaw:Math.sin(u*3)*.3,tilt:.35-e*.25,bank:Math.sin(u*5)*.35,t,boost:true,rim:'#ff9ad5'})}
  // E — flash + title slam
  if(t>=4){once('f',()=>{IFL=1;ISH=1;AU.sfx('boom');buzz([60,40,90])});const u=t-4,k=Math.max(1,2.8-u*9);
-  c.save();c.translate(0,-M*.12);c.scale(k,k);c.font=`900 ${Math.min(W*.15,64)|0}px Orbitron,sans-serif`;
+  let fs=Math.min(W*.15,64)|0;c.font=`900 ${fs}px Orbitron,sans-serif`;const tw=c.measureText('STAR CRUSH').width;if(tw>W*.86){fs=fs*W*.86/tw|0}
+  c.save();c.translate(0,-M*.12);c.scale(k,k);c.font=`900 ${fs}px Orbitron,sans-serif`;
   c.fillStyle='#ff2bd6';c.fillText('STAR CRUSH',3,3);c.shadowColor='#19f3ff';c.shadowBlur=24;c.fillStyle='#19f3ff';c.fillText('STAR CRUSH',0,0);c.restore();
-  if(u>.3){const n=Math.min(13,Math.floor((u-.3)*40)),sub='RACE TO EARTH'.slice(0,n);once('sub',()=>AU.sfx('gate'));c.font=`900 ${Math.min(W*.075,30)|0}px Orbitron,sans-serif`;c.fillStyle='#ffd23f';c.shadowColor='#ffd23f';c.shadowBlur=18;c.fillText(sub,0,-M*.12+Math.min(W*.15,64)*.85);c.shadowBlur=0}}
+  if(u>.3){const n=Math.min(13,Math.floor((u-.3)*40)),sub='RACE TO EARTH'.slice(0,n);once('sub',()=>AU.sfx('gate'));c.font=`900 ${Math.min(fs*.48,30)|0}px Orbitron,sans-serif`;c.fillStyle='#ffd23f';c.shadowColor='#ffd23f';c.shadowBlur=18;c.fillText(sub,0,-M*.12+fs*.95);c.shadowBlur=0}}
  c.restore();
  if(IFL>0){c.fillStyle=`rgba(255,255,255,${IFL})`;c.fillRect(0,0,W,H);IFL=Math.max(0,IFL-dt*2.4)}
  if(t>5.7)endIntro()}
@@ -922,7 +923,8 @@ function scrTitle(){mode='menu';AU.play('menu');const un=hasSaves(),last=un&&S.s
  <button class="btn wide alt${un?'':' lockd'}" data-a=loadpilot>${un?'Load pilot':'🔒 Load pilot'}</button>
  <button class="btn wide am${un?'':' lockd'}" data-a=bravo>${un?'Spaceport Bravo':'🔒 Spaceport Bravo'}</button>
  <small class=mu style="display:block;margin-top:6px">${un?`LAST PILOT: ${esc(last.pilot.name.toUpperCase())} · ${last.wins} WIN${last.wins===1?'':'S'} · ${money(last.cr)}`:'Win your first race to unlock saves and the city.'}</small>
- <div style="margin-top:14px"><button class=ib data-a=settings aria-label=Settings>⚙</button></div>`,'soft')}
+ <div style="margin-top:14px"><button class=ib data-a=settings aria-label=Settings>⚙</button></div>`,'soft');fitTitle()}
+function fitTitle(){const f=()=>{for(const el of document.querySelectorAll('.ttl,.ttl2')){el.style.fontSize='';const max=el.parentElement.clientWidth*.94;let fs=parseFloat(getComputedStyle(el).fontSize),n=0;while(el.scrollWidth>max&&fs>16&&n++<40){fs-=1;el.style.fontSize=fs+'px'}}};f();document.fonts&&document.fonts.ready.then(f)}
 const lockedMsg=()=>{AU.sfx('deny');buzz([30,30,30]);toast('Locked. Win a race first. Survive it, ideally.')};
 ACT.title=()=>scrTitle();
 ACT.slotpick=()=>scrSlots(true);
