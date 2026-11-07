@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Dummy Arena</title>
+<title>Maximus's Dummy Arena</title>
 <style>
 :root{--bg:#f4f1ea;--fg:#222;--card:#fff;--line:#d8d2c4;--acc:#e0622b;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1c1b19;--fg:#f0ece2;--card:#2a2926;--line:#43403a;--acc:#ff8a4d}}
@@ -12,6 +12,7 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,sans-serif;display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px;touch-action:manipulation;user-select:none;-webkit-user-select:none}
 h1{font-size:19px;margin:0}
+.by{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--acc);font-weight:700;margin-top:-4px}
 canvas{width:100%;max-width:420px;border:2px solid var(--line);border-radius:10px;touch-action:none}
 .row{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;width:100%;max-width:420px}
 button{font:inherit;background:var(--card);color:var(--fg);border:2px solid var(--line);border-radius:10px;padding:8px 10px;min-height:44px}
@@ -22,7 +23,8 @@ p{margin:0;font-size:13px;opacity:.8;text-align:center}
 </style>
 </head>
 <body>
-<h1>Dummy Arena</h1>
+<h1>Maximus's Dummy Arena</h1>
+<div class="by">A game by Maximus</div>
 <p id="info"></p>
 <canvas id="c" width="360" height="480"></canvas>
 <div class="row pad"><button id="bl">◀</button><button id="bj">Jump</button><button id="br">▶</button></div>
