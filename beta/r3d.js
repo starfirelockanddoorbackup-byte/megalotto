@@ -123,6 +123,7 @@ function makeEnt(e){const g=new THREE.Group();let m;
    const t=new THREE.Mesh(GEO.plane,new THREE.MeshBasicMaterial({map:textCached(e.txt),transparent:true,toneMapped:false,side:THREE.DoubleSide}));t.scale.set(3.2,.8,1);t.position.y=1.1;g.add(t)}break;
   case'tower':if(e.style==='mesa'){m=new THREE.Mesh(GEO.mesa,MAT.mesa);g.add(m)}else{m=new THREE.Mesh(GEO.tower,MAT.tower);g.add(m);const cap=new THREE.Mesh(GEO.box,new THREE.MeshBasicMaterial({color:new COL(e.col).multiplyScalar(2.2),toneMapped:false}));cap.scale.set(1.02,.03,1.02);cap.position.y=1;g.add(cap)}g.userData.m=m;break;
   case'rival':g.add(racerMesh(RC.rivals[e.ri].c,false));break;
+  case'bully':g.add(racerMesh(e.c,false));break;
   case'target':g.add(racerMesh('#ffd23f',true));break;
   default:return null}
  return g}
@@ -139,13 +140,14 @@ function placeEnt(e,o,t){const q=TMP.q;
   case'coin':o.scale.setScalar(.09*SX*1.5);o.rotateY(t*6+e.z);break;
   case'repair':o.scale.setScalar(.13*SX*1.3);o.rotateZ(t*2);break;
   case'laser':{const on=Math.sin(t*TAU/e.per+e.ph)>-.15,b=o.userData.beam;b.material.opacity=on?1:.18;const th=on?.11:.03;
-   if(e.vert){b.position.set(e.p*SX,0,0);b.rotation.set(0,0,0);b.scale.set(th,1.7*SY,th);o.userData.py[0].position.set(e.p*SX,.85*SY,0);o.userData.py[1].position.set(e.p*SX,-.85*SY,0)}
-   else{b.position.set(0,-e.p*SY,0);b.rotation.set(0,0,Math.PI/2);b.scale.set(th,2.3*SX,th);o.userData.py[0].position.set(-1.15*SX,-e.p*SY,0);o.userData.py[1].position.set(1.15*SX,-e.p*SY,0)}}break;
+   if(e.vert){b.position.set(e.p*SX,0,0);b.rotation.set(0,0,0);b.scale.set(th,2.7*SY,th);o.userData.py[0].position.set(e.p*SX,1.35*SY,0);o.userData.py[1].position.set(e.p*SX,-1.35*SY,0)}
+   else{b.position.set(0,-e.p*SY,0);b.rotation.set(0,0,Math.PI/2);b.scale.set(th,2.5*SX,th);o.userData.py[0].position.set(-1.25*SX,-e.p*SY,0);o.userData.py[1].position.set(1.25*SX,-e.p*SY,0)}}break;
   case'beam':{const ux=Math.cos(e.ang),uy=Math.sin(e.ang),cx=-uy*e.off*SX,cy=-(ux*e.off)*SY,live=e.z<30,b=o.userData.beam,c=o.userData.core,ang=Math.atan2(-uy*SY,ux*SX);
    for(const m of[b,c]){m.position.set(cx,cy,0);m.rotation.set(0,0,ang-Math.PI/2)}const th=live?.16:.025;b.scale.set(th,9*SX,th);c.scale.set(th*.35,9*SX,th*.35);b.material.opacity=live?1:(.4+.4*Math.sin(t*20));c.material.opacity=live?1:0}break;
   case'well':o.scale.setScalar(e.r*SX);o.userData.disk.rotation.z=t*1.5;MAT.disk.uniforms.uT.value=t;break;
   case'adsat':o.scale.setScalar(.22*SX*1.4);o.rotateZ(Math.sin(t+e.z)*.2);break;
   case'rival':o.rotateZ(Math.sin(t*1.4+e.ph)*.3);break;
+  case'bully':o.rotateZ(e.bank||0);break;
   case'target':o.rotateZ(Math.sin(t)*.25);break}}
 function syncEntities(t){const seen=new Set(),list=RC.E.slice();if(RC.target&&RC.target.state===1)list.push(RC.target);
  for(const e of list){let o=MAP.get(e);if(!o){o=makeEnt(e);if(!o)continue;MAP.set(e,o);entRoot.add(o)}seen.add(e);placeEnt(e,o,t)}
@@ -267,7 +269,7 @@ function frame(dt){const t=RC.t,M=moodNow(),pr=cl(RC.dist/RC.total,0,1);
  route&&route.traverse(n=>{if(n.material&&n.material.uniforms&&n.material.uniforms.uSky){n.material.uniforms.uSky.value.copy(M.hor);n.material.uniforms.uSun.value.copy(M.sunC)}});
  hemi.color.copy(M.mid).lerp(new COL('#ffffff'),.2);hemi.groundColor.copy(M.b0).multiplyScalar(.6);sun.color.copy(M.sunC.r+M.sunC.g+M.sunC.b>.1?M.sunC:M.rim);
  // camera rides the rolling track frame
- const lag=.55;t2w(RC.px*lag,RC.py*lag-1.05,-3.6,camP,camQ);t2w(RC.px*.3,RC.py*.3-.25,16,camT);up.set(0,1,0).applyQuaternion(camQ);
+ const lx=.74,ly=.72;t2w(RC.px*lx,RC.py*ly-1.05,-3.6,camP,camQ);t2w(RC.px*.5,RC.py*.48-.25,16,camT);up.set(0,1,0).applyQuaternion(camQ);
  if(RC.over&&RC.win){t2w(RC.px*.4,RC.py*.4-1.2,-4.5-RC.endT*2,camP)}
  camera.position.copy(camP);camera.up.copy(up);
  const sh=(RC.shake||0)*.8;camera.position.x+=(Math.random()-.5)*sh;camera.position.y+=(Math.random()-.5)*sh;
@@ -285,7 +287,7 @@ function frame(dt){const t=RC.t,M=moodNow(),pr=cl(RC.dist/RC.total,0,1);
   m.position.copy(A).add(B).multiplyScalar(.5);m.scale.set(.6+k*.15,A.distanceTo(B),.6+k*.15);m.quaternion.setFromUnitVectors(new V3(0,1,0),B.sub(A).normalize())})}
  // the ship
  if(shipObj){const g=shipObj.grp;g.visible=!RC.dead;const q=TMP.q;t2w(RC.px,RC.py,0,g.position,q);g.quaternion.copy(q);
-  g.rotateY(-cl(RC.vx*.12,-.4,.4));g.rotateX(cl(-RC.vy*.28,-.5,.5));g.rotateZ(-cl(RC.vx*.36+RC.T0.cx*.22,-1.1,1.1));
+  g.rotateY(-cl(RC.vx*.12,-.4,.4));g.rotateX(cl(-RC.vy*.28,-.5,.5));g.rotateZ(-cl(RC.vx*.36+RC.T0.cx*.22,-1.1,1.1));if(RC.brA)g.rotateZ(-RC.brA);
   const f=(RC.boost?1.45:1)*(.85+.15*Math.sin(t*55));shipObj.flames.forEach(([a,b])=>{a.scale.setScalar(.6*f);b.scale.setScalar(.24*f)});shipObj.light.intensity=RC.boost?5:2;
   d0=camera.position.distanceTo(g.position)}
  syncEntities(t);

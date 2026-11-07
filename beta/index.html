@@ -71,6 +71,12 @@ p.lead{max-width:380px;margin:0 auto 14px;color:#cfe6f5}
 .slot canvas.sp{flex:none;width:74px;height:74px;border:1px solid #ff2bd655}
 .slot .si{flex:1;min-width:0}.slot .si h3{padding:0;margin:0 0 2px}.slot .si p{font-size:14px}.slot .mu2{color:#8a80a8;font-size:12.5px}
 .slot .sb{display:flex;flex-direction:column;gap:6px}.slot .sb .ch{min-height:36px;padding:6px 10px;font-size:14px}
+.scard{margin:8px 0;padding:10px 12px;border:1px solid #ffd23f55;background:#120a20cc}.sbig{font:900 clamp(30px,10vw,42px) Orbitron,sans-serif;color:#fff;text-shadow:0 0 18px #ffd23f88}
+.pill.hs1{color:#05030b;background:var(--am);border-color:var(--am);box-shadow:0 0 18px #ffd23f88;animation:pl 1.2s infinite}
+.rcpt .mu2,.hst .mu2{color:#8a80a8;font-style:normal;font-size:12px}
+.hst>div{display:grid;grid-template-columns:34px 1fr auto;gap:2px 8px;padding:7px 2px;border-bottom:1px dashed #2e1f50;font:600 15px Rajdhani,sans-serif;align-items:baseline}
+.hst>div span:nth-child(3){font:700 14px 'IBM Plex Mono',monospace;color:var(--am);text-align:right}.hst>div span:nth-child(4){grid-column:2/4}
+.hst>div.top{color:var(--am)}
 .fh{margin:2px 0 4px}
 canvas.pv.pvs{width:min(300px,31vh,100%)!important;height:auto;margin:4px auto}
 input.nm.nms{font-size:17px;padding:6px 10px;margin:6px auto;width:min(300px,100%)}
@@ -923,7 +929,7 @@ function scrTitle(){mode='menu';AU.play('menu');const un=hasSaves(),last=un&&S.s
  <button class="btn wide alt${un?'':' lockd'}" data-a=loadpilot>${un?'Load pilot':'🔒 Load pilot'}</button>
  <button class="btn wide am${un?'':' lockd'}" data-a=bravo>${un?'Spaceport Bravo':'🔒 Spaceport Bravo'}</button>
  <small class=mu style="display:block;margin-top:6px">${un?`LAST PILOT: ${esc(last.pilot.name.toUpperCase())} · ${last.wins} WIN${last.wins===1?'':'S'} · ${money(last.cr)}`:'Win your first race to unlock saves and the city.'}</small>
- <div style="margin-top:14px"><button class=ib data-a=settings aria-label=Settings>⚙</button></div>`,'soft');fitTitle()}
+ <div style="margin-top:14px;display:flex;gap:10px;justify-content:center"><button class="btn ghost" data-a=scoresT style="margin:0;min-height:44px;padding:10px 18px">🏆 High scores</button><button class=ib data-a=settings aria-label=Settings>⚙</button></div>`,'soft');fitTitle()}
 function fitTitle(){const f=()=>{for(const el of document.querySelectorAll('.ttl,.ttl2')){el.style.fontSize='';const max=el.parentElement.clientWidth*.94;let fs=parseFloat(getComputedStyle(el).fontSize),n=0;while(el.scrollWidth>max&&fs>16&&n++<40){fs-=1;el.style.fontSize=fs+'px'}}};f();document.fonts&&document.fonts.ready.then(f)}
 const lockedMsg=()=>{AU.sfx('deny');buzz([30,30,30]);toast('Locked. Win a race first. Survive it, ideally.')};
 ACT.title=()=>scrTitle();
@@ -1026,7 +1032,7 @@ ACT.waiver=()=>scrSitrep('draw');
 let RACE_CID='draw';
 function scrSitrep(cid){RACE_CID=cid;const c=CIRCUITS.find(q=>q.id===cid)||CIRCUITS[0],sh=computeShip();if(mode!=='hubshop')mode='menu';AU.play('menu');
  show(`<div class=kick>PHASE 3 // SITREP</div><h2>${esc(c.n)}</h2><div class=term id=tm></div>
- <div class=card><p style="font-size:15px">☝️ <b>Drag anywhere</b> to steer · guns fire themselves<br>⚡ Hold <b style="color:var(--cy)">BOOST</b> · fly through <b style="color:var(--am)">amber gates</b> to refill<br>🚀 Tap <b style="color:var(--am)">ROCKET</b> for homing missiles · <b style="color:var(--gr)">green chevrons</b> = free speed</p></div>
+ <div class=card><p style="font-size:15px">☝️ <b>Drag anywhere</b> to steer · guns fire themselves<br>⚡ Hold <b style="color:var(--cy)">BOOST</b> · fly through <b style="color:var(--am)">amber gates</b> to refill<br>🚀 Tap <b style="color:var(--am)">ROCKET</b> for homing missiles · <b style="color:var(--gr)">green chevrons</b> = free speed<br>🌀 <b>Double-tap</b> to barrel roll. Dodges anything.</p></div>
  <button class="btn wide" data-a=go>Punch it</button>${S.hub?'<button class="btn ghost wide" data-a=hub>Back to the street</button>':''}`);
  typeTerm($('#tm'),[{t:'GO TIME. Mars to Miami. Drones, rocks and rivals in between.',c:'hl'},
   {t:`${S.pilot.name.toUpperCase()} // ${sh.h.n.toUpperCase()} // HULL ${sh.hp}`},
@@ -1068,12 +1074,12 @@ function raceStart(cid){const c=CIRCUITS.find(q=>q.id===cid)||CIRCUITS[0],sh=com
  const names=[];for(let i=0;names.length<3&&i<40;i++){const n=T('RIVAL');if(n&&!names.includes(n))names.push(n)}while(names.length<3)names.push('UNIT '+ri(10,99));
  for(const k in RC)delete RC[k];
  Object.assign(RC,{c,mod:c.mod||{},ship:sh,total:2300*c.len,dist:0,t:0,hull:sh.hp,mx:sh.hp,en:100,px:0,py:.3,tx:0,ty:.3,vx:0,vy:0,E:[],B:[],L:[],P:[],spd:0,slow:0,boost:false,boostT:0,
-  score:0,cash:0,kills:0,gates:0,shake:0,flash:0,fc:'#fff',spT:30,fireT:.5,rkT:0,leg:0,prevLeg:0,legBlend:1,banner:0,risk:1,ads:sh.ads,adT:6,adMsg:'',adL:0,count:3,over:0,dead:0,paused:0,fov:1,events:0,evtT:0,msg:'',msgT:0,burnT:0,endT:0,
+  score:0,cash:0,kills:0,gates:0,near:0,dodges:0,bullies:0,br:null,brA:0,brCD:0,lastDir:1,bulT:rr(9,14),shake:0,flash:0,fc:'#fff',spT:30,fireT:.5,rkT:0,leg:0,prevLeg:0,legBlend:1,banner:0,risk:1,ads:sh.ads,adT:6,adMsg:'',adL:0,count:3,over:0,dead:0,paused:0,fov:1,events:0,evtT:0,msg:'',msgT:0,burnT:0,endT:0,
   roll:0,T0:{cx:0,cy:0,roll:0},kk:[0,0,0],kv:[0,0,0],fovP:0,caHit:0,towerT:0,lock:null,railFlash:0,trail:[[],[],[],[]],vp:[0,0],
   motes:Array.from({length:46},()=>({x:rr(-4,4),y:rr(-2.4,2),z:rr(0,88),ph:R()*6})),
   dmgX:.3+.35*c.diff,intel:S.intel,target:c.mod&&c.mod.target?{state:0,hp:30,mx:30,x:0,y:-.2,z:85,f:1.5,t:'target',r:.3}:null,
   rivals:names.map((n,i)=>({n,c:['#ff2bd6','#ffd23f','#7dff6b'][i],k:[.93,.99,1.04][i]*(.9+.1*c.diff),p:0,live:0})),rank:4});
- S.intel=0;save();drag=null;bh=false;computeBends();
+ S.intel=0;save();drag=null;bh=false;setLimits();computeBends();
  mode='race';hideUI();setHud(true);AU.play('race');AU.int=0;legStart(0,true);AU.sfx('beep');buzz(15);
  R3DON=!!(window.R3D&&R3D.ok&&S.set.r3d);if(R3DON){try{R3D.start()}catch(err){console.warn('3D start failed, using 2D',err);R3DON=false}}}
 function legStart(i,first){const L=LEGS[i];RC.prevLeg=first?i:RC.leg;RC.leg=i;RC.legBlend=first?1:0;RC.banner=2.8;RC.risk=1;RC.towerT=0;
@@ -1083,15 +1089,17 @@ function legStart(i,first){const L=LEGS[i];RC.prevLeg=first?i:RC.leg;RC.leg=i;RC
  if(L.trk.half){RC.msg='Dodge the beams. Skim black holes for boost.';RC.msgT=3}
  if(L.burn){RC.msg=RC.ship.c.id==='shroud'?'Heat shroud on. Nice.':'No heat shroud. You will cook.';RC.msgT=3.5}
  if(L.water){RC.msg='Welcome to Miami. Mostly underwater.';RC.msgT=3}}
-function hurt(n,cause){if(RC.over)return;kick(11);RC.caHit=.7;RC.hull-=n*RC.dmgX;if(!RC.ship.pain)RC.slow=1.1;RC.shake=.35;RC.flash=.35;RC.fc='#ff2b4d';AU.sfx('hit');buzz([45,25,45]);if(RC.hull<=0)raceEnd(false,cause)}
+let XL=1,YL=.75,YU=.75;function setLimits(){const port=innerHeight>innerWidth;XL=port?1.1:1.04;YU=port?1.3:.82;YL=port?.8:.78}
+function hurt(n,cause){if(RC.over)return;if(RC.br&&RC.br.t<.5){if(!RC.br.dodged){RC.br.dodged=1;RC.dodges++;RC.score+=50;RC.msg='DODGED!';RC.msgT=.9;AU.sfx('gate');buzz(10)}return}kick(11);RC.caHit=.7;RC.hull-=n*RC.dmgX;if(!RC.ship.pain)RC.slow=1.1;RC.shake=.35;RC.flash=.35;RC.fc='#ff2b4d';AU.sfx('hit');buzz([45,25,45]);if(RC.hull<=0)raceEnd(false,cause)}
+function nearMiss(){RC.near++;RC.score+=30;if(RC.msgT<.3){RC.msg=pick(['CLOSE!','TOO CLOSE!','PAINT SCRATCHED','NEAR MISS +30']);RC.msgT=.7}buzz(8)}
 function boomAt(sx,sy,s,c,n=14){for(let i=0;i<n;i++)RC.P.push({x:sx,y:sy,vx:rr(-1,1)*220*s+rr(-40,40),vy:rr(-1,1)*220*s+rr(-40,40),l:rr(.4,.8),c:c||'#ff2bd6',z:rr(2,4)})}
 function boom(e,c,n){const[sx,sy,s]=P(e.x,e.y,Math.max(0,e.z));boomAt(sx,sy,Math.max(s,.2),c,n)}
-function add(o){o.z=(o.z||0)+85+rr(0,6);RC.E.push(o)}
+function add(o){o.z=(o.z||0)+85+rr(0,6);const xs=XL,sy=v=>v*(v<0?YU:YL)/.75;if(o.x!=null)o.x*=xs;if(o.y!=null&&o.t!=='tower')o.y=sy(o.y);if(o.t==='laser')o.p=o.vert?o.p*xs:sy(o.p);if(o.t==='beam')o.off=sy(o.off);RC.E.push(o)}
 function spawnFrom(L){const m=Object.assign({},L.mix),M=RC.mod;m.repair=.045+(RC.intel?.05:0);if(RC.intel)m.gate=(m.gate||0)+.06;
  if(M.rocks)m.rock=(m.rock||0)*M.rocks;if(M.block){m.drone=(m.drone||0)*M.block;if(m.laser)m.laser*=M.block;if(m.beam)m.beam*=M.block}
  let tot=0;for(const k in m)tot+=m[k];let r=R()*tot,ty='rock';for(const k in m){r-=m[k];if(r<=0){ty=k;break}}
  const pr=RC.dist/RC.total,rf=RC.ship.reflex?1.25:1;
- if(ty==='rock'){const big=RC.leg===2;for(let i=0,n=1+(R()*(1+pr*2+(big?1:0))|0);i<n;i++)add({t:'rock',x:rr(-.9,.9),y:rr(-.65,.65),r:rr(.15,big?.4:.32),hp:big?3:2,sh:Array.from({length:8},()=>rr(.7,1.1)),rot:0,sp:rr(-2,2),z:i*2,fire:!!LEGS[RC.leg].burn,moss:big})}
+ if(ty==='rock'){const big=RC.leg===2;for(let i=0,n=1+(R()*(.7+pr*1.4+(big?.7:0))|0);i<n;i++)add({t:'rock',x:rr(-.9,.9),y:rr(-.65,.65),r:rr(.15,big?.4:.32),hp:big?3:2,sh:Array.from({length:8},()=>rr(.7,1.1)),rot:0,sp:rr(-2,2),z:i*2,fire:!!LEGS[RC.leg].burn,moss:big})}
  else if(ty==='drone')add({t:'drone',x:rr(-.8,.8),y:rr(-.55,.55),r:.2,hp:1,f:rr(.6,1.4),ph:R()*6});
  else if(ty==='gate')add({t:'gate',x:rr(-.6,.6),y:rr(-.45,.45),r:.34*rf});
  else if(ty==='coin'){const x0=rr(-.7,.7),y0=rr(-.5,.5),dx=rr(-.06,.06),dy=rr(-.04,.04);for(let i=0;i<5;i++)add({t:'coin',x:x0+dx*i,y:y0+dy*i,r:.09*rf,z:i*2.2})}
@@ -1101,12 +1109,14 @@ function spawnFrom(L){const m=Object.assign({},L.mix),M=RC.mod;m.repair=.045+(RC
  else if(ty==='well')add({t:'well',x:rr(-.55,.55),y:rr(-.4,.4),r:.55*rf,core:.17,ph:R()*6});
  else if(ty==='adsat')add({t:'adsat',x:rr(-.7,.7),y:rr(-.55,.2),r:.22,hp:4,txt:T('ADS')||'BUY NOW'});
  else if(ty==='pad')add({t:'pad',x:rr(-.6,.6),y:rr(-.4,.45),r:.3*rf})}
-const HIT={rock:1,drone:1,adsat:1,rival:1};
+const HIT={rock:1,drone:1,adsat:1,rival:1,bully:1};
+const BULLY_N=['BUMPER','TAILGATER','LIL MEAN','ROAD RAGE','SHOVEL','KAREN-9','NO BRAKES','CUTTER'];
 function damage(e,d){e.hp-=d;if(e.t==='rival')RC.rivals[e.ri].p-=.0015*d;const[sx,sy,s]=P(e.x,e.y,e.z);boomAt(sx,sy,s,'#19f3ff',3);if(e.hp<=0)kill(e)}
 function kill(e){if(e.dead)return;e.dead=1;AU.sfx('boom');kick(e.t==='rival'?5:1.4);
  if(e.t==='rock'){RC.score+=10;RC.cash+=2;boom(e,e.fire?'#ffb020':'#ff9ad5')}
  if(e.t==='drone'){RC.score+=25;RC.cash+=15;RC.kills++;boom(e,'#19f3ff',18)}
  if(e.t==='adsat'){RC.cash+=100;RC.score+=40;boom(e,'#ff2bd6',22);RC.msg='Ad destroyed. +¥100. Good.';RC.msgT=2.2;AU.sfx('cash')}
+ if(e.t==='bully'){RC.bullies++;RC.kills++;RC.cash+=60;RC.score+=150;boom(e,e.c,24);RC.msg=e.envKill?`${e.n} ate ${e.envKill}. +¥60`:`${e.n} WRECKED. +¥60`;RC.msgT=1.8;buzz(40)}
  if(e.t==='rival'){const r=RC.rivals[e.ri];r.p-=.05;r.live=0;RC.kills++;RC.cash+=250;RC.score+=200;boom(e,r.c,30);RC.msg=`${r.n} WRECKED. +¥250.`;RC.msgT=2.6;RC.shake=.25;buzz(60)}}
 function fireRocket(){if(mode!=='race'||RC.over||RC.paused||RC.count>0||RC.rkT>0)return;RC.rkT=RC.ship.rk?1.1:2.2;
  let tg=null,bd=99;const T0=RC.target;if(T0&&T0.state===1&&T0.z<70)tg=T0;
@@ -1132,14 +1142,15 @@ function raceUpd(dt){RC.t+=dt;
   if(RC.endT>1.7&&!RC.shown){RC.shown=1;RC.win?outcomeWin():outcomeDeath()}return}
  if(RC.paused)return;
  const sh=RC.ship;
- RC.tx=cl(RC.tx+((keys.ArrowRight||keys.d?1:0)-(keys.ArrowLeft||keys.a?1:0))*2.2*sh.agi*dt,-1,1);RC.ty=cl(RC.ty+((keys.ArrowDown||keys.s?1:0)-(keys.ArrowUp||keys.w?1:0))*2.2*sh.agi*dt,-.75,.75);
+ RC.tx=cl(RC.tx+((keys.ArrowRight||keys.d?1:0)-(keys.ArrowLeft||keys.a?1:0))*2.2*sh.agi*dt,-XL,XL);RC.ty=cl(RC.ty+((keys.ArrowDown||keys.s?1:0)-(keys.ArrowUp||keys.w?1:0))*2.2*sh.agi*dt,-YU,YL);
  const ox=RC.px,oy=RC.py;RC.px+=(RC.tx-RC.px)*Math.min(1,dt*9*sh.agi);RC.py+=(RC.ty-RC.py)*Math.min(1,dt*9*sh.agi);RC.vx=lerp(RC.vx,(RC.px-ox)/dt,Math.min(1,dt*10));RC.vy=lerp(RC.vy,(RC.py-oy)/dt,Math.min(1,dt*10));
  if(RC.count>0){const p=Math.ceil(RC.count);RC.count-=dt;const n=Math.ceil(RC.count);if(n!==p){AU.sfx(n<=0?'go':'beep');buzz(n<=0?50:15);if(n<=0)RC.banner=2.8}RC.spd=lerp(RC.spd,0,dt*4);return}
  // boost & speed
  const want=(bh||keys[' '])&&RC.en>0;if(want&&!RC.boost&&RC.boostT<=0){AU.sfx('boost');buzz(20);kick(2.5);RC.fovP=.08}
  RC.boostT=Math.max(0,RC.boostT-dt);RC.boost=want||RC.boostT>0;
  if(want&&RC.boostT<=0)RC.en=Math.max(0,RC.en-26*(.85+sh.heat*.4)*dt);else RC.en=Math.min(100,RC.en+7*sh.regen*dt);
- RC.slow=Math.max(0,RC.slow-dt);
+ RC.slow=Math.max(0,RC.slow-dt);RC.brCD=Math.max(0,(RC.brCD||0)-dt);if(Math.abs(RC.vx)>.15)RC.lastDir=Math.sign(RC.vx);
+ if(RC.br){RC.br.t+=dt;const u=Math.min(1,RC.br.t/.55);RC.brA=RC.br.d*TAU*(1-Math.pow(1-u,2.2));if(u>=1){RC.br=null;RC.brA=0}}
  let pr=RC.dist/RC.total;
  RC.spd=(26*sh.spd+(RC.boost?16*sh.boost:0))*(RC.slow>0?.58:1)*(1+pr*.15);
  RC.fovP=Math.max(0,RC.fovP-dt*.5);RC.caHit=Math.max(0,RC.caHit-dt*2.2);kickUpd(dt);RC.fov=lerp(RC.fov,(RC.boost?1.14:1)+RC.fovP,dt*5);AU.bright=lerp(AU.bright,RC.boost?1:0,dt*3);
@@ -1151,23 +1162,39 @@ function raceUpd(dt){RC.t+=dt;
  // rivals (progress model)
  RC.rivals.forEach((r,i)=>{if(!r.live)r.p=Math.min(1,r.p+25*r.k*(1+.07*Math.sin(RC.t*.6+i*2.1))*(1+r.p*.15)*dt/RC.total);
   if(!r.live&&r.p>pr&&r.p-pr<.012&&R()<dt*.6&&pr>.03&&pr<.97){r.live=1;add({t:'rival',ri:i,x:rr(-.7,.7),y:rr(-.45,.3),r:.24,hp:8,z:-20,ph:R()*6})}});
+ // bully racers: pushers sneak up beside you, speeders blow past. Harmless, but they shove.
+ RC.bulT-=dt;if(RC.bulT<=0&&pr>.04&&pr<.95){RC.bulT=rr(10,17)/(.8+.2*RC.c.diff);if(RC.E.filter(e=>e.t==='bully').length<2){const side=R()<.5?-1:1,push=R()<.6;
+  RC.E.push({t:'bully',mode:push?'push':'speed',st:0,n:pick(BULLY_N),c:pick(['#ff6a3a','#b06bff','#3aff9a','#ff3a8a']),x:cl(RC.px+side*.7,-XL,XL),y:cl(RC.py+rr(-.3,.3),-YU,YL),z:push?-9:-12,r:.22,hp:3,ph:R()*6,side});
+  RC.msg=push?'Bully on your tail!':'Speeder incoming!';RC.msgT=1.4;AU.sfx('warn')}}
  // hazards + flanking scenery
- RC.spT-=RC.spd*dt;if(RC.spT<=0){RC.spT=rr(5,9)*(1.15-pr*.35)/(RC.risk*(.85+.15*RC.c.diff));spawnFrom(L)}
+ RC.spT-=RC.spd*dt;if(RC.spT<=0){RC.spT=rr(6.4,10.6)*(1.15-pr*.35)/(RC.risk*(.85+.15*RC.c.diff));spawnFrom(L)}
  if(L.towers){RC.towerT-=RC.spd*dt;if(RC.towerT<=0){RC.towerT=rr(3.5,6.5);for(const s of[-1,1])if(R()<.85)add({t:'tower',x:s*rr(1.9,3.4),y:0,h:L.towers==='mesa'?rr(1.4,3):rr(2.6,6.5),w:rr(.55,1.05),style:L.towers,seed:ri(1,9999),col:pick(['#ff5ab4','#3af0ff','#ffd27a','#b07aff']),r:0})}}
  // assassination target
  const tg=RC.target;
  if(tg&&tg.state===0&&RC.leg>=2){tg.state=1;tg.z=85;RC.msg='The Nephew is here. Gold ship. Get him.';RC.msgT=3;AU.sfx('warn');buzz([30,30,30])}
- if(tg&&tg.state===1){tg.z=lerp(tg.z,34+Math.sin(RC.t*.7)*8,dt*.7);tg.x=Math.sin(RC.t*.9)*.6;tg.y=Math.sin(RC.t*1.3)*.3-.15;tg.f-=dt;
+ if(tg&&tg.state===1){tg.z=lerp(tg.z,34+Math.sin(RC.t*.7)*8,dt*.7);tg.x=Math.sin(RC.t*.9)*.6*XL;tg.y=(Math.sin(RC.t*1.3)*.3-.15)*YU/.75;tg.f-=dt;
   if(tg.f<=0&&tg.z<60){tg.f=rr(.8,1.4);const vz=RC.spd+30,tm=tg.z/vz;RC.B.push({x:tg.x,y:tg.y,z:tg.z,vx:(RC.px-tg.x)/tm,vy:(RC.py-tg.y)/tm,vz:-vz,c:'#ffd23f'})}}
  // entities
  const reach=RC.ship.reflex?.05:0,cowl=RC.ship.c.id;
  for(const e of RC.E){
-  if(e.t==='rival'){const r=RC.rivals[e.ri],rv=25*r.k*(1+pr*.15);e.z-=(RC.spd-rv)*dt*1.2;e.x+=Math.sin(RC.t*1.4+e.ph)*.35*dt;e.x=cl(e.x,-.85,.85);r.p=pr+e.z*.00017;if(e.z>95||e.z<-3){e.dead=1;r.live=0}}
+  if(e.t==='bully'){e.st+=dt;e.bank=Math.sin(RC.t*3+e.ph)*.25;
+   if(e.mode==='push'){if(e.st<2.2){e.z+=(0-e.z)*Math.min(1,dt*1.6);e.x+=(RC.px+e.side*.42-e.x)*Math.min(1,dt*3);e.y+=(RC.py-e.y)*Math.min(1,dt*3);
+     if(Math.abs(e.z)<1.2&&Math.hypot(RC.px-e.x,RC.py-e.y)<.5&&!e.shoved){e.shoved=1;if(RC.br&&RC.br.t<.5){RC.dodges++;RC.score+=50;RC.msg='DODGED!';RC.msgT=.9}else{RC.tx=cl(RC.tx-e.side*.55,-XL,XL);RC.px=cl(RC.px-e.side*.18,-XL,XL);RC.shake=.25;kick(4);AU.sfx('hit');buzz([30,20,30]);RC.msg=`${e.n} shoved you!`;RC.msgT=1.2};e.bank=-e.side*.8}}
+    else{e.z+=dt*(7+e.st*3);e.x+=Math.sin(RC.t*1.6+e.ph)*.4*dt;e.y+=Math.cos(RC.t*1.2+e.ph)*.25*dt}}
+   else{e.z+=dt*(18+e.st*14);e.x+=Math.sin(RC.t*4+e.ph)*.9*dt}
+   e.x=cl(e.x,-XL,XL);e.y=cl(e.y,-YU,YL);if(e.z>95)e.dead=1;
+   if(e.z>2)for(const o of RC.E){if(o===e||o.dead||Math.abs(o.z-e.z)>1.6)continue;
+    if((o.t==='rock'||o.t==='drone'||o.t==='adsat')&&Math.hypot(o.x-e.x,o.y-e.y)<o.r+.2){e.envKill=o.t==='rock'?'a rock':o.t==='drone'?'a drone':'an ad';kill(e);if(o.t==='rock'){boom(o);o.dead=1}break}
+    if(o.t==='laser'&&Math.sin(RC.t*TAU/o.per+o.ph)>-.15&&Math.abs((o.vert?e.x:e.y)-o.p)<.14){e.envKill='a laser';kill(e);break}
+    if(o.t==='beam'&&Math.abs(-Math.sin(o.ang)*e.x+Math.cos(o.ang)*e.y-o.off)<.13){e.envKill='fleet fire';kill(e);break}
+    if(o.t==='well'&&Math.hypot(o.x-e.x,o.y-e.y)<o.core+.1){e.envKill='a black hole';kill(e);break}}
+   continue}
+  if(e.t==='rival'){const r=RC.rivals[e.ri],rv=25*r.k*(1+pr*.15);e.z-=(RC.spd-rv)*dt*1.2;e.x+=Math.sin(RC.t*1.4+e.ph)*.35*dt;e.x=cl(e.x,-.85*XL,.85*XL);r.p=pr+e.z*.00017;if(e.z>95||e.z<-3){e.dead=1;r.live=0}}
   else e.z-=(e.t==='drone'?RC.spd-10:RC.spd)*dt;
   if(e.t==='rock')e.rot+=e.sp*dt;
   if(e.t==='drone'){e.x+=Math.sin(RC.t*1.5+e.ph)*.5*dt;e.f-=dt;
    if(e.f<=0&&e.z<55&&e.z>8){e.f=rr(1,1.8);const vz=RC.spd+28,tm=e.z/vz;RC.B.push({x:e.x,y:e.y,z:e.z,vx:(RC.px-e.x)/tm,vy:(RC.py-e.y)/tm,vz:-vz,c:'#ff3355'})}}
-  if(e.t==='well'&&e.z<42&&e.z>0){const k=(1-e.z/42)*1.5*dt;RC.tx=cl(RC.tx+(e.x-RC.px)*k,-1,1);RC.ty=cl(RC.ty+(e.y-RC.py)*k,-.75,.75);RC.px+=(e.x-RC.px)*k*.4;RC.py+=(e.y-RC.py)*k*.4;if(R()<dt*6)buzz(6)}
+  if(e.t==='well'&&e.z<42&&e.z>0){const k=(1-e.z/42)*1.5*dt;RC.tx=cl(RC.tx+(e.x-RC.px)*k,-XL,XL);RC.ty=cl(RC.ty+(e.y-RC.py)*k,-YU,YL);RC.px+=(e.x-RC.px)*k*.4;RC.py+=(e.y-RC.py)*k*.4;if(R()<dt*6)buzz(6)}
   if(e.t==='coin'&&RC.ship.magnet&&e.z<28){e.x+=(RC.px-e.x)*Math.min(1,dt*3);e.y+=(RC.py-e.y)*Math.min(1,dt*3)}
   if(e.z<=.5&&e.z>-2&&!e.hit&&!e.dead){e.hit=1;const d=Math.hypot(RC.px-e.x,RC.py-e.y);
    if(e.t==='gate'){if(d<e.r+reach){RC.en=Math.min(100,RC.en+35);RC.score+=50;RC.cash+=10;RC.gates++;RC.flash=.3;RC.fc='#19f3ff';AU.sfx('gate');buzz(14);kick(3.5);RC.fovP=.1}}
@@ -1177,11 +1204,11 @@ function raceUpd(dt){RC.t+=dt;
    else if(e.t==='laser'){const on=Math.sin(RC.t*TAU/e.per+e.ph)>-.15,dd=e.vert?Math.abs(RC.px-e.p):Math.abs(RC.py-e.p);if(on&&dd<.14)hurt(22*(cowl==='baffle'?.4:1),'a laser wall')}
    else if(e.t==='beam'){const dd=Math.abs(-Math.sin(e.ang)*RC.px+Math.cos(e.ang)*RC.py-e.off);if(dd<.13)hurt(24*(cowl==='baffle'?.4:1),"fleet crossfire. They weren't even aiming at you")}
    else if(e.t==='well'){if(d<e.core+.08)hurt(30,'a black hole. Spaghetti now');else if(d<e.r+reach){RC.boostT=2.2;RC.en=Math.min(100,RC.en+30);RC.cash+=50;RC.msg='SLINGSHOT! Free boost. +¥50';RC.msgT=1.8;RC.flash=.3;RC.fc='#ffb070';AU.sfx('pad');buzz([20,30,40]);kick(5);RC.fovP=.18}}
-   else if(e.t==='rock'){if(d<e.r+.13){hurt(16*(cowl==='plow'?.5:1),T('CAUSE'));boom(e);e.dead=1}}
-   else if(e.t==='drone'){if(d<e.r+.13){hurt(10,'a toll drone');boom(e);e.dead=1}}
+   else if(e.t==='rock'){if(d<e.r+.13){hurt(16*(cowl==='plow'?.5:1),T('CAUSE'));boom(e);e.dead=1}else if(d<e.r+.4)nearMiss()}
+   else if(e.t==='drone'){if(d<e.r+.13){hurt(10,'a toll drone');boom(e);e.dead=1}else if(d<e.r+.38)nearMiss()}
    else if(e.t==='adsat'){if(d<e.r+.1){hurt(14,'an ad satellite. You were the ad');boom(e,'#ff2bd6');e.dead=1}}
    else if(e.t==='rival'){e.hit=0;if(d<.26&&!e.bump){e.bump=1;hurt(12,`a love tap from ${RC.rivals[e.ri].n}`)}}}}
- RC.E=RC.E.filter(e=>(e.z>-3||e.t==='rival')&&!e.dead);
+ RC.E=RC.E.filter(e=>(e.z>-3||e.t==='rival'||e.t==='bully')&&!e.dead);
  for(const b of RC.B){b.z+=b.vz*dt;b.x+=b.vx*dt;b.y+=b.vy*dt;if(b.z<=.4){b.dead=1;if(Math.hypot(RC.px-b.x,RC.py-b.y)<.2)hurt(8*(cowl==='flak'?.5:1),'drone fire')}}
  RC.B=RC.B.filter(b=>!b.dead);
  // player weapons — auto-fire with real per-gun spread
@@ -1310,6 +1337,7 @@ function drawE(e){if(e.z<-1.5)return;const[sx,sy,s]=P(e.x,e.y,Math.max(e.z,.01))
    if(s>.12){const cols=4,rows=Math.min(18,ht/(10*s+4)|0);for(let i=0;i<rows;i++)for(let j=0;j<cols;j++)if(((e.seed+i*7+j*13)%5)<2){ctx.fillStyle=((e.seed+i+j)%3)?'rgba(255,214,160,.8)':rgba(e.col,.9);ctx.fillRect(x0+w*(.15+j*.2),top[1]+ht*(.1+i/(rows+1)*.85),Math.max(1,w*.08),Math.max(1,ht*.02))}}
    ctx.globalAlpha*=.28;ctx.fillStyle=e.col;ctx.fillRect(x0,bot[1],w,ht*.45);ctx.globalAlpha=1}}
  else if(e.t==='rival'){const rv=RC.rivals[e.ri];drawRival(ctx,sx,sy,Math.max(4,W*.07*s),rv.c,rv.n,Math.sin(RC.t*1.4+e.ph)*.3,false)}
+ else if(e.t==='bully'&&e.z>.5){drawRival(ctx,sx,sy,Math.max(4,W*.06*s),e.c,e.n,e.bank||0,false)}
  else if(e.t==='target'){drawRival(ctx,sx,sy,Math.max(5,W*.1*s),'#ffd23f','THE NEPHEW',Math.sin(RC.t)*.25,true)}
  ctx.globalAlpha=1}
 /* ---------- Weapon cones & reticles ---------- */
@@ -1346,7 +1374,7 @@ function raceDraw(dt){if(R3DON){raceDraw3D(dt);return}const L=LEGS[RC.leg],M=L.m
  drawAim();
  drawTrails(dt);
  if(!RC.dead){const sx=W/2+RC.px*U,sy=CY+RC.py*V,k=RC.over&&RC.win?Math.max(.2,1-RC.endT*.35):1;
-  const res=drawShip3D(ctx,sx,sy,SHIP_S*1.9*k,RC.ship,{bank:cl(RC.vx*.34+RC.T0.cx*.25,-1.1,1.1),pitch:cl(RC.vy*.28,-.5,.5),yaw:cl(RC.vx*.12,-.4,.4),t:RC.t,boost:RC.boost,rim:M.rim});
+  const res=drawShip3D(ctx,sx,sy,SHIP_S*1.9*k,RC.ship,{bank:cl(RC.vx*.34+RC.T0.cx*.25,-1.1,1.1)+(RC.brA||0),pitch:cl(RC.vy*.28,-.5,.5),yaw:cl(RC.vx*.12,-.4,.4),t:RC.t,boost:RC.boost,rim:M.rim});
   if(!RC.paused)pushTrails(res)}
  if(RC.mod.dark){const sx=W/2+RC.px*U,sy=CY+RC.py*V,g=ctx.createRadialGradient(sx,sy-H*.15,40,sx,sy-H*.15,Math.max(W,H)*.7);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,.82)');ctx.fillStyle=g;ctx.fillRect(-30,-30,W+60,H+60)}
  ctx.restore();
@@ -1361,7 +1389,8 @@ function raceDraw(dt){if(R3DON){raceDraw3D(dt);return}const L=LEGS[RC.leg],M=L.m
 function raceDraw3D(dt){R3D.frame(dt);ctx.clearRect(0,0,W,H);const M=LEGS[RC.leg].mood;
  if(RC.boost&&!RC.over){ctx.save();ctx.globalCompositeOperation='lighter';ctx.strokeStyle='rgba(255,255,255,.16)';ctx.lineWidth=2;ctx.beginPath();for(let i=0;i<14;i++){const a=R()*TAU,r1=Math.max(W,H)*rr(.38,.52),r2=r1+rr(40,140);ctx.moveTo(W/2+Math.cos(a)*r1,H/2+Math.sin(a)*r1);ctx.lineTo(W/2+Math.cos(a)*r2,H/2+Math.sin(a)*r2)}ctx.stroke();ctx.restore()}
  ctx.save();ctx.globalCompositeOperation='lighter';ctx.fillStyle=M.mote;for(const m of RC.motes){const p=P(m.x+Math.sin(RC.t*.6+m.ph)*.2,m.y+Math.cos(RC.t*.5+m.ph)*.15,m.z);if(p[0]<-50)continue;ctx.globalAlpha=cl((88-m.z)/30,0,1)*.55;ctx.beginPath();ctx.arc(p[0],p[1],Math.max(.8,3*p[2]),0,TAU);ctx.fill()}ctx.restore();ctx.globalAlpha=1;
- ctx.font='700 11px Orbitron,sans-serif';ctx.textAlign='center';for(const e of RC.E)if(e.t==='rival'&&e.z>2&&e.z<70){const p=P(e.x,e.y-.42,e.z);ctx.fillStyle=RC.rivals[e.ri].c;ctx.fillText(RC.rivals[e.ri].n,p[0],p[1])}
+ ctx.font='700 11px Orbitron,sans-serif';ctx.textAlign='center';for(const e of RC.E)if(e.t==='bully'&&e.z>-1.5&&e.z<45){const p=P(e.x,e.y-.38,Math.max(.3,e.z));ctx.fillStyle=e.c;ctx.fillText('☠ '+e.n,p[0],p[1])}
+ for(const e of RC.E)if(e.t==='rival'&&e.z>2&&e.z<70){const p=P(e.x,e.y-.42,e.z);ctx.fillStyle=RC.rivals[e.ri].c;ctx.fillText(RC.rivals[e.ri].n,p[0],p[1])}
  if(RC.target&&RC.target.state===1){const tg=RC.target,p=P(tg.x,tg.y-.5,tg.z);ctx.fillStyle='#ffd23f';ctx.fillText('THE NEPHEW',p[0],p[1])}
  ctx.lineCap='round';for(const b of RC.B){const[sx,sy,s]=P(b.x,b.y,b.z);ctx.beginPath();ctx.arc(sx,sy,Math.max(2,6*s),0,TAU);ctx.fillStyle=b.c;ctx.fill();glowStroke(ctx,b.c,1)}
  ctx.save();ctx.globalCompositeOperation='lighter';const lc=NEON[S.pilot.col];for(const l of RC.L){const a=P(l.x,l.y,l.z),c=P(l.x-(l.vx||0)*3,l.y-(l.vy||0)*3,Math.max(.2,l.z-(l.rk?1:l.pierce?6:2.4)));if(a[0]<-50||c[0]<-50)continue;ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(c[0],c[1]);glowStroke(ctx,l.rk?'#ffd23f':l.pierce?'#ff9ad5':lc,l.rk?4:l.pierce?3:2)}
@@ -1391,6 +1420,20 @@ function wrapText(t,x,y,mw,lh){const w=t.split(' ');let line='',yy=y;for(const s
 /* ===========================================================================
    14. SCREENS — Phase 4: Outcomes
    =========================================================================== */
+function raceScore(rank){const avg=RC.total/Math.max(1,RC.t),hp=cl(RC.hull/RC.mx,0,1),L=[
+  ['Speed',`${avg.toFixed(1)} avg`,Math.round(avg*45)],['Near misses',RC.near,RC.near*30],['Barrel-roll dodges',RC.dodges,RC.dodges*50],
+  ['Things destroyed',RC.kills-RC.bullies,(RC.kills-RC.bullies)*80],['Bullies wrecked',RC.bullies,RC.bullies*150],['Gates',RC.gates,RC.gates*50],
+  ['Cash grabbed',money(RC.cash),RC.cash],['Hull left',Math.round(hp*100)+'%',Math.round(hp*1000)],['Finish',['1ST','2ND','3RD','4TH'][rank-1],[1500,800,400,0][rank-1]]];
+ if(RC.target&&RC.target.state===2)L.push(['Nephew',"handled",1000]);return{L,total:L.reduce((a,r)=>a+r[2],0)}}
+function logScore(cid,sc,rank){S.hs=S.hs||{};const b=S.hs[cid]=S.hs[cid]||[],d=new Date(),e={n:S.pilot.name,s:sc,r:rank,d:`${d.getMonth()+1}/${d.getDate()}`};b.push(e);b.sort((a,c)=>c.s-a.s);b.length=Math.min(b.length,10);const i=b.indexOf(e);return{pos:i,best:i===0,board:b}}
+function scoreCard(SC,H,c){return`<div class=scard><div class=kick style="color:var(--am)">RACE SCORE</div><div class=sbig>${fmt(SC.total)}</div>
+ ${H.pos>=0?`<div class="pill${H.best?' hs1':''}" style="margin:4px 0 8px">${H.best?'🏆 NEW HIGH SCORE // '+esc(c.n.toUpperCase()):'#'+(H.pos+1)+' ON THE '+esc(c.n.toUpperCase())+' BOARD'}</div>`:''}
+ <div class=rcpt>${SC.L.map(([l,v,p])=>`<div><span>${esc(l)} <i class=mu2>${v}</i></span><span>${p?'+'+fmt(p):'0'}</span></div>`).join('')}</div></div>`}
+function scrScores(cid){mode='menu';const ids=CIRCUITS.map(c=>c.id),cur=cid||S.lastCirc||ids[0],c=CIRCUITS.find(q=>q.id===cur)||CIRCUITS[0],b=(S.hs||{})[c.id]||[];
+ show(`<div class=kick>SYNDICATE RECORDS</div><h2>High scores</h2><div class=tabs style="justify-content:center;flex-wrap:wrap">${CIRCUITS.map(q=>`<button class="ch${q.id===c.id?' on':''}" data-a=scores data-v=${q.id}>${esc(q.n)}</button>`).join('')}</div>
+ <div class=card>${b.length?`<div class=hst>${b.map((e,i)=>`<div class="${i===0?'top':''}"><span>${i===0?'🏆':'#'+(i+1)}</span><span>${esc(e.n)}</span><span>${fmt(e.s)}</span><span class=mu2>${['1ST','2ND','3RD','4TH'][e.r-1]||''} · ${e.d}</span></div>`).join('')}</div>`:'<p style="text-align:center">No scores yet. Finish this race to get on the board.</p>'}</div>
+ <button class="btn ghost wide" data-a=${SCORE_BACK}>Back</button>`)}
+let SCORE_BACK='title';ACT.scores=v=>scrScores(v);ACT.scoresT=()=>{SCORE_BACK='title';scrScores()};ACT.scoresS=()=>{SCORE_BACK='syn';scrScores()};ACT.syn=()=>scrSyndicate();
 function receipt(rows){return`<div class=rcpt>${rows.map(([l,v,c])=>`<div class="${c||''}"><span>${esc(l)}</span><span>${v}</span></div>`).join('')}</div>`}
 function outcomeDeath(){const c=RC.c,sh=RC.ship,pr=cl(RC.dist/RC.total,0,1),pct=Math.round(pr*100);
  const clean=Math.round((400+RC.mx*3+c.pay*.08)*sh.debtx),dmg=ri(200,900)+RC.kills*120,before=S.cr;
@@ -1411,14 +1454,16 @@ function outcomeWin(){const c=RC.c,sh=RC.ship,rank=1+RC.rivals.filter(r=>r.p>=1)
  let purse=Math.round(c.pay*pm);const rows=[[`Prize (${['1ST','2ND','3RD','4TH'][rank-1]} ×${pm})`,'+'+money(purse),'p']];
  if(c.mod&&c.mod.target){if(RC.target.state===2){const b=Math.round(c.pay*.5);rows.push(['Nephew bonus','+'+money(b),'p']);purse+=b}else{const lost=Math.round(purse*.7);rows.push(['Job cancelled (he lived)','−'+money(lost),'n']);purse-=lost}}
  const spon=Math.round(purse*(sh.pay-1));if(spon)rows.push(['Sponsor + implant bonus','+'+money(spon),'p']);
- rows.push(['Cash you picked up','+'+money(RC.cash),'p'],[`Kills (${RC.kills} × ¥25)`,'+'+money(RC.kills*25),'p']);
- const gross=purse+spon+RC.cash+RC.kills*25,audit=Math.round(gross*.12);
+ rows.push(['Cash you picked up','+'+money(RC.cash),'p']);
+ const SC=raceScore(rank),scoreCash=Math.round(SC.total*.15);rows.push(['Score bonus ('+fmt(SC.total)+' pts × ¥0.15)','+'+money(scoreCash),'p']);
+ const gross=purse+spon+RC.cash+scoreCash,audit=Math.round(gross*.12);
  rows.push(['Syndicate cut (12%)','−'+money(audit),'n'],['Landing toll','−¥300','n'],['Breathing fee','−¥99','n']);
  const net=gross-audit-399,first=!S.hub;if(first&&S.cr<0){S.cr=0;rows.push(['Old debt','GONE','p'])}
- S.cr+=net;S.wins++;S.runs++;S.best=100;S.hub=true;save();let slotNote='',needSlot=false;if(S.slot==null){const f=S.slots.indexOf(null);if(f>=0){claimSlot(f);slotNote=`PILOT SAVED // SLOT ${f+1}`}else needSlot=true}rows.push(['YOU GET',money(net),'t'],['BALANCE',money(S.cr),'t']);
+ S.cr+=net;S.wins++;S.runs++;S.best=100;S.hub=true;save();const HSR=logScore(c.id,SC.total,rank);save();let slotNote='',needSlot=false;if(S.slot==null){const f=S.slots.indexOf(null);if(f>=0){claimSlot(f);slotNote=`PILOT SAVED // SLOT ${f+1}`}else needSlot=true}rows.push(['YOU GET',money(net),'t'],['BALANCE',money(S.cr),'t']);
  mode='menu';AU.play('win');
  show(`<div class=kick>PHASE 4 // YOU MADE IT</div><div class="term grn" id=tm></div>
  <div class=big>${['FIRST TO EARTH','2ND PLACE','3RD PLACE','4TH PLACE'][rank-1]}</div><canvas id=pv class=pv></canvas>
+ ${scoreCard(SC,HSR,c)}
  ${receipt(rows)}${slotNote?`<div class=pill style="margin:8px 0;color:var(--gr);border-color:#7dff6b88">${slotNote}</div>`:''}${first?'<div class="term grn" style="min-height:0"><div class=gr>YOU’RE A CITIZEN NOW. CONDOLENCES.</div><div>SPACEPORT BRAVO UNLOCKED: Clinic · Chop Shop · Syndicate · Bar</div></div>':''}
  <div id=tb></div>`);
  typeTerm($('#tm'),[{t:'[TOUCHDOWN // EARTH]',c:'gr'},{t:`PAID: ${fmt(net)} CREDITS. Fees pending.`},{t:'Grab it before they invent a new fee.',c:'hl'}],()=>{AU.sfx('cash');const tb=$('#tb');if(tb)tb.innerHTML=needSlot?'<button class="btn wide gr" data-a=slotpick>Save your pilot →</button>':'<button class="btn wide gr" data-a=hub>Hit Spaceport Bravo</button>'});
@@ -1584,7 +1629,7 @@ function scrSyndicate(){mode='hubshop';
  show(`<div class=kick>SPACEPORT BRAVO // RACE SYNDICATE</div><h2>Races</h2>${crPill()}
  <p class=lead style="font-size:15px">Deadlier races pay more. The Syndicate admires your commitment to dying.</p>
  ${CIRCUITS.map(c=>{const lock=S.wins<c.req;return`<div class="card tap${lock?' lock':''}" data-a=circ data-v=${c.id}><h3>${esc(c.n)}</h3><span class="tag${lock?' no':''}">${lock?`🔒 ${c.req} WINS`:money(c.pay)}</span><p>${esc(c.d)}</p><div class=fx>DANGER ${'▮'.repeat(Math.round(c.diff*2.4))}${'▯'.repeat(Math.max(0,5-Math.round(c.diff*2.4)))} · LENGTH ×${c.len}</div></div>`}).join('')}
- <button class="btn wide" data-a=hub>Back to the street</button>`)}
+ <button class="btn ghost wide" data-a=scoresS>🏆 High scores</button><button class="btn wide" data-a=hub>Back to the street</button>`)}
 ACT.circ=id=>{const c=CIRCUITS.find(q=>q.id===id);if(S.wins<c.req){AU.sfx('deny');toast(`Need ${c.req} wins. You've got ${S.wins}.`);return}scrSitrep(id)};
 function scrBar(){mode='hubshop';const rumors=[...new Set(Array.from({length:6},()=>T('RUMOR')))].slice(0,3);
  show(`<div class=kick>SPACEPORT BRAVO // BAR & FIXERS</div><h2>The Rusty Airlock</h2>${crPill()}
@@ -1657,9 +1702,13 @@ let MT=0;function menuDraw(dt){MT+=dt;CY=H*.5;
 /* ===========================================================================
    18. INPUT
    =========================================================================== */
-cv.addEventListener('pointerdown',e=>{if(mode==='race'&&!RC.over&&!RC.paused&&drag===null){drag=e.pointerId;lx=e.clientX;ly=e.clientY;try{cv.setPointerCapture(e.pointerId)}catch(_){}}
+const DT={t:0,x:0,y:0,mv:0};
+function barrelRoll(){if(mode!=='race'||RC.over||RC.paused||RC.count>0||RC.brCD>0||RC.br)return;const d=Math.abs(RC.vx)>.08?Math.sign(RC.vx):(RC.lastDir||1);
+ RC.br={t:0,d,dodged:0};RC.brCD=1.1;RC.tx=cl(RC.tx+d*.5,-XL,XL);AU.sfx('boost');buzz([15,25,15]);kick(2.2);RC.fovP=.06}
+cv.addEventListener('pointerdown',e=>{if(mode==='race'&&!RC.over&&!RC.paused){const now=performance.now();if(now-DT.t<350&&!DT.mv&&Math.hypot(e.clientX-DT.x,e.clientY-DT.y)<60){barrelRoll();DT.t=0}else{DT.t=now;DT.x=e.clientX;DT.y=e.clientY;DT.mv=0}}
+ if(mode==='race'&&!RC.over&&!RC.paused&&drag===null){drag=e.pointerId;lx=e.clientX;ly=e.clientY;try{cv.setPointerCapture(e.pointerId)}catch(_){}}
  else if(mode==='hub'){HUB.press=true;HUB.tx=cl(e.clientX+cl(HUB.x-W/2,0,Math.max(0,WORLD-W)),40,WORLD-40)}});
-cv.addEventListener('pointermove',e=>{if(mode==='race'&&e.pointerId===drag&&!RC.paused){RC.tx=cl(RC.tx+(e.clientX-lx)/U*1.5,-1,1);RC.ty=cl(RC.ty+(e.clientY-ly)/V*1.5,-.75,.75);lx=e.clientX;ly=e.clientY}
+cv.addEventListener('pointermove',e=>{if(mode==='race'&&e.pointerId===drag&&!RC.paused){RC.tx=cl(RC.tx+(e.clientX-lx)/U*1.5,-XL,XL);RC.ty=cl(RC.ty+(e.clientY-ly)/V*1.5*((YU+YL)/1.5),-YU,YL);if(Math.hypot(e.clientX-DT.x,e.clientY-DT.y)>18)DT.mv=1;lx=e.clientX;ly=e.clientY}
  else if(mode==='hub'&&HUB.press){HUB.tx=cl(e.clientX+cl(HUB.x-W/2,0,Math.max(0,WORLD-W)),40,WORLD-40)}});
 ['pointerup','pointercancel'].forEach(n=>cv.addEventListener(n,e=>{if(e.pointerId===drag)drag=null;HUB.press=false}));
 const bstB=$('#bst');bstB.addEventListener('pointerdown',e=>{e.preventDefault();bh=true;bstB.classList.add('on');try{bstB.setPointerCapture(e.pointerId)}catch(_){}});
