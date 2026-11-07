@@ -1291,8 +1291,9 @@ function raceUpd(dt){RC.t+=dt;
  RC.E=RC.E.filter(e=>(e.z>-3||e.t==='rival'||e.t==='bully')&&!e.dead);
  for(const b of RC.B){b.z+=b.vz*dt;b.x+=b.vx*dt;b.y+=b.vy*dt;if(b.z<=.4){b.dead=1;if(Math.hypot(RC.px-b.x,RC.py-b.y)<.2)hurt(8*(cowl==='flak'?.5:1),b.cause||'drone fire')}}
  RC.B=RC.B.filter(b=>!b.dead);
- // player weapons — auto-fire with real per-gun spread
- RC.fireT-=dt;if(RC.fireT<=0){const g=sh.g;RC.fireT=g.rate;const shot=(ox,oy,vx,vy,o={})=>RC.L.push({x:RC.px+ox,y:RC.py+oy,z:1,vx,vy,dmg:o.dmg||1,pierce:o.pierce,spd:o.spd||120});
+ // player weapons — fire only while the steering thumb (or mouse / steer keys) is down
+ const steer=drag!==null||keys.ArrowRight||keys.ArrowLeft||keys.ArrowUp||keys.ArrowDown||keys.a||keys.d||keys.w||keys.s;
+ RC.fireT=Math.max(0,RC.fireT-dt);if(RC.fireT<=0&&steer){const g=sh.g;RC.fireT=g.rate;const shot=(ox,oy,vx,vy,o={})=>RC.L.push({x:RC.px+ox,y:RC.py+oy,z:1,vx,vy,dmg:o.dmg||1,pierce:o.pierce,spd:o.spd||120});
   if(g.id==='twin'){for(const s of[-.1,.1])shot(s,0,rr(-1,1)*g.spread,rr(-1,1)*g.spread)}
   else if(g.id==='scatter'){for(let i=0;i<g.pellets;i++){const a=R()*TAU,r=Math.sqrt(R())*g.spread;shot(0,0,Math.cos(a)*r,Math.sin(a)*r*.75)}}
   else{shot(0,0,0,0,{dmg:3,pierce:1,spd:260});RC.railFlash=.12}
