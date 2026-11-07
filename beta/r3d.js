@@ -72,7 +72,7 @@ function shared(){
  MAT.rockOb=new THREE.MeshStandardMaterial({color:'#9a6cc4',roughness:.6,flatShading:true,emissive:'#6a1f8f',emissiveIntensity:1.1});
  MAT.edgeHaz=new THREE.MeshBasicMaterial({color:new COL('#ff4fd8').multiplyScalar(1.8),side:THREE.BackSide,toneMapped:false});
  MAT.edgeRed=new THREE.MeshBasicMaterial({color:new COL('#ff3355').multiplyScalar(1.8),side:THREE.BackSide,toneMapped:false});
- MAT.drone=new THREE.MeshStandardMaterial({color:'#1c4a5e',roughness:.3,metalness:.5,flatShading:true,emissive:'#1a8aa6',emissiveIntensity:1.2});
+ MAT.drone=new THREE.MeshStandardMaterial({color:'#1c4a5e',roughness:.3,metalness:.5,flatShading:true,emissive:'#30c8ff',emissiveIntensity:1.6});
  MAT.gate=new THREE.MeshBasicMaterial({color:new COL('#ffd23f').multiplyScalar(2.2),toneMapped:false});
  MAT.gateUsed=new THREE.MeshBasicMaterial({color:'#5a4a18',toneMapped:false});
  MAT.red=new THREE.MeshBasicMaterial({color:new COL('#ff3355').multiplyScalar(2.5),toneMapped:false});
@@ -116,7 +116,7 @@ const RIVAL_GEO={};function racerMesh(colHex,gold){const key=colHex+(gold?'g':''
 function makeEnt(e){const g=new THREE.Group();let m;
  switch(e.t){
   case'rock':m=new THREE.Mesh(GEO.rock,e.fire?MAT.fire:MAT.rockOb);g.add(m);{const ed=new THREE.Mesh(GEO.rock,e.fire?MAT.edgeRed:MAT.edgeHaz);ed.scale.setScalar(1.13);g.add(ed)}if(!e.fire)g.add(glow(new COL('#ff4fd8').multiplyScalar(1.1),2.6));if(e.fire)g.add(glow(new COL('#ff7a20').multiplyScalar(1.6),3.2));if(e.moss){const c=new THREE.Mesh(GEO.box,MAT.green);c.scale.set(1.1,.08,1.1);c.position.y=.82;g.add(c)}g.userData.spin=new V3(Math.random(),Math.random(),Math.random()).normalize();break;
-  case'drone':m=new THREE.Mesh(GEO.oct,MAT.drone);m.scale.set(1.5,.6,1);g.add(m);{const ed=new THREE.Mesh(GEO.oct,MAT.edgeRed);ed.scale.set(1.7,.72,1.15);g.add(ed)}{const eye=new THREE.Mesh(GEO.sph,MAT.red);eye.scale.setScalar(.25);eye.position.z=.6;g.add(eye);g.add(glow(new COL('#ff3355').multiplyScalar(2),1.4))}break;
+  case'drone':m=new THREE.Mesh(GEO.oct,MAT.drone);m.scale.set(1.5,.6,1);g.add(m);{const ed=new THREE.Mesh(GEO.oct,MAT.edgeRed);ed.scale.set(1.7,.72,1.15);g.add(ed)}{const eye=new THREE.Mesh(GEO.sph,MAT.red);eye.scale.setScalar(.32);eye.position.z=.6;g.add(eye);g.add(glow(new COL('#ff3355').multiplyScalar(2.6),2.6));const tg=glow(new COL('#ffffff').multiplyScalar(2),.01);g.add(tg);g.userData.tell=tg}break;
   case'gate':m=new THREE.Mesh(GEO.sq,MAT.gate);m.rotation.z=Math.PI/4;m.scale.setScalar(1.41);g.add(m);g.userData.m=m;break;
   case'pad':g.add(new THREE.Mesh(GEO.ring,MAT.cyan));for(let k=0;k<3;k++)for(const s of[-1,1]){const b=new THREE.Mesh(GEO.box,MAT.green);b.scale.set(.75,.08,.05);b.position.set(s*.32,-.4+k*.42,0);b.rotation.z=-s*.6;g.add(b)}break;
   case'coin':m=new THREE.Mesh(GEO.oct,MAT.gold);m.scale.set(.7,1,.7);g.add(m);g.add(glow(new COL('#ffd23f').multiplyScalar(1.6),2.2));break;
@@ -164,7 +164,7 @@ function placeEnt(e,o,t){const q=TMP.q;
  const fade=cl((96-e.z)/26,0,1);o.visible=fade>.02;
  switch(e.t){
   case'rock':o.scale.setScalar(e.r*SX*.95);o.rotateOnAxis(o.userData.spin,e.rot);break;
-  case'drone':o.scale.setScalar(.2*SX*1.3);o.rotateY(Math.sin(t*2+e.ph)*.5);break;
+  case'drone':o.scale.setScalar(.2*SX*1.5);o.rotateY(Math.sin(t*2+e.ph)*.5);if(o.userData.tell){const on=e.f<.4&&e.z<55&&e.z>8;o.userData.tell.scale.setScalar(on?3.2+Math.sin(t*40):.01)}break;
   case'gate':o.scale.setScalar(e.r*SX);o.userData.m.material=e.hit?MAT.gateUsed:MAT.gate;break;
   case'pad':o.scale.setScalar(e.r*SX);break;
   case'coin':o.scale.setScalar(.09*SX*1.5);o.rotateY(t*6+e.z);break;
