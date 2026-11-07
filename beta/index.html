@@ -276,7 +276,7 @@ const EVENTS=[
 const SKIN=['#f4cfae','#dda57c','#a8714f','#6a4430','#c8d4e8'];
 const NEON=['#19f3ff','#ff2bd6','#ffd23f','#7dff6b','#b06bff'];
 const OUTC=['#2b3048','#1c1a38','#d4a017','#474c63','#e8e04a'];
-const OPT={body:['Male','Female','Android'],skin:['Pale','Tan','Bronze','Umber','Synthskin'],hair:['Mohawk','Undercut','Long','Braids','Chrome Dome'],gear:['None','Hood','Cat Ears','Bucket Hat','Halo Rig'],optics:['None','Visor','Goggles','Monocle','Shades'],mask:['None','Bandana','Respirator','Scarf','War Paint'],scar:['None','Cheek Slash','Brow Split','Barcode Ink','Stitches'],cyber:['None','Cyber Eye','Jaw Plate','Antenna','Neck Port'],out:['Street Bomber','Neon Trenchcoat','Gold Tracksuit','Debt Collector Suit','Inflatable Hazmat'],col:['Cyan','Magenta','Amber','Lime','Violet']};
+const OPT={body:['Male','Female','Android'],skin:['Pale','Tan','Bronze','Umber','Synthskin'],hair:['Mohawk','Undercut','Long','Braids','Chrome Dome','Buzz Cut','Ponytail'],gear:['None','Hood','Cat Ears','Bucket Hat','Halo Rig'],optics:['None','Visor','Goggles','Monocle','Shades'],mask:['None','Bandana','Respirator','Scarf','War Paint'],scar:['None','Cheek Slash','Brow Split','Barcode Ink','Stitches'],cyber:['None','Cyber Eye','Jaw Plate','Antenna','Neck Port'],out:['Street Bomber','Neon Trenchcoat','Gold Tracksuit','Debt Collector Suit','Inflatable Hazmat'],col:['Cyan','Magenta','Amber','Lime','Violet']};
 const DOORS=[
  {id:'clinic',x:360,sign:'CLINIC',n:'Back-Alley Clinic',col:'#7dff6b',d:'New parts for your body. No refunds.'},
  {id:'chop',x:880,sign:'CHOP SHOP',n:'Chop Shop',col:'#ffd23f',d:'New parts for your ship. Also no refunds.'},
@@ -304,7 +304,7 @@ function computeShip(){const h=part('hull'),t=part('thr'),p=part('plate'),c=part
  return{h,t,p,c,g,d,heat:cl((h.heat||0)+(t.heat||0)+(p.heat||0)+(c.heat||0),0,1),spd:h.spd+(t.spd||0)+(p.spd||0),hp:Math.round(h.hp+(t.hp||0)+(p.hp||0)+(hasAug('derm')?30:0)),agi:h.agi+(t.agi||0)+(p.agi||0),
   boost:1+(t.boost||0)+(d.boost||0),regen:1+(t.regen||0)+(hasAug('over')?.4:0),pay:1+(d.bonus||0)+(hasAug('eye')?.15:0),
   rk:h.perk==='rk',spr:h.perk==='spr',reflex:hasAug('reflex'),magnet:hasAug('magnet'),pain:hasAug('pain'),ads:!!d.ads,debtx:d.debtx||1}}
-function plainPilot(){return{name:'Contestant #'+ri(1000,9999),body:0,skin:1,hair:1,gear:0,optics:0,mask:0,scar:0,cyber:0,out:0,col:0,quote:T('QUOTE')||"Rent's due."}}
+function plainPilot(){return{name:'Contestant #'+ri(1000,9999),body:0,skin:1,hair:5,gear:0,optics:0,mask:0,scar:0,cyber:0,out:0,col:0,quote:T('QUOTE')||"Rent's due."}}
 function randPilot(){return{name:'Contestant #'+ri(1000,9999),body:ri(0,2),skin:ri(0,4),hair:ri(0,4),gear:R()<.5?0:ri(1,4),optics:R()<.4?0:ri(1,4),mask:R()<.55?0:ri(1,4),scar:R()<.4?0:ri(1,4),cyber:R()<.4?0:ri(1,4),out:ri(0,4),col:ri(0,4),quote:T('QUOTE')||"Rent's due."}}
 
 /* ===========================================================================
@@ -481,6 +481,8 @@ function paintPilot(x,p){
  if(p.hair===2&&p.gear!==1){const bg=x.createLinearGradient(0,-60,0,112);bg.addColorStop(0,hairC);bg.addColorStop(.55,hairD);bg.addColorStop(1,mix(hairD,'#000',.35));x.fillStyle=bg;
   x.beginPath();x.moveTo(0,-56);x.bezierCurveTo(30,-56,42,-36,41,-6);x.bezierCurveTo(44,30,50,64,47,100);for(let j=1;j<=8;j++)x.lineTo(47-j*94/8,100+(j%2?9:0)+R2(-2,2));x.bezierCurveTo(-50,64,-44,30,-41,-6);x.bezierCurveTo(-42,-36,-30,-56,0,-56);x.fill();
   strands(120,()=>{const s=rnd()<.5?-1:1,x0=s*R2(14,36);return[x0,R2(-44,-10),s*R2(38,50),R2(20,60),s*R2(30,48),R2(92,108)]},hairC,hairL,1,.5)}
+ if(p.hair===6&&p.gear!==1){const tg=x.createLinearGradient(10,-50,40,70);tg.addColorStop(0,hairC);tg.addColorStop(1,hairD);x.fillStyle=tg;x.beginPath();x.moveTo(4,-50);x.bezierCurveTo(30,-54,44,-30,40,0);x.bezierCurveTo(38,26,34,52,28,74);x.quadraticCurveTo(24,82,20,74);x.bezierCurveTo(24,48,26,20,22,-6);x.bezierCurveTo(20,-26,14,-38,4,-42);x.closePath();x.fill();
+  strands(60,()=>[R2(8,22),R2(-48,-36),R2(32,42),R2(-10,20),R2(20,32),R2(50,78)],hairC,hairL,.8,.6)}
  if(p.hair===3&&p.gear!==1)for(let j=0;j<12;j++){const s=j%2?1:-1,k=j>>1;braid(s*(20+k*3.4),-14+k*2.4,s*(26+k*4.6+R2(0,8)),R2(84,106),3.1,.85)}
  if(p.out===1){x.fillStyle=mix(oc,'#ffffff',.06);for(const s of[-1,1]){x.beginPath();x.moveTo(s*(nw-2),48);x.lineTo(s*(nw+6),4);x.lineTo(s*(nw+24),44);x.closePath();x.fill();x.strokeStyle=rgba(a,.8);x.lineWidth=1.2;L(s*(nw+6),4,s*(nw+24),44)}}
  // ---------- torso / jacket ----------
@@ -607,6 +609,13 @@ function paintPilot(x,p){
    x.strokeStyle=rgba(hairL,.45);x.lineWidth=.6;for(let q=0;q<7;q++){const u=q/7,qx=hx0+(tx-hx0)*u,qy=hy0+(ty-hy0)*u;x.beginPath();x.moveTo(qx-1.6,qy+1);x.lineTo(qx+1.4,qy-1);x.stroke()}}x.restore();
   sheen(()=>crown(1.5,0,2),0,-34,22,14);
   for(const s of[-1,1])for(let k=0;k<3;k++)braid(s*(25+k*2.8),-8+k*3,s*(28+k*4+R2(0,4)),R2(72,94),3,1)}
+ if(p.hair===5){x.save();head();x.clip();crown(0,0,1);x.clip();const bc=mix(p.hair===5?nat:hairC,'#000',.15);x.fillStyle=rgba(bc,.42);x.fillRect(-32,-56,64,56);
+  x.fillStyle=rgba(mix(bc,'#000',.3),.55);for(let i=0;i<900;i++){x.fillRect(R2(-31,31),R2(-52,-4),.75,.75)}
+  const sg=x.createLinearGradient(-30,0,30,0);sg.addColorStop(0,'rgba(0,0,0,0)');sg.addColorStop(.7,'rgba(0,0,0,0)');sg.addColorStop(1,'rgba(10,4,20,.35)');x.fillStyle=sg;x.fillRect(-32,-56,64,56);x.restore();
+  x.strokeStyle=rgba(mix(bc,'#000',.2),.55);x.lineWidth=1.1;x.beginPath();x.moveTo(-28,-6);x.bezierCurveTo(-28,-16,-22,-25,-12,-28);x.quadraticCurveTo(0,-31,12,-28);x.bezierCurveTo(22,-25,28,-16,28,-6);x.stroke()}
+ if(p.hair===6){capFill(()=>crown(.5,0,-1));sheen(()=>crown(.5,0,-1),-3,-34,22,14);
+  x.save();crown(.5,0,-1);x.clip();strands(110,()=>{const sx=R2(-26,26);return[sx,-28+Math.abs(sx)*.15,sx*.75,-42,sx*.3+8,-52]},hairC,hairL,.6,.55);x.restore();
+  x.fillStyle=a;x.beginPath();x.ellipse(13,-48,4.5,2.6,.5,0,TAU);x.fill();x.fillStyle=rgba('#000000',.3);x.beginPath();x.ellipse(13,-47.4,4.5,1.2,.5,0,TAU);x.fill()}
  if(p.hair===4&&!droid){x.save();head();x.clip();const cg=x.createLinearGradient(-30,-46,30,-10);cg.addColorStop(0,'#f6f9ff');cg.addColorStop(.35,'#a8b2c6');cg.addColorStop(.7,'#5a6278');cg.addColorStop(1,'#2a3040');x.fillStyle=cg;x.beginPath();x.moveTo(-31,-14);x.quadraticCurveTo(0,-22,31,-14);x.lineTo(31,-50);x.lineTo(-31,-50);x.closePath();x.fill();
   x.strokeStyle='#2a3040';x.lineWidth=1;x.beginPath();x.moveTo(-31,-14);x.quadraticCurveTo(0,-22,31,-14);x.stroke();x.fillStyle='#2a3040';for(let i=-4;i<=4;i++){x.beginPath();x.arc(i*6.5,-17-Math.cos(i/4)*2.5,.9,0,TAU);x.fill()}x.fillStyle='rgba(255,255,255,.7)';x.beginPath();x.ellipse(-11,-34,4,10,-.6,0,TAU);x.fill();x.restore()}
  // ---------- optics ----------
@@ -672,6 +681,7 @@ function drawWalker(x,px,py,p,t,walk,face,k=1){
  const hs=Math.sin(walk*2+.6)*2-Math.abs(Math.sin(walk))*1.5;
  if(p.hair===2&&p.gear!==1){const g=x.createLinearGradient(hx-10,0,hx+2,0);g.addColorStop(0,hairD);g.addColorStop(1,hairC);x.fillStyle=g;x.beginPath();x.moveTo(hx+1,hy-7.5);x.quadraticCurveTo(hx-9,hy-6,hx-8.5+hs*.3,hy+8);x.quadraticCurveTo(hx-9+hs,hy+20,hx-7+hs*1.4,hy+27);x.lineTo(hx-1.5+hs*.8,hy+26);x.quadraticCurveTo(hx-2,hy+14,hx-1,hy+4);x.closePath();x.fill();
   x.strokeStyle=rgba(hairL,.45);x.lineWidth=.5;for(let i=0;i<5;i++){x.beginPath();x.moveTo(hx-2-i*1.3,hy-5);x.quadraticCurveTo(hx-6-i*.7+hs*.4,hy+10,hx-5-i*.6+hs*1.2,hy+25);x.stroke()}}
+ if(p.hair===6&&p.gear!==1){const g6=x.createLinearGradient(hx-12,0,hx-2,0);g6.addColorStop(0,hairD);g6.addColorStop(1,hairC);x.fillStyle=g6;x.beginPath();x.moveTo(hx-3,hy-8);x.quadraticCurveTo(hx-11,hy-9,hx-11+hs*.4,hy-2);x.quadraticCurveTo(hx-12+hs,hy+8,hx-9+hs*1.3,hy+15);x.lineTo(hx-6.5+hs,hy+14);x.quadraticCurveTo(hx-8,hy+4,hx-5,hy-4);x.closePath();x.fill();x.fillStyle=a;x.fillRect(hx-9,hy-8,2.2,2)}
  if(p.hair===3&&p.gear!==1)for(const o of[0,2.6]){for(let i=0;i<6;i++){const bx=hx-6.5-o*.4+hs*(i/6),by=hy+1+i*3.6;x.fillStyle=i%2?hairD:hairC;x.beginPath();x.ellipse(bx,by,1.9,2.2,0,0,TAU);x.fill()}x.fillStyle=a;x.beginPath();x.arc(hx-6.5-o*.4+hs,hy+23,1.3,0,TAU);x.fill()}
  if(p.gear===1){x.fillStyle=mix(oc,'#05030b',.35);x.beginPath();x.moveTo(hx+5,hy-10);x.quadraticCurveTo(hx-12,hy-12,hx-11,hy+6);x.quadraticCurveTo(hx-12,hy+14,hx-9,shY+6);x.lineTo(hx+3,shY+2);x.closePath();x.fill()}
  leg(0,false);
@@ -728,6 +738,8 @@ function drawWalker(x,px,py,p,t,walk,face,k=1){
  if(p.hair===0){x.fillStyle=mix(hairC,'#000',.2);x.beginPath();x.moveTo(hx-5,hy-6);x.quadraticCurveTo(hx-1,hy-17,hx+4,hy-9);x.closePath();x.fill();x.strokeStyle=hairC;x.lineWidth=.7;for(let i=0;i<9;i++){const bx=hx-5+i*1.1,by=hy-7.6-Math.sin(i/8*Math.PI)*.8;x.beginPath();x.moveTo(bx,by);x.quadraticCurveTo(bx+.5,by-5,bx+(i-4)*.4,by-8-Math.sin(i/8*Math.PI)*3);x.stroke()}x.strokeStyle=hairL;x.lineWidth=.35;for(let i=0;i<5;i++){const bx=hx-3+i*1.3;ln([bx,hy-8.4],[bx+.3,hy-15])}}
  if(p.hair===1){g=x.createLinearGradient(hx-6,hy-12,hx+8,hy-4);g.addColorStop(0,hairD);g.addColorStop(.5,hairC);g.addColorStop(1,hairL);x.fillStyle=g;x.beginPath();x.moveTo(hx-5,hy-6);x.quadraticCurveTo(hx-4,hy-12.5,hx+2,hy-12);x.quadraticCurveTo(hx+8,hy-11,hx+8.6,hy-5.5);x.quadraticCurveTo(hx+7,hy-7.6,hx+5.5,hy-7);x.quadraticCurveTo(hx+1,hy-8.8,hx-5,hy-6);x.fill();x.strokeStyle=rgba(hairL,.5);x.lineWidth=.35;for(let i=0;i<4;i++){x.beginPath();x.moveTo(hx-3+i,hy-9.8+i*.4);x.quadraticCurveTo(hx+3,hy-12+i*.6,hx+8-i*.4,hy-6);x.stroke()}}
  if((p.hair===2||p.hair===3)&&p.gear!==1){g=x.createLinearGradient(hx-6,hy-10,hx+6,hy-4);g.addColorStop(0,hairD);g.addColorStop(1,hairL);x.fillStyle=g;x.beginPath();x.moveTo(hx-6.4,hy+1);x.quadraticCurveTo(hx-7,hy-10,hx+1,hy-9.6);x.quadraticCurveTo(hx+7.4,hy-9.4,hx+7,hy-3);x.quadraticCurveTo(hx+5,hy-6.4,hx+1,hy-6.4);x.quadraticCurveTo(hx-2,hy-5.6,hx-2.6,hy+2);x.closePath();x.fill()}
+ if(p.hair===5){x.save();head();x.clip();x.fillStyle=rgba(mix(nat,'#000',.15),.55);x.beginPath();x.moveTo(hx-6.2,hy+.5);x.quadraticCurveTo(hx-6,hy-9.2,hx+1.5,hy-9.2);x.quadraticCurveTo(hx+6.6,hy-8.6,hx+6.4,hy-4.2);x.quadraticCurveTo(hx+3,hy-6.6,hx-.5,hy-5.6);x.quadraticCurveTo(hx-2,hy-2,hx-2.4,hy+.8);x.closePath();x.fill();x.restore()}
+ if(p.hair===6){g=x.createLinearGradient(hx-6,hy-10,hx+6,hy-4);g.addColorStop(0,hairD);g.addColorStop(1,hairL);x.fillStyle=g;x.beginPath();x.moveTo(hx-6,hy-1);x.quadraticCurveTo(hx-6.6,hy-9.6,hx+1,hy-9.4);x.quadraticCurveTo(hx+6.8,hy-9,hx+6.6,hy-4.4);x.quadraticCurveTo(hx+3,hy-7,hx-1,hy-6.4);x.quadraticCurveTo(hx-3,hy-3,hx-3,hy+.6);x.closePath();x.fill()}
  if(p.hair===4&&!droid){x.save();head();x.clip();g=x.createLinearGradient(hx-6,hy-9,hx+6,hy-3);g.addColorStop(0,'#2a3040');g.addColorStop(.5,'#a8b2c6');g.addColorStop(1,'#f6f9ff');x.fillStyle=g;x.fillRect(hx-7,hy-10,15,6.2);x.restore()}
  // ---- optics ----
  const opt=p.optics|0;
