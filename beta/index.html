@@ -6,8 +6,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="MEGALOTTO">
-<meta name="description" content="STAR-CRUSH // MEGALOTTO — win the rigged death-lottery, build your pilot, rig your ship and race from Mars to Earth through the blockade. A Matthews Operations Lab game.">
-<title>STAR-CRUSH // MEGALOTTO — 3D BETA</title>
+<meta name="description" content="STAR CRUSH: RACE TO EARTH — win the rigged death-lottery, build your pilot, rig your ship and race from Mars to Earth through the blockade. A Matthews Operations Lab game.">
+<title>STAR CRUSH: RACE TO EARTH — 3D BETA</title>
 <script type="importmap">{"imports":{"three":"./lib/three.module.min.js"}}</script>
 <link rel="icon" id="ico"><link rel="apple-touch-icon" id="aico">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -64,6 +64,13 @@ p.lead{max-width:380px;margin:0 auto 14px;color:#cfe6f5}
 .term div{margin-bottom:8px}
 .term .hl{color:var(--am)}.term .rd{color:var(--rd)}.term .gr{color:var(--gr)}.term .mu{color:#8a80a8}
 .term.red{border-color:#ff335566;border-left-color:var(--rd)}.term.grn{border-color:#7dff6b55;border-left-color:var(--gr)}
+.ttl{font-size:clamp(40px,13vw,60px);margin:8px 0 0;letter-spacing:.02em}
+.ttl2{font:900 clamp(18px,6vw,26px) Orbitron,sans-serif;color:var(--am);text-shadow:0 0 18px #ffd23f88;letter-spacing:.12em}
+.btn.lockd{background:#2a2440;color:#8a80a8;box-shadow:none}
+.slot{display:flex;align-items:center;gap:12px}.slot.empty{opacity:.55;min-height:74px}
+.slot canvas.sp{flex:none;width:74px;height:74px;border:1px solid #ff2bd655}
+.slot .si{flex:1;min-width:0}.slot .si h3{padding:0;margin:0 0 2px}.slot .si p{font-size:14px}.slot .mu2{color:#8a80a8;font-size:12.5px}
+.slot .sb{display:flex;flex-direction:column;gap:6px}.slot .sb .ch{min-height:36px;padding:6px 10px;font-size:14px}
 .fh{margin:2px 0 4px}
 canvas.pv.pvs{width:min(300px,31vh,100%)!important;height:auto;margin:4px auto}
 input.nm.nms{font-size:17px;padding:6px 10px;margin:6px auto;width:min(300px,100%)}
@@ -276,9 +283,10 @@ const WORLD=2300;
    3. SAVE STATE
    =========================================================================== */
 const KEY='starcrush.megalotto.beta3d.v1'; // separate save so testing never touches the live game
-const S={pilot:null,ship:{hull:'needle',thr:'ion',plate:'tape',cowl:'none',gun:'twin',decal:'none'},owned:[],aug:[],cr:0,wins:0,runs:0,deaths:0,best:0,hub:false,ticket:0,intel:0,set:{mus:1,sfx:1,hap:1,fx:1,r3d:1},data:null,lastCirc:'draw'};
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
-function load(){try{const d=JSON.parse(localStorage.getItem(KEY)||'null');if(d){Object.assign(S,d);S.set=Object.assign({mus:1,sfx:1,hap:1,fx:1,r3d:1},d.set||{});S.ship=Object.assign({hull:'needle',thr:'ion',plate:'tape',cowl:'none',gun:'twin',decal:'none'},d.ship||{})}}catch(e){}applyData()}
+const S={pilot:null,ship:{hull:'needle',thr:'ion',plate:'tape',cowl:'none',gun:'twin',decal:'none'},owned:[],aug:[],cr:0,wins:0,runs:0,deaths:0,best:0,hub:false,ticket:0,intel:0,set:{mus:1,sfx:1,hap:1,fx:1,r3d:1},data:null,lastCirc:'draw',slots:[null,null,null],slot:null,lastSlot:null};
+function save(){if(S.slot!=null&&S.slots[S.slot]&&typeof snapRun==='function')S.slots[S.slot]=snapRun();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function load(){try{const d=JSON.parse(localStorage.getItem(KEY)||'null');if(d){Object.assign(S,d);S.set=Object.assign({mus:1,sfx:1,hap:1,fx:1,r3d:1},d.set||{});S.ship=Object.assign({hull:'needle',thr:'ion',plate:'tape',cowl:'none',gun:'twin',decal:'none'},d.ship||{});
+  if(!Array.isArray(d.slots)){S.slots=[null,null,null];S.slot=null;S.lastSlot=null;if(d.hub&&d.pilot){S.slots[0]=JSON.parse(JSON.stringify(Object.fromEntries(['pilot','ship','owned','aug','cr','wins','runs','deaths','best','hub','intel','lastCirc'].map(k=>[k,S[k]]))));S.slot=0;S.lastSlot=0}}}}catch(e){}applyData()}
 /* Merge Data Terminal overrides into TABLES and attach sprite layers */
 function applyData(){TABLES=JSON.parse(JSON.stringify(DEFAULT_TABLES));const d=S.data;
  if(d&&d.tables)for(const k in d.tables){const v=d.tables[k];if(Array.isArray(v)&&v.length)TABLES[k.toUpperCase()]=v.map(e=>Array.isArray(e)?[String(e[0]),+e[1]||1]:[String(e),5])}
@@ -858,14 +866,83 @@ ui.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)retur
    Tone: street-level survival satire. Corporate notices stay in corporate-speak
    (that's the joke) and are followed by a plain-language TRANSLATION.
    =========================================================================== */
+/* ===========================================================================
+   OPENING — tap gate → punchy intro → title (New Pilot / Load Pilot / Spaceport Bravo)
+   =========================================================================== */
 function scrBoot(){mode='menu';
- show(`<div style="height:8vh"></div><div class=insig>${insignia}</div>
- <div class=kick>Matthews Operations Lab</div><div class=kick style="margin-bottom:22px">Interactive Division presents</div><div class=pill style="margin-bottom:10px;color:var(--mg);border-color:#ff2bd688">BETA // 3D ENGINE</div>
- <h1>STAR-CRUSH</h1><div class=big style="font-size:clamp(24px,8vw,34px);color:var(--mg);text-shadow:0 0 22px #ff2bd688">MEGALOTTO</div>
- <p class=lead style="margin-top:14px;background:#07040fd0;padding:10px 12px;border:1px solid #ff2bd633">The most rigged lottery in the universe. You won. Now survive the drive home.</p>
- <button class="btn wide pulse" data-a=boot>Tap to play</button>
- <small class=mu>${S.runs?`RUNS ${S.runs} · WINS ${S.wins} · BALANCE ${money(S.cr)}`:'Sound on. Headphones if you got em.'}</small>`,'soft')}
-ACT.boot=()=>{AU.init();AU.resume();AU.play('menu');buzz(15);if(S.hub)scrHub();else scrTicket()};
+ show(`<div style="height:30vh"></div><div class=insig>${insignia}</div><div class=kick>Matthews Operations Lab</div>
+ <button class="btn wide pulse" data-a=boot style="margin-top:28px">Tap to start</button><small class=mu>Sound on. Headphones if you got em.</small>`,'soft')}
+ACT.boot=()=>{AU.init();AU.resume();buzz(15);startIntro()};
+let IT=0,ISH=0,IFL=0,IEV={},ISTARS=null;
+function startIntro(){mode='intro';IT=0;ISH=0;IFL=0;IEV={};show('<div id=skip class="pe" style="position:fixed;inset:0"></div><small class=mu style="position:fixed;bottom:calc(var(--sab) + 18px);left:0;right:0;text-align:center;opacity:.6">TAP TO SKIP</small>','clear');
+ $('#skip').onpointerdown=()=>{if(IT>.4)endIntro()};AU.play('menu')}
+function endIntro(){if(mode!=='intro')return;scrTitle()}
+const IWORDS=[[1.55,'RIGGED.','#ff2bd6'],[2.0,'LIVE.','#19f3ff'],[2.45,'LETHAL.','#ff3355']];
+function introDraw(dt){IT+=dt;const c=ctx,t=IT,once=(k,f)=>{if(!IEV[k]){IEV[k]=1;f()}};
+ if(!ISTARS)ISTARS=Array.from({length:240},()=>({a:R()*TAU,r:.08+R()*.92,z:R(),c:pick(['#ffffff','#ff2bd6','#19f3ff','#ffd23f'])}));
+ if(t>=4)menuDraw(dt);else{c.fillStyle='#03020a';c.fillRect(0,0,W,H)}
+ const sx=ISH?rr(-1,1)*ISH*16:0,sy=ISH?rr(-1,1)*ISH*16:0;ISH=Math.max(0,ISH-dt*2.6);
+ c.save();c.translate(W/2+sx,H/2+sy);c.textAlign='center';const M=Math.min(W,H);
+ // A — studio card with glitch slices
+ if(t<1.35){const a=Math.min(1,t*3,(1.35-t)*5);c.globalAlpha=a;c.font='700 12px "IBM Plex Mono",monospace';c.fillStyle='#cfc4ee';c.fillText('MATTHEWS OPERATIONS LAB',0,-4);c.fillStyle='#8a80a8';c.fillText('PRESENTS',0,16);
+  if(Math.sin(t*31)>.6){c.fillStyle='#ff2bd6';c.fillRect(rr(-80,40),rr(-14,10),rr(30,90),2);c.fillStyle='#19f3ff';c.fillRect(rr(-80,40),rr(-14,10),rr(30,90),2)}c.globalAlpha=1;once('a',()=>AU.sfx('type'))}
+ // B — warp drive: streaks accelerate toward the camera, Earth swells ahead
+ if(t>1.05&&t<4.3){const sp=Math.min(1,(t-1.05)/1.6),fade=Math.min(1,(t-1.05)*3,(4.3-t)*4);
+  if(t>2.4){const er=M*.04+M*.5*Math.pow((t-2.4)/1.9,2.4),eg=c.createRadialGradient(0,0,er*.2,0,0,er*1.6);eg.addColorStop(0,'rgba(120,200,255,.9)');eg.addColorStop(.45,'rgba(40,110,220,.45)');eg.addColorStop(1,'rgba(20,40,120,0)');c.fillStyle=eg;c.globalAlpha=fade;c.beginPath();c.arc(0,0,er*1.6,0,TAU);c.fill();c.fillStyle='#0a3a7a';c.beginPath();c.arc(0,0,er,0,TAU);c.fill();c.strokeStyle='rgba(160,230,255,.8)';c.lineWidth=2;c.stroke();c.globalAlpha=1}
+  c.lineCap='round';for(const s of ISTARS){const z0=s.z;s.z-=dt*(.15+sp*sp*2.6);if(s.z<.03){s.z=1;s.a=R()*TAU}const p=z=>[Math.cos(s.a)*s.r*M*.55/z,Math.sin(s.a)*s.r*M*.55/z],A=p(s.z),B=p(Math.min(1,s.z+.02+sp*.12));
+   c.strokeStyle=s.c;c.globalAlpha=fade*Math.min(1,(1-s.z)*1.6);c.lineWidth=1+(1-s.z)*2.2;c.beginPath();c.moveTo(A[0],A[1]);c.lineTo(B[0],B[1]);c.stroke()}c.globalAlpha=1;once('w',()=>AU.sfx('boost'))}
+ // C — word slams
+ for(const[t0,w,col]of IWORDS){const u=t-t0;if(u<0||u>.45)continue;once(w,()=>{ISH=.55;AU.sfx('hit');buzz(25)});const k=1+Math.max(0,.18-u)*4,a=Math.min(1,(.45-u)*6);
+  c.save();c.globalAlpha=a;c.scale(k,k);c.font=`900 ${M*.17|0}px Orbitron,sans-serif`;c.fillStyle='#000';c.fillText(w,4,M*.06+4);c.shadowColor=col;c.shadowBlur=30;c.fillStyle=col;c.fillText(w,0,M*.06);c.shadowBlur=0;c.fillStyle='#fff';c.globalAlpha=a*.55;c.fillText(w,0,M*.06);c.restore()}
+ // D — ship screams past the camera
+ if(t>2.9&&t<4.05){const u=(t-2.9)/1.15,e=u*u*u,size=14+e*M*1.6;once('s',()=>AU.sfx('rocket'));if(u>.55)once('s2',()=>{AU.sfx('boost');buzz([20,30,40])});
+  drawShip3D(c,Math.sin(u*2)*M*.05,M*.02+e*M*.55,size,computeShip(),{yaw:Math.sin(u*3)*.3,tilt:.35-e*.25,bank:Math.sin(u*5)*.35,t,boost:true,rim:'#ff9ad5'})}
+ // E — flash + title slam
+ if(t>=4){once('f',()=>{IFL=1;ISH=1;AU.sfx('boom');buzz([60,40,90])});const u=t-4,k=Math.max(1,2.8-u*9);
+  c.save();c.translate(0,-M*.12);c.scale(k,k);c.font=`900 ${Math.min(W*.15,64)|0}px Orbitron,sans-serif`;
+  c.fillStyle='#ff2bd6';c.fillText('STAR CRUSH',3,3);c.shadowColor='#19f3ff';c.shadowBlur=24;c.fillStyle='#19f3ff';c.fillText('STAR CRUSH',0,0);c.restore();
+  if(u>.3){const n=Math.min(13,Math.floor((u-.3)*40)),sub='RACE TO EARTH'.slice(0,n);once('sub',()=>AU.sfx('gate'));c.font=`900 ${Math.min(W*.075,30)|0}px Orbitron,sans-serif`;c.fillStyle='#ffd23f';c.shadowColor='#ffd23f';c.shadowBlur=18;c.fillText(sub,0,-M*.12+Math.min(W*.15,64)*.85);c.shadowBlur=0}}
+ c.restore();
+ if(IFL>0){c.fillStyle=`rgba(255,255,255,${IFL})`;c.fillRect(0,0,W,H);IFL=Math.max(0,IFL-dt*2.4)}
+ if(t>5.7)endIntro()}
+
+/* ---- save slots: each slot is a whole career (pilot, ship, parts, implants, money, wins) ---- */
+const RUN_KEYS=['pilot','ship','owned','aug','cr','wins','runs','deaths','best','hub','intel','lastCirc'];
+const freshRun=()=>({pilot:null,ship:{hull:'needle',thr:'ion',plate:'tape',cowl:'none',gun:'twin',decal:'none'},owned:[],aug:[],cr:0,wins:0,runs:0,deaths:0,best:0,hub:false,intel:0,lastCirc:'draw'});
+const snapRun=()=>JSON.parse(JSON.stringify(Object.fromEntries(RUN_KEYS.map(k=>[k,S[k]]))));
+const hasSaves=()=>S.slots.some(Boolean);
+function useSlot(i){Object.assign(S,freshRun(),JSON.parse(JSON.stringify(S.slots[i])));S.slot=i;S.lastSlot=i;save()}
+function claimSlot(i){S.slot=i;S.lastSlot=i;S.slots[i]=snapRun();save()}
+
+function scrTitle(){mode='menu';AU.play('menu');const un=hasSaves(),last=un&&S.slots[S.lastSlot!=null&&S.slots[S.lastSlot]?S.lastSlot:S.slots.findIndex(Boolean)];
+ show(`<div style="height:6vh"></div><div class=kick>Matthews Operations Lab presents</div>
+ <h1 class=ttl>STAR CRUSH</h1><div class=ttl2>RACE TO EARTH</div><div class=pill style="margin:10px 0 18px;color:var(--mg);border-color:#ff2bd688">BETA // 3D ENGINE</div>
+ <p class=lead style="background:#07040fd0;padding:9px 12px;border:1px solid #ff2bd633">You won the rigged lottery. Now survive the drive home.</p>
+ <button class="btn wide" data-a=newpilot>New pilot</button>
+ <button class="btn wide alt${un?'':' lockd'}" data-a=loadpilot>${un?'Load pilot':'🔒 Load pilot'}</button>
+ <button class="btn wide am${un?'':' lockd'}" data-a=bravo>${un?'Spaceport Bravo':'🔒 Spaceport Bravo'}</button>
+ <small class=mu style="display:block;margin-top:6px">${un?`LAST PILOT: ${esc(last.pilot.name.toUpperCase())} · ${last.wins} WIN${last.wins===1?'':'S'} · ${money(last.cr)}`:'Win your first race to unlock saves and the city.'}</small>
+ <div style="margin-top:14px"><button class=ib data-a=settings aria-label=Settings>⚙</button></div>`,'soft')}
+const lockedMsg=()=>{AU.sfx('deny');buzz([30,30,30]);toast('Locked. Win a race first. Survive it, ideally.')};
+ACT.title=()=>scrTitle();
+ACT.slotpick=()=>scrSlots(true);
+ACT.newpilot=()=>{const keep={set:S.set,data:S.data,ticket:S.ticket,slots:S.slots,lastSlot:S.lastSlot};Object.assign(S,freshRun(),keep);S.slot=null;save();AU.sfx('go');scrTicket()};
+ACT.loadpilot=()=>{if(!hasSaves())return lockedMsg();scrSlots(false)};
+ACT.bravo=()=>{if(!hasSaves())return lockedMsg();const i=S.lastSlot!=null&&S.slots[S.lastSlot]?S.lastSlot:S.slots.findIndex(Boolean);useSlot(i);AU.sfx('door');scrHub(`Welcome back to Spaceport Bravo, ${S.pilot.name}.`)};
+let SLOT_SAVE=false;
+function scrSlots(saving){SLOT_SAVE=!!saving;mode='menu';
+ show(`<div class=kick>${saving?'SPACEPORT BRAVO // CITIZEN RECORDS':'PILOT RECORDS'}</div><h2>${saving?'Save your pilot':'Load pilot'}</h2>
+ <p class=lead style="font-size:15px">${saving?'All 3 slots are full. Pick one to replace. Their record gets shredded. Legally.':'Three slots. Each one keeps its own ship, cash and scars.'}</p>
+ ${S.slots.map((d,i)=>d?`<div class="card slot${S.slot===i?' sel':''}"><canvas class=sp id=sp${i}></canvas><div class=si><h3>${esc(d.pilot.name)}</h3><p>${d.wins} WIN${d.wins===1?'':'S'} · ${money(d.cr)}</p><p class=mu2>${esc(part('hull',d.ship.hull).n)} · ${d.aug.length} implants</p></div>
+   <div class=sb>${saving?`<button class="ch on" data-a=slotsave data-v=${i}>Replace</button>`:`<button class="ch on" data-a=slotload data-v=${i}>Load</button><button class=ch data-a=slotdel data-v=${i}>Delete</button>`}</div></div>`
+  :`<div class="card slot empty"><div class=si><h3>SLOT ${i+1} // EMPTY</h3><p>${saving?'':'Win a race with a new pilot to fill it.'}</p></div>${saving?`<div class=sb><button class="ch on" data-a=slotsave data-v=${i}>Save here</button></div>`:''}</div>`).join('')}
+ ${saving?'<button class="btn ghost wide" data-a=slotskip>Don’t save (pilot is lost on exit)</button>':'<button class="btn ghost wide" data-a=title>Back</button>'}`);
+ S.slots.forEach((d,i)=>{if(!d)return;const x=prepPV('#sp'+i,74,74);if(!x)return;portraitBG(x,74,74,NEON[d.pilot.col]||NEON[0],0);drawPilot(x,37,30,.36,d.pilot,0)})}
+ACT.slotload=i=>{useSlot(+i);AU.sfx('door');buzz(20);scrHub(`Welcome back, ${S.pilot.name}.`)};
+ACT.slotdel=(i,b)=>{if(!b.dataset.arm){b.dataset.arm=1;b.textContent='Sure?';return}S.slots[+i]=null;if(S.slot===+i)S.slot=null;if(S.lastSlot===+i)S.lastSlot=null;save();AU.sfx('die');hasSaves()?scrSlots(false):scrTitle()};
+ACT.slotsave=i=>{claimSlot(+i);AU.sfx('buy');toast(`Saved to slot ${+i+1}.`);scrHub()};
+ACT.slotskip=()=>scrHub('Unsaved pilot. Don’t get attached.');
+
 function scrTicket(){mode='menu';AU.play('menu');
  const id=S.ticket===0?'994-OMEGA':`${ri(100,999)}-${pick(['OMEGA','SIGMA','DELTA','KAPPA','ZETA','TAU'])}`;S.ticket++;save();
  show(`<div class=kick>PHASE 1 // THE TICKET</div>
@@ -890,7 +967,7 @@ function scrTicket(){mode='menu';AU.play('menu');
 let FORGE_EDIT=false,FORGE_SNAP=null;
 function scrForge(edit,fresh){FORGE_EDIT=!!edit;if(!S.pilot)S.pilot=plainPilot();FORGE_SNAP=JSON.stringify(S.pilot);
  if(fresh){const o=S.pilot;S.pilot=Object.assign(plainPilot(),{name:o.name,quote:o.quote})}const p=S.pilot;
- show(`<div class=kick>${edit?'SPACEPORT // CLINIC // NEW LOOK':'PHASE 2 // IDENTITY FORGE'}</div><h2 class=fh>${edit?'New look':'Make your pilot'}</h2>
+ show(`<div class=kick>${edit?'SPACEPORT BRAVO // CLINIC // NEW LOOK':'PHASE 2 // IDENTITY FORGE'}</div><h2 class=fh>${edit?'New look':'Make your pilot'}</h2>
  <canvas id=pv class="pv pvs"></canvas><input id=nm class="nm nms" maxlength=18 aria-label="Pilot name" value="${esc(p.name)}"><div id=op class=fg></div>
  <div class=frow><button class="btn alt" data-a=rand>⚄ Random</button>${edit?'<button class="btn ghost" data-a=forgeCancel>Never mind</button>':''}<button class="btn" data-a=forgeDone>${edit?'Save (¥250)':'Lock it in →'}</button></div>`);
  $('#nm').oninput=e=>{p.name=e.target.value};renderForge();
@@ -911,7 +988,7 @@ ACT.forgeDone=()=>{const p=S.pilot;p.name=(p.name||'').trim()||'Contestant #'+ri
  else{save();scrGun('ticket')}};
 let GS={slot:'hull',ctx:'ticket'};
 function scrGun(c){if(c)GS.ctx=c;const shop=GS.ctx==='shop';if(shop)mode='hubshop';
- show(`<div class=kick>${shop?'SPACEPORT // CHOP SHOP':'PHASE 2 // THE GUNSMITH'}</div><h2>${shop?'Chop Shop':'Fix up your ride'}</h2>
+ show(`<div class=kick>${shop?'SPACEPORT BRAVO // CHOP SHOP':'PHASE 2 // THE GUNSMITH'}</div><h2>${shop?'Chop Shop':'Fix up your ride'}</h2>
  ${shop?`<div class="pill${S.cr<0?' debt':''}" id=gcr>${money(S.cr)}</div>`:'<p class=lead style="font-size:15px">Free junk ship. Pick your parts. Everything runs hot.</p>'}
  <canvas id=pv class=pv></canvas><div id=stats></div><div class=tabs id=tabs></div><div id=parts></div>
  ${shop?'<button class="btn wide" data-a=hub>Back to the street</button>':'<button class="btn wide" data-a=waiver>Sign the waiver →</button>'}`);
@@ -1336,13 +1413,13 @@ function outcomeWin(){const c=RC.c,sh=RC.ship,rank=1+RC.rivals.filter(r=>r.p>=1)
  const gross=purse+spon+RC.cash+RC.kills*25,audit=Math.round(gross*.12);
  rows.push(['Syndicate cut (12%)','−'+money(audit),'n'],['Landing toll','−¥300','n'],['Breathing fee','−¥99','n']);
  const net=gross-audit-399,first=!S.hub;if(first&&S.cr<0){S.cr=0;rows.push(['Old debt','GONE','p'])}
- S.cr+=net;S.wins++;S.runs++;S.best=100;S.hub=true;save();rows.push(['YOU GET',money(net),'t'],['BALANCE',money(S.cr),'t']);
+ S.cr+=net;S.wins++;S.runs++;S.best=100;S.hub=true;save();let slotNote='',needSlot=false;if(S.slot==null){const f=S.slots.indexOf(null);if(f>=0){claimSlot(f);slotNote=`PILOT SAVED // SLOT ${f+1}`}else needSlot=true}rows.push(['YOU GET',money(net),'t'],['BALANCE',money(S.cr),'t']);
  mode='menu';AU.play('win');
  show(`<div class=kick>PHASE 4 // YOU MADE IT</div><div class="term grn" id=tm></div>
  <div class=big>${['FIRST TO EARTH','2ND PLACE','3RD PLACE','4TH PLACE'][rank-1]}</div><canvas id=pv class=pv></canvas>
- ${receipt(rows)}${first?'<div class="term grn" style="min-height:0"><div class=gr>YOU’RE A CITIZEN NOW. CONDOLENCES.</div><div>CITY UNLOCKED: Clinic · Chop Shop · Syndicate · Bar</div></div>':''}
+ ${receipt(rows)}${slotNote?`<div class=pill style="margin:8px 0;color:var(--gr);border-color:#7dff6b88">${slotNote}</div>`:''}${first?'<div class="term grn" style="min-height:0"><div class=gr>YOU’RE A CITIZEN NOW. CONDOLENCES.</div><div>SPACEPORT BRAVO UNLOCKED: Clinic · Chop Shop · Syndicate · Bar</div></div>':''}
  <div id=tb></div>`);
- typeTerm($('#tm'),[{t:'[TOUCHDOWN // EARTH]',c:'gr'},{t:`PAID: ${fmt(net)} CREDITS. Fees pending.`},{t:'Grab it before they invent a new fee.',c:'hl'}],()=>{AU.sfx('cash');const tb=$('#tb');if(tb)tb.innerHTML='<button class="btn wide gr" data-a=hub>Hit the streets</button>'});
+ typeTerm($('#tm'),[{t:'[TOUCHDOWN // EARTH]',c:'gr'},{t:`PAID: ${fmt(net)} CREDITS. Fees pending.`},{t:'Grab it before they invent a new fee.',c:'hl'}],()=>{AU.sfx('cash');const tb=$('#tb');if(tb)tb.innerHTML=needSlot?'<button class="btn wide gr" data-a=slotpick>Save your pilot →</button>':'<button class="btn wide gr" data-a=hub>Hit Spaceport Bravo</button>'});
  const x=prepPV('#pv',300,200);PV=t=>{x.clearRect(0,0,300,200);portraitBG(x,300,200,NEON[S.pilot.col],t,['#0a2a5a','#ff5ab4','#ffd27a']);drawPilot(x,150,96,1.06,S.pilot,t);for(let i=0;i<14;i++){x.fillStyle=NEON[i%5];x.save();x.translate((i*53+t*90)%300,(i*37+t*140)%200);x.rotate(t*3+i);x.fillRect(-2,-3.5,4,7);x.restore()}}}
 
 /* ===========================================================================
@@ -1392,7 +1469,7 @@ function buildHubLayers(){const G=H*.74,mk=(w,h,f)=>{const c=document.createElem
   x.fillStyle='#1e1036';x.fillRect(0,G-H*.345,midW,7);x.fillStyle='#19f3ff66';x.fillRect(0,G-H*.345,midW,1.5)});
  HUB.L={sky,far,mid,G,spX,skyW}}
 function scrHub(note){mode='hub';hubInit();AU.play('hub');RC.over=0;
- show(`<div class="hubtop pe"><span class="pill${S.cr<0?' debt':''}">${S.cr<0?'DEBT ':''}${money(S.cr)}</span><span class="pill c">WINS ${S.wins}</span><span class=sp></span><button class=ib data-a=settings aria-label=Settings>⚙</button></div><div class="hubbot pe" id=hubbot></div>`,'clear');
+ show(`<div class="hubtop pe"><span class="pill${S.cr<0?' debt':''}">${S.cr<0?'DEBT ':''}${money(S.cr)}</span><span class="pill c">WINS ${S.wins}</span><span class=sp></span><button class=ib data-a=title aria-label="Title screen">⌂</button><button class=ib data-a=settings aria-label=Settings>⚙</button></div><div class="hubbot pe" id=hubbot></div>`,'clear');
  HUB.near=undefined;hubPanel();if(note)setTimeout(()=>toast(note,3200),300)}
 function hubPanel(){const b=$('#hubbot');if(!b)return;const d=HUB.near;
  b.innerHTML=d?`<div class=card style="text-align:center;border-color:${d.col}"><div class=kick style="color:${d.col}">${esc(d.sign)}</div><h3 style="padding:0;margin:4px 0">${esc(d.n)}</h3><p style="font-size:15px">${esc(d.d)}</p><button class="btn wide" style="background:${d.col}" data-a=enter data-v=${d.id}>Go in</button></div>`
@@ -1491,7 +1568,7 @@ ACT.enter=id=>{AU.sfx('door');AU.play('lounge');buzz([10,30,10]);({clinic:scrCli
 ACT.hub=()=>scrHub();
 function crPill(){return`<div class="pill${S.cr<0?' debt':''}" id=gcr>${S.cr<0?'DEBT ':''}${money(S.cr)}</div>`}
 function scrClinic(){mode='hubshop';
- show(`<div class=kick>SPACEPORT // BACK-ALLEY CLINIC</div><h2>The Clinic</h2>${crPill()}<canvas id=pv class=pv></canvas>
+ show(`<div class=kick>SPACEPORT BRAVO // BACK-ALLEY CLINIC</div><h2>The Clinic</h2>${crPill()}<canvas id=pv class=pv></canvas>
  <p class=lead style="font-size:15px">"New eyes, new jaw, new problems. No refunds. Some painkillers."</p><div id=augs></div>
  <div class="card tap" data-a=aes><h3>New look</h3><span class=tag>¥250</span><p>Change your face. Your name stays on file.</p></div>
  <button class="btn wide" data-a=hub>Back to the street</button>`);renderAugs();
@@ -1502,13 +1579,13 @@ ACT.aug=id=>{const a=AUGS.find(q=>q.id===id);if(hasAug(id)){toast("Already in yo
  S.cr-=a.price;S.aug.push(id);save();AU.sfx('buy');buzz([40,30,60]);toast(`${a.n} installed. Mostly painless.`);$('#gcr').textContent=money(S.cr);renderAugs()};
 ACT.aes=()=>scrForge(true,true);
 function scrSyndicate(){mode='hubshop';
- show(`<div class=kick>SPACEPORT // RACE SYNDICATE</div><h2>Races</h2>${crPill()}
+ show(`<div class=kick>SPACEPORT BRAVO // RACE SYNDICATE</div><h2>Races</h2>${crPill()}
  <p class=lead style="font-size:15px">Deadlier races pay more. The Syndicate admires your commitment to dying.</p>
  ${CIRCUITS.map(c=>{const lock=S.wins<c.req;return`<div class="card tap${lock?' lock':''}" data-a=circ data-v=${c.id}><h3>${esc(c.n)}</h3><span class="tag${lock?' no':''}">${lock?`🔒 ${c.req} WINS`:money(c.pay)}</span><p>${esc(c.d)}</p><div class=fx>DANGER ${'▮'.repeat(Math.round(c.diff*2.4))}${'▯'.repeat(Math.max(0,5-Math.round(c.diff*2.4)))} · LENGTH ×${c.len}</div></div>`}).join('')}
  <button class="btn wide" data-a=hub>Back to the street</button>`)}
 ACT.circ=id=>{const c=CIRCUITS.find(q=>q.id===id);if(S.wins<c.req){AU.sfx('deny');toast(`Need ${c.req} wins. You've got ${S.wins}.`);return}scrSitrep(id)};
 function scrBar(){mode='hubshop';const rumors=[...new Set(Array.from({length:6},()=>T('RUMOR')))].slice(0,3);
- show(`<div class=kick>SPACEPORT // BAR & FIXERS</div><h2>The Rusty Airlock</h2>${crPill()}
+ show(`<div class=kick>SPACEPORT BRAVO // BAR & FIXERS</div><h2>The Rusty Airlock</h2>${crPill()}
  <div class=term>${rumors.map(r=>`<div>&gt; ${esc(r)}</div>`).join('')}</div>
  <div class="card tap${S.intel?' sel':''}" data-a=intel><h3>Buy a tip</h3><span class="tag${S.intel?' eq':''}">${S.intel?'LOADED':'¥400'}</span><p>A fixer marks your next route: more repair kits, more gates. One race only.</p></div>
  <div class="card tap" data-a=round><h3>Buy a round</h3><span class=tag>¥50</span><p>Morale costs ¥50.</p></div>
@@ -1525,10 +1602,11 @@ function togglesHTML(){return[['mus','Music'],['sfx','Sound FX'],['hap','Haptics
 ACT.settings=()=>{SET_BACK=mode==='hub'?'hub':'menu';
  show(`<div class=kick>SYSTEM // SETTINGS</div><h2>Settings</h2><div class=card>${togglesHTML()}</div>
  <div class="card tap" data-a=data><h3>Data Terminal</h3><span class=tag>JSON</span><p>Edit the weighted tables that generate sponsors, hazards, rivals, ads, rumors and more.</p></div>
+ <div class="card tap" data-a=title><h3>Title screen</h3><p>Back to the main menu. Saved pilots stay saved.</p></div>
  <div class="card tap" data-a=wipe><h3 style="color:var(--rd)">Burn the save file</h3><p>Erase pilot, ship, credits and wins. Tap twice.</p></div>
- <button class="btn wide" data-a=back>Back</button><small class=mu>STAR-CRUSH // MEGALOTTO · MATTHEWS OPERATIONS LAB</small>`)};
+ <button class="btn wide" data-a=back>Back</button><small class=mu>STAR CRUSH: RACE TO EARTH · MATTHEWS OPERATIONS LAB</small>`)};
 ACT.tog=(k,b)=>{S.set[k]=S.set[k]?0:1;save();AU.applySet();b.classList.toggle('on',!!S.set[k]);b.textContent=S.set[k]?'ON':'OFF';if(k==='hap'&&S.set.hap)buzz(30);if(k==='fx'){FXQ=1;FTN=0}};
-ACT.back=()=>SET_BACK==='hub'?scrHub():scrBoot();
+ACT.back=()=>SET_BACK==='hub'?scrHub():scrTitle();
 ACT.wipe=(v,b)=>{if(!b.dataset.arm){b.dataset.arm=1;b.querySelector('h3').textContent='Tap again to burn everything';return}try{localStorage.removeItem(KEY)}catch(e){}location.reload()};
 ACT.data=()=>{const d=S.data||{tables:TABLES,sprites:{}};
  show(`<div class=kick>BACK ROOM // DATA TERMINAL</div><h2>Category Injector</h2>
@@ -1609,7 +1687,7 @@ function loop(ts){const dt=Math.min(.05,(ts-last)/1000||.016);last=ts;
  if(innerWidth!==W||innerHeight!==H)rs();
  if(mode!=='race'&&R3DON){R3DON=false;window.R3D&&R3D.stop()}
  if(W<4||H<4){requestAnimationFrame(loop);return} // window not laid out yet: skip the frame
- try{if(mode==='race'){raceUpd(dt);if(mode==='race')raceDraw(dt)}else if(mode==='hub'){hubUpd(dt);hubDraw();postFX(.36,0)}else{menuDraw(dt);postFX(.32,0)}
+ try{if(mode==='race'){raceUpd(dt);if(mode==='race')raceDraw(dt)}else if(mode==='hub'){hubUpd(dt);hubDraw();postFX(.36,0)}else if(mode==='intro'){introDraw(dt);postFX(.5,ISH*.9+IFL*.6)}else{menuDraw(dt);postFX(.32,0)}
   // auto quality: if the phone can't hold ~40fps in a race, drop chromatic aberration and soften bloom
   if(mode==='race'&&!RC.paused){FT=lerp(FT,dt,.03);if(++FTN>150&&FT>.025&&FXQ>0){FXQ=0;FTN=0}}if(PV)PV(ts/1000)}catch(err){console.error(err)}
  requestAnimationFrame(loop)}
