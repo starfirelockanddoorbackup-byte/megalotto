@@ -1199,7 +1199,12 @@ function runMegaTick(dt){if(RC.over)return;const pr=RC.dist/RC.total;
  if(pr>.5&&pr<.96){RC.drT=(RC.drT??0)-RC.spd*dt;if(RC.drT<=0){RC.drT=rr(30,55);if(pr>.5&&!RC.drMsg){RC.drMsg=1;RC.msg='Drones inbound. Still no weapons.';RC.msgT=2}for(let i=0,n=1+(R()<.5);i<n;i++)add({t:'drone',x:rr(-.8,.8),y:rr(-.55,.55),r:.2,hp:1,f:rr(.6,1.4),ph:R()*6,z:i*3})}}const ks=RUN_KINDS[RC.leg]||[];RC.megaT-=RC.spd*dt;
  if(ks.length&&RC.megaT<=0&&!(RC.megaW&&RC.megaW.t>0)&&RC.dist<RC.total-150){RC.megaT=rr(42,66);const M=RUN_MEGA[pick(ks)],s=R()<.5?-1:1;RC.megaOn=1;RC.megaW={M,s,t:.35};RC.msg='⚠ '+M.n+' // '+megaDir(M.k,s);RC.msgT=2;AU.sfx('warn');buzz([30,30,30])}
  const w=RC.megaW;if(w&&w.t>0){w.t-=dt;if(w.t<=0)spawnMega(w)}}
-function runSpawn(){const i=RC.leg,r=R(),big=n=>{for(let k=0;k<n;k++)add({t:'rock',x:rr(-.9,.9),y:rr(-.65,.65),r:rr(.3,.5),hp:9,sh:Array.from({length:8},()=>rr(.7,1.1)),rot:0,sp:rr(-1.5,1.5),z:k*5,moss:i===0})},
+function runSpawn(){const i=RC.leg,r=R(),big=n=>{
+  // never wall the lane: skip near a big obstacle, cap rocks per slice, keep a ship-sized hole open
+  if(RC.E.some(e=>e.t==='mega'&&!e.hit&&e.z>45))return;const near=RC.E.filter(e=>e.t==='rock'&&e.z>62);if(near.length>=2)return;n=Math.min(n,2-near.length);
+  const safe={x:rr(-.7,.7),y:rr(-.45,.45)},placed=near.map(e=>({x:e.x/XL,y:e.y,r:e.r}));
+  for(let k=0;k<n;k++){const rad=rr(.28,.42);let p=null;for(let tries=0;tries<10&&!p;tries++){const q={x:rr(-.9,.9),y:rr(-.65,.65)};if(Math.hypot(q.x-safe.x,q.y-safe.y)<rad+.5)continue;if(placed.some(o=>Math.hypot(q.x-o.x,q.y-o.y)<rad+o.r+.38))continue;p=q}
+   if(!p)continue;placed.push({x:p.x,y:p.y,r:rad});add({t:'rock',x:p.x,y:p.y,r:rad,hp:9,sh:Array.from({length:8},()=>rr(.7,1.1)),rot:0,sp:rr(-1.5,1.5),z:k*5,moss:i===0})}},
  las=()=>add({t:'laser',vert:R()<.5,p:rr(-.6,.6),ph:R()*TAU,per:rr(1.3,1.9),r:0}),beam=()=>add({t:'beam',ang:rr(-1,1),off:rr(-.45,.45),c:pick(['#ff3355','#5ab0ff']),r:0}),pad=()=>add({t:'pad',x:rr(-.6,.6),y:rr(-.4,.45),r:.3});
  if(i===0){r<.65?big(1+(R()<.4)):r<.88?las():pad()}
  else if(i===1){r<.5?big(1+(R()<.5)):r<.8?las():pad()}
