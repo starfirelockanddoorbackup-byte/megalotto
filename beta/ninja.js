@@ -10,7 +10,7 @@ const WPN={fist:['✊','Fists'],bat:['🏏','Bat'],sword:['⚔️','Katana'],ham
  bolt:['⚡','Chain lightning'],hole:['🌀','Black hole'],grab:['✋','Telekinesis (drag a ninja)']};
 const CDN={fist:14,bat:22,sword:20,hammer:42,broom:24,pudding:16,pistol:11,shotgun:42,rocket:55,ice:25,bolt:35,hole:70};
 const WAVES=[{blade:4,star:0,boss:0},{blade:4,star:2,boss:0},{blade:5,star:3,boss:1}];
-const Rn=Math.random,clp=(v,a,b)=>Math.max(a,Math.min(b,v)),TAU2=Math.PI*2;
+const R2=()=>Math.random()<.5,Rn=Math.random,clp=(v,a,b)=>Math.max(a,Math.min(b,v)),TAU2=Math.PI*2;
 let s=1,VW=420,VH=600,GY=440,P,ds=[],ps=[],fx=[],bl=[],hs=[],goo=[],rain=[],wp='fist',kills=0,wave=0,shake=0,t=0,acc=0,grab=null,
  ptr={x:0,y:0,down:false},keysN={l:0,r:0,j:0},state='intro',st=0,spawnQ=[],nextFlash=6,flash=0,bolt=null,bg=null,bgKey='',root=null,paid=false;
 
@@ -67,9 +67,9 @@ function startWave(){wave++;const W_=WAVES[wave-1];spawnQ=[];for(let i=0;i<W_.bl
 function part(x,y,n,col,sp,add,life){for(let i=0;i<n;i++){const l=(life||30)+Rn()*20;ps.push({x,y,vx:(Rn()-.5)*sp,vy:(Rn()-(add?.5:.8))*sp,life:l,max:l,col,s:2+Rn()*4,add})}}
 function pop(x,y,txt,col,life){fx.push({t:'txt',x,y,txt,col:col||'#ffe066',life:life||35,big:!!life})}
 function hurt(d,dmg,kx,ky){if(d.dead)return;if(d.frozen>0){dmg*=2;d.frozen=0;part(d.x,d.y-50,18,'#bfefff',8)}
- d.hp-=dmg;d.vx+=kx;d.vy+=ky;d.av+=kx*.02;d.flash=5;part(d.x,d.y-50*d.sc,Math.ceil(dmg/4),'#ff3355',6);if(dmg>=2)pop(d.x,d.y-112*d.sc,Math.round(dmg));if(d.hp<=0)kill(d)}
-function kill(d){d.dead=true;kills++;shake=Math.max(shake,6);part(d.x,d.y-50,30,'#222',10);part(d.x,d.y-50,14,'#ff3355',12);fx.push({t:'smoke',x:d.x,y:d.y-40,life:24});AU.sfx('hit');if(d.kind==='boss'){shake=16;pop(d.x,d.y-140,'SENSEI DOWN!','#ffd23f',50)}}
-function hurtP(dmg,kx,ky){if(P.inv>0||P.dead||state!=='fight')return;P.hp-=dmg;P.vx+=kx;P.vy+=ky;P.inv=25;shake=9;part(P.x,P.y-50,12,'#e53935',7);pop(P.x,P.y-120,'-'+Math.round(dmg),'#ff6b6b');buzz([30,20,30]);
+ d.hp-=dmg;d.vx+=kx;d.vy+=ky;d.av+=kx*.02;d.flash=5;part(d.x,d.y-50*d.sc,Math.ceil(dmg/4)+2,R2()?'#b06bff':'#e0c0ff',6,1,16);if(dmg>=2)pop(d.x,d.y-112*d.sc,Math.round(dmg));if(d.hp<=0)kill(d)}
+function kill(d){d.dead=true;kills++;shake=Math.max(shake,6);part(d.x,d.y-50,24,'#3a2a4a',10);part(d.x,d.y-50,22,'#b06bff',12,1,22);part(d.x,d.y-50,10,'#ffd23f',9,1,18);fx.push({t:'smoke',x:d.x,y:d.y-40,life:24});AU.sfx('hit');if(d.kind==='boss'){shake=16;pop(d.x,d.y-140,'SENSEI DOWN!','#ffd23f',50)}}
+function hurtP(dmg,kx,ky){if(P.inv>0||P.dead||state!=='fight')return;P.hp-=dmg;P.vx+=kx;P.vy+=ky;P.inv=25;shake=9;part(P.x,P.y-50,12,'#19f3ff',7,1,14);pop(P.x,P.y-120,'-'+Math.round(dmg),'#ff6b6b');buzz([30,20,30]);
  if(P.hp<=0){P.hp=0;P.dead=true;defeat()}}
 const imp=(e,sp)=>e===P?hurtP(sp*.8,0,0):hurt(e,sp*1.3,0,0);
 function phys(e){if(e!==grab)e.vy+=.5;e.x+=e.vx;e.y+=e.vy;e.ground=false;
