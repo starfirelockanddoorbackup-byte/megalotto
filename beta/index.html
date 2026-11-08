@@ -233,34 +233,34 @@ const AUGS=[
  {id:'pain',n:'Pain Editor',price:2600,d:'Hits don’t slow you. Still hurts. Legally.',fx:'HITS NO LONGER SLOW YOU'}];
 const CIRCUITS=[
  {id:'draw',n:'The Mars Draw',d:'The lottery race. Rigged. On TV. Mandatory.',pay:3000,len:1,diff:1,req:0},
- {id:'block',n:'Blockade Express',d:'Double drones. The fleets never stop shooting.',pay:6500,len:1.08,diff:1.3,req:1,mod:{block:2}},
- {id:'belt',n:'Night Belt Gauntlet',d:'Rocks in the dark. Bring a light. You can’t.',pay:9000,len:1.12,diff:1.55,req:2,mod:{rocks:1.7,dark:1}},
- {id:'hit',n:'Contract: The Nephew',d:"Kill the CEO’s nephew before Earth. Don’t ask why.",pay:14000,len:1.12,diff:1.7,req:3,mod:{target:1}},
+ {id:'block',n:'Blockade Express',d:'Cargo bay to space station. The long way. Through a wormhole.',pay:6500,len:1.08,diff:1.3,req:1,mod:{block:1.4},legs:'express'},
+ {id:'belt',n:'Night Belt Gauntlet',d:'The Mars Draw, after dark. Everything glows. Everything bites.',pay:9000,len:1.12,diff:1.55,req:2,mod:{rocks:1.5},legs:'night'},
+ {id:'hit',n:'Contract: The Lawyer',d:"He has paperwork. You have rockets. Stop him before the station.",pay:14000,len:1.15,diff:1.7,req:3,mod:{target:{n:'THE LAWYER',leg:0,hp:60,col:'#9ad0ff'}},legs:'lawyer'},
  {id:'gp',n:'Atlantic Trench Grand Prix',d:'Everything. All at once. Live.',pay:30000,len:1.3,diff:2.05,req:5,mod:{block:1.4,rocks:1.3}}];
 /* Seven race legs — a multi-axis coaster from Olympus Mons to flooded Miami.
    f = fraction of route · trk = track behaviour (cx/cy curvature, bx/by bias,
    rk banking, spin = full wormhole rolls, half = inverted section)
    mix = spawn weights · towers = flanking scenery · mood = painterly sky plate */
 const LEGS=[
- {n:'OLYMPUS MONS ASCENT',sub:'Climb out of the canyon. Don’t kiss a rock.',f:.13,scen:'canyon',towers:'mesa',trk:{cx:.85,cy:.55,by:-.6,rk:.7},floor:['#6a2a1c','#c46a4a'],
+ {n:'OLYMPUS MONS ASCENT',sub:'Climb out of the canyon. Don’t kiss a rock.',mega:'mesa',f:.13,scen:'canyon',towers:'mesa',trk:{cx:.85,cy:.55,by:-.6,rk:.7},floor:['#6a2a1c','#c46a4a'],
   mix:{rock:.5,drone:.08,gate:.22,coin:.2},pal:{grid:'#ffcf9a',grid2:'#ff8a6a'},
   mood:{sky:['#2a1030','#8a3a4a','#f4a27a'],below:['#a0503a','#3a140c'],neb:'#ff8a6a',haze:'#ffb48a',mote:'#ffe0c0',rim:'#ffb07a',sun:{x:-.35,y:.14,r:44,c:'#ffe2b8'},clouds:{top:'#ffd8bc',bot:'#9a4a5a',n:7}}},
  {n:'PHOBOS GATE',sub:'Gates fill your boost. Drones fill graves.',f:.14,scen:'phobos',trk:{cx:1.2,cy:.8,rk:.95},
   mix:{rock:.2,drone:.3,gate:.3,coin:.2},pal:{grid:'#9ad8ff',grid2:'#c08aff'},
   mood:{sky:['#060418','#1a1450','#3a2a7a'],below:['#22184a','#05030c'],neb:'#7a5aff',haze:'#6a5ac0',mote:'#bfe6ff',rim:'#8fd0ff',stars:1,aurora:1,sun:{x:.32,y:.26,r:20,c:'#cfe8ff'}}},
- {n:'THE BELT',sub:'Floating islands. Pretty. Deadly.',f:.15,scen:'belt',trk:{cx:1.3,cy:1,rk:.95},
+ {n:'THE BELT',sub:'Floating islands. Pretty. Deadly.',bigRocks:1,f:.15,scen:'belt',trk:{cx:1.3,cy:1,rk:.95},
   mix:{rock:.62,drone:.08,gate:.15,coin:.15},pal:{grid:'#e0c0ff',grid2:'#ffb0e0'},
   mood:{sky:['#100a24','#3a2a5a','#a07ab0'],below:['#5a3a6a','#120a20'],neb:'#c08aff',haze:'#d0a0d0',mote:'#ffe6f6',rim:'#ffb0e0',stars:1,sun:{x:-.22,y:.3,r:28,c:'#ffe6f0'},clouds:{top:'#f4d8f0',bot:'#6a4a8a',n:5}}},
  {n:'WORMHOLE',sub:'Up is optional. Hang on.',f:.14,scen:'worm',tunnel:1,trk:{cx:.9,cy:.9,spin:2},
   mix:{gate:.32,coin:.3,rock:.18,pad:.2},pal:{grid:'#e0b0ff',grid2:'#5af0ff'},
   mood:{sky:['#020008','#1a0640','#6a1a8a'],below:['#3a0a5a','#020008'],neb:'#b05aff',haze:'#c080ff',mote:'#e8c8ff',rim:'#c08aff',stars:1}},
- {n:'BLOCKADE CROSSFIRE',sub:'Two fleets. One lane. Stay off the beams.',f:.17,scen:'fleet',trk:{cx:1.1,cy:.75,rk:1.1,half:1},
+ {n:'BLOCKADE CROSSFIRE',sub:'Two fleets. One lane. Stay off the beams.',mega:'destroyer',f:.17,scen:'fleet',trk:{cx:1.1,cy:.75,rk:1.1,half:1},
   mix:{beam:.24,well:.12,laser:.08,drone:.2,gate:.14,coin:.12,adsat:.1},pal:{grid:'#ffc49a',grid2:'#ff6a5a'},
   mood:{sky:['#0a0610','#3a1a2a','#d0603a'],below:['#4a1a1a','#0a0408'],neb:'#ff6a3a',haze:'#ff9a6a',mote:'#ffd0a0',rim:'#ffa070',stars:1,sun:{x:.36,y:.08,r:38,c:'#ffb070'},clouds:{top:'#b07a70',bot:'#2a1418',n:6}}},
  {n:'ATMOSPHERIC ENTRY',sub:'Hull’s getting hot. Dive anyway.',f:.12,scen:'entry',burn:1,trk:{cx:.7,cy:.55,by:.85,rk:.6},
   mix:{rock:.34,drone:.2,gate:.2,coin:.26},pal:{grid:'#ffd0a0',grid2:'#ff7a3a'},
   mood:{sky:['#1a0602','#a02a10','#ffb050'],below:['#f0e4e0','#5a7ab8'],neb:'#ff6a20',haze:'#ffc070',mote:'#fff0d0',rim:'#ffb060',sun:{x:0,y:.36,r:58,c:'#fff2c0'},clouds:{top:'#fff4e8',bot:'#c86a50',n:8,sea:1}}},
- {n:'MIAMI DROWNED',sub:'Weave the towers. Finish is the big light.',f:.15,scen:'miami',towers:'deco',water:1,trk:{cx:1.25,cy:.4,rk:1},floor:['#0a4a6a','#ff9ab0'],
+ {n:'MIAMI DROWNED',sub:'Weave the towers. Finish is the big light.',mega:'tower',f:.15,scen:'miami',towers:'deco',water:1,trk:{cx:1.25,cy:.4,rk:1},floor:['#0a4a6a','#ff9ab0'],
   mix:{gate:.24,coin:.3,drone:.15,pad:.16,rock:.15},pal:{grid:'#ffd0f0',grid2:'#5af0ff'},
   mood:{sky:['#1a0a3a','#c0407a','#ffb070'],below:['#ff9ab0','#04203a'],neb:'#ff5ab4',haze:'#ffb0a0',mote:'#ffd6ea',rim:'#ff9ad5',sun:{x:0,y:.07,r:88,c:'#ffd27a',stripes:1},clouds:{top:'#ffd6e4',bot:'#a04a8a',n:6}}}];
 const LEG_END=(()=>{let a=0;return LEGS.map(l=>(a+=l.f))})();
@@ -274,6 +274,47 @@ const BASE_LEGS=LEGS.slice(),RUN_LEGS=[
   pal:{grid:'#ffc49a',grid2:'#ff4a5a'},mood:{sky:['#02020a','#0a0a2a','#2a4a8a'],below:['#2a6aff','#02040c'],neb:'#ff4a5a',haze:'#3a4a8a',mote:'#dfe8ff',rim:'#ffa070',stars:1,sun:{x:.4,y:.2,r:26,c:'#fff2d0'}}},
  {n:'HYPERSPACE PORTAL',sub:'Hit the light. Do not stop.',msg:'PORTAL LOCK. GO GO GO.',f:.16,scen:'worm',tunnel:1,trk:{cx:1.1,cy:1.1,spin:1.5},
   pal:{grid:'#ffffff',grid2:'#5af0ff'},mood:{sky:['#020008','#1a0640','#5af0ff'],below:['#3a0a5a','#020008'],neb:'#5af0ff',haze:'#a0e0ff',mote:'#ffffff',rim:'#5af0ff',stars:1}}];
+/* ---------- Per-race routes ---------- */
+const NIGHT_MOOD=[
+ {sky:['#01010a','#0a0a2a','#2a1440'],below:['#2a0a1a','#02010a'],neb:'#ff4a6a',haze:'#3a2a5a',mote:'#ffb0c0',rim:'#ff7a4a',stars:1,sun:{x:-.3,y:.22,r:16,c:'#ffe8d0'}},
+ {sky:['#000006','#05042a','#14104a'],below:['#0a0820','#000004'],neb:'#5a3aff',haze:'#2a2a6a',mote:'#9ad0ff',rim:'#7ab0ff',stars:1,aurora:1,sun:{x:.3,y:.28,r:12,c:'#cfe8ff'}},
+ {sky:['#02000a','#100828','#2a1040'],below:['#1a0a2a','#020008'],neb:'#ff4ad8',haze:'#3a1a4a',mote:'#ffc0f0',rim:'#ff7ae0',stars:1},
+ {sky:['#000004','#0a0230','#3a0a6a'],below:['#1a0430','#000004'],neb:'#8a3aff',haze:'#6a3aa0',mote:'#e0c0ff',rim:'#c08aff',stars:1},
+ {sky:['#02000a','#1a0610','#3a0a14'],below:['#2a0a0a','#020004'],neb:'#ff3a3a',haze:'#5a1a2a',mote:'#ffb0a0',rim:'#ff6a5a',stars:1},
+ {sky:['#04000a','#3a0a20','#ff5a3a'],below:['#3a2a5a','#0a0a20'],neb:'#ff4a20',haze:'#a04a40',mote:'#ffd0b0',rim:'#ff8a50',stars:1,sun:{x:0,y:.36,r:34,c:'#ffb080'},clouds:{top:'#7a4a6a',bot:'#2a1020',n:8,sea:1}},
+ {sky:['#000008','#05021e','#1a0636'],below:['#3a0a4a','#010008'],neb:'#ff2bd6',haze:'#140828',mote:'#ff9ae0',rim:'#19f3ff',stars:1,sun:{x:0,y:.12,r:30,c:'#e0f0ff'}}];
+const nightify=legs=>legs.map((L,i)=>Object.assign({},L,{n:L.n.replace('MIAMI DROWNED','MIAMI AFTER DARK'),sub:i===6?'The whole city is a nightclub. Mind the towers.':L.sub,mood:Object.assign({},L.mood,NIGHT_MOOD[i],{clouds:NIGHT_MOOD[i].clouds||null}),pal:{grid:'#19f3ff',grid2:'#ff2bd6'},floor:L.floor?['#120a2a','#2a0a3a']:L.floor,night:1,sky:i<=4?{earth:'far'}:{}}));
+const ROUTES={night:nightify(BASE_LEGS),
+ express:[
+  {n:'CARGO BAY 9',sub:'Out of the hangar. Don’t clip a forklift.',f:.15,scen:'bay',trk:{cx:.55,cy:.35,rk:.5},megas:['cargo'],megaGap:[80,120],
+   mix:{gate:.3,coin:.3,pad:.25,rock:.15},pal:{grid:'#ffd27a',grid2:'#19f3ff'},
+   mood:{sky:['#05060a','#0c0e16','#161a24'],below:['#14141a','#050508'],neb:'#ffb040',haze:'#14161e',mote:'#ffe0a0',rim:'#ffd27a'},sky:{}},
+  {n:'NEW OLYMPUS',sub:'The rich part of Mars. Do not scratch anything.',f:.18,scen:'city',trk:{cx:1.1,cy:.5,rk:1},megas:['spire'],megaGap:[90,140],
+   mix:{gate:.25,coin:.25,drone:.2,pad:.15,adsat:.15},pal:{grid:'#7af7ff',grid2:'#ff7ae0'},
+   mood:{sky:['#140a30','#5a2a7a','#ffa0c0'],below:['#ff9ad8','#1a0a30'],neb:'#ff7ae0',haze:'#c08ad0',mote:'#ffe6f6',rim:'#7af7ff',sun:{x:.25,y:.12,r:40,c:'#ffe8d0'},clouds:{top:'#ffd0e8',bot:'#7a3a8a',n:5}},sky:{mars:null,earth:'far'}},
+  {n:'THE BADLANDS',sub:'Rural Mars. Big rocks, bigger ships. Hold on.',msg:'Out of town. Hold the corners!',f:.24,scen:'canyon',towers:'mesa',trk:{cx:2.3,cy:.6,rk:1.5},megas:['mesa','destroyer','mesa'],megaGap:[70,110],
+   mix:{rock:.35,drone:.2,gate:.2,coin:.15,beam:.1},pal:{grid:'#ffcf9a',grid2:'#ff8a6a'},
+   mood:BASE_LEGS[0].mood,floor:BASE_LEGS[0].floor,sky:{earth:'far'}},
+  {n:'GRAVITY WELL',sub:'Down. Upside down. Around. Out.',msg:'Gravity well! It wants you. Hold on.',f:.17,scen:'worm',tunnel:1,trk:{cx:1.2,cy:.6,by:1.5,half:1,spin:2.5},
+   mix:{gate:.32,coin:.3,rock:.18,pad:.2},pal:{grid:'#e0b0ff',grid2:'#5af0ff'},mood:BASE_LEGS[3].mood,sky:{}},
+  {n:'STATION APPROACH',sub:'Three big ones, coming fast. Then you’re home.',f:.26,scen:'fleet',trk:{cx:.8,cy:.5,rk:.8},gauntlet:['destroyer','hulk','destroyer'],
+   mix:{gate:.3,coin:.3,drone:.2,pad:.2},pal:{grid:'#ffc49a',grid2:'#5ab0ff'},
+   mood:{sky:['#02020a','#0a0a2a','#1a2a5a'],below:['#1a3a8a','#02040c'],neb:'#5ab0ff',haze:'#2a3a6a',mote:'#dfe8ff',rim:'#9ad0ff',stars:1,sun:{x:-.35,y:.25,r:22,c:'#fff2d0'}},sky:{station:1,earth:'far'}}],
+ lawyer:[
+  {n:'MIAMI DROWNED',sub:'He’s got a head start and a briefcase. Go.',f:.2,scen:'miami',towers:'deco',water:1,trk:{cx:1.3,cy:.45,rk:1},megas:['tower'],megaGap:[100,150],
+   mix:{gate:.24,coin:.3,drone:.15,pad:.16,rock:.15},pal:BASE_LEGS[6].pal,floor:BASE_LEGS[6].floor,mood:BASE_LEGS[6].mood,sky:{}},
+  {n:'GROUND ZERO',sub:'Old crater. Still glowing. Don’t lick anything.',msg:'Crater ahead. The green stuff is not candy.',f:.2,scen:'canyon',crater:1,trk:{cx:1.2,cy:.7,by:.3,rk:1},megas:['mesa'],megaGap:[100,150],
+   mix:{rock:.45,drone:.15,gate:.2,coin:.2},pal:{grid:'#c8ff8a',grid2:'#7dff6b'},floor:['#1a1a10','#3a4a20'],
+   mood:{sky:['#0a0c06','#2a3018','#8a9a50'],below:['#4a5a2a','#0a0a04'],neb:'#9aff5a',haze:'#6a7a40',mote:'#e0ffb0',rim:'#b0ff6a',sun:{x:.2,y:.2,r:34,c:'#f0ffc0'},clouds:{top:'#b0b880',bot:'#3a3a20',n:6}},sky:{}},
+  {n:'THROUGH THE EARTH',sub:'Drops. Jumps. Lava. He’s still running.',msg:'Hang on — big drops ahead!',f:.22,scen:'core',tunnel:1,trk:{cx:1,cy:.4,drops:1.6,rk:.6},
+   mix:{gate:.3,coin:.3,rock:.2,pad:.2},pal:{grid:'#ffb060',grid2:'#ff4a20'},
+   mood:{sky:['#0a0200','#3a0a00','#ff4a10'],below:['#ff6a20','#1a0400'],neb:'#ff6a20',haze:'#a03a10',mote:'#ffd0a0',rim:'#ff8a3a',stars:0},sky:{}},
+  {n:'SKY CLIMB',sub:'Up through the clouds. Don’t let him reach orbit.',msg:'Climb! He’s heading for orbit.',f:.18,scen:'entry',burn:1,trk:{cx:.8,cy:.5,by:-.95,rk:.7},
+   mix:{rock:.25,drone:.25,gate:.25,coin:.25},pal:{grid:'#ffffff',grid2:'#7ab0ff'},
+   mood:{sky:['#02061a','#1a4a9a','#9ad0ff'],below:['#ffffff','#7aa0d0'],neb:'#7ab0ff',haze:'#b0d0ff',mote:'#ffffff',rim:'#cfe8ff',sun:{x:.3,y:.3,r:44,c:'#fffbe8'},clouds:{top:'#ffffff',bot:'#8ab0e0',n:8,sea:1}},sky:{sea:1}},
+  {n:'LAST STOP: STATION',sub:'If he docks, he files. Make it count.',f:.2,scen:'fleet',trk:{cx:.9,cy:.6,rk:.9},megas:['destroyer'],megaGap:[110,160],
+   mix:{gate:.25,coin:.25,drone:.3,adsat:.2},pal:{grid:'#ffc49a',grid2:'#5ab0ff'},
+   mood:{sky:['#02020a','#0a0a2a','#1a2a5a'],below:['#2a6aff','#02040c'],neb:'#5ab0ff',haze:'#2a3a6a',mote:'#dfe8ff',rim:'#9ad0ff',stars:1,sun:{x:-.35,y:.25,r:22,c:'#fff2d0'}},sky:{station:1,earth:'below'}}]};
 function setLegs(arr){if(LEGS[0]===arr[0]&&LEGS.length===arr.length)return;LEGS.splice(0,LEGS.length,...arr);LEG_END.length=0;let a=0;for(const l of arr)LEG_END.push(a+=l.f);SKY={}}
 const RUN_C={id:'run',n:'Blockade Run',d:'Back to Mars.',pay:0,len:.6,diff:1.2,req:0,mod:{}};
 /* Mid-race choices. fx: cr (cash), hull, en, dist, risk, ads, msg */
@@ -1086,7 +1127,7 @@ function scrSitrep(cid){RACE_CID=cid;const c=CIRCUITS.find(q=>q.id===cid)||CIRCU
   {t:`${S.pilot.name.toUpperCase()} // ${sh.h.n.toUpperCase()} // HULL ${sh.hp}`},
   {t:`PRIZE ${money(c.pay)} · 1ST PLACE ×1.5 · BROUGHT TO YOU BY ${sh.d.n.toUpperCase()}`},
   {t:`EXPECT: ${T('HAZARD')}.`,c:'mu'},
-  ...(c.mod&&c.mod.target?[{t:'JOB: Kill the Nephew. Gold ship. Rich dad.',c:'rd'}]:[]),
+  ...(c.mod&&c.mod.target?[{t:c.mod.target.n==='THE LAWYER'?'JOB: Stop the Lawyer before the station. Rockets drain his shield.':'JOB: Kill the Nephew. Gold ship. Rich dad.',c:'rd'}]:[]),
   ...(S.intel?[{t:'FIXER TIP: extra repair kits on route.',c:'gr'}]:[]),
   {t:'ROUTE: '+LEGS.map(l=>l.n).join(' → ')+' → FINISH',c:'mu'}])}
 ACT.go=()=>raceStart(RACE_CID);
@@ -1111,22 +1152,23 @@ const wrapA=a=>Math.atan2(Math.sin(a),Math.cos(a));
 function trk(d){const tot=RC.total||2300,i=legAt(cl(d/tot,0,.99999)),L=LEGS[i],Pv=LEGS[Math.max(0,i-1)],st=(i?LEG_END[i-1]:0)*tot,len=L.f*tot,k=i?sstep((d-st)/140):1,u=cl((d-st)/len,0,1);
  const A=q=>lerp(Pv.trk[q]||0,L.trk[q]||0,k);
  const cx=A('cx')*(Math.sin(d*.0043+1.3)*.62+Math.sin(d*.0117+.4)*.38)+A('bx');
- const cy=A('cy')*(Math.sin(d*.0051+.7)*.6+Math.sin(d*.0133+2.1)*.4)+A('by');
+ const cy=A('cy')*(Math.sin(d*.0051+.7)*.6+Math.sin(d*.0133+2.1)*.4)+A('by')+(L.trk.drops?L.trk.drops*Math.tanh(Math.sin(d*.016)*3)*k:0);
  let roll=-cx*.55*A('rk');
  if(L.trk.spin)roll+=TAU*L.trk.spin*sstep(u);
  if(L.trk.half)roll+=Math.PI*sstep((u-.22)/.13)*(1-sstep((u-.68)/.13));
  return{cx,cy,roll}}
 function computeBends(){for(let i=0;i<BZ.length;i++){const z=BZ[i],T=trk(RC.dist+z*.5);BX[i]=.00135*T.cx*z*z;BY[i]=.00135*T.cy*z*z}}
 
-function raceStart(cid,run){setLegs(run?RUN_LEGS:BASE_LEGS);const c=run?RUN_C:(CIRCUITS.find(q=>q.id===cid)||CIRCUITS[0]),sh=computeShip();if(!run)S.lastCirc=cid;
+function raceStart(cid,run){const c=run?RUN_C:(CIRCUITS.find(q=>q.id===cid)||CIRCUITS[0]),sh=computeShip();setLegs(run?RUN_LEGS:(ROUTES[c.legs]||BASE_LEGS));if(!run)S.lastCirc=cid;
  const names=[];for(let i=0;names.length<3&&i<40;i++){const n=T('RIVAL');if(n&&!names.includes(n))names.push(n)}while(names.length<3)names.push('UNIT '+ri(10,99));
  for(const k in RC)delete RC[k];
  Object.assign(RC,{c,mod:c.mod||{},ship:sh,total:2300*c.len,dist:0,t:0,hull:sh.hp,mx:sh.hp,en:100,px:0,py:.3,tx:0,ty:.3,vx:0,vy:0,E:[],B:[],L:[],P:[],spd:0,slow:0,boost:false,boostT:0,
   score:0,cash:0,kills:0,gates:0,near:0,dodges:0,bullies:0,br:null,brA:0,brCD:0,lastDir:1,bulT:rr(9,14),shake:0,flash:0,fc:'#fff',spT:30,fireT:.5,rkT:0,leg:0,prevLeg:0,legBlend:1,banner:0,risk:1,ads:sh.ads,adT:6,adMsg:'',adL:0,count:3,over:0,dead:0,paused:0,fov:1,events:0,evtT:0,msg:'',msgT:0,burnT:0,endT:0,
   roll:0,T0:{cx:0,cy:0,roll:0},kk:[0,0,0],kv:[0,0,0],fovP:0,caHit:0,towerT:0,lock:null,railFlash:0,trail:[[],[],[],[]],vp:[0,0],
   motes:Array.from({length:46},()=>({x:rr(-4,4),y:rr(-2.4,2),z:rr(0,88),ph:R()*6})),
-  dmgX:.3+.35*c.diff,intel:S.intel,target:c.mod&&c.mod.target?{state:0,hp:30,mx:30,x:0,y:-.2,z:85,f:1.5,t:'target',r:.3}:null,
+  dmgX:.3+.35*c.diff,intel:S.intel,target:c.mod&&c.mod.target?{state:0,hp:c.mod.target.hp||30,mx:c.mod.target.hp||30,x:0,y:-.2,z:85,f:1.5,t:'target',r:.3,n:c.mod.target.n||'THE NEPHEW',leg:c.mod.target.leg??2,col:c.mod.target.col||'#ffd23f'}:null,
   rivals:names.map((n,i)=>({n,c:['#ff2bd6','#ffd23f','#7dff6b'][i],k:[.93,.99,1.04][i]*(.9+.1*c.diff),p:0,live:0})),rank:4});
+ RC.custom=!!(c.legs&&ROUTES[c.legs])||!!run;
  if(!run&&!S.runs)Object.assign(RC,{tut:0,events:99});
  if(run)Object.assign(RC,{run:1,rivals:[],target:null,ads:false,events:99,bulT:1e9,dmgX:.45,megaT:45,intel:0});else S.intel=0;save();drag=null;bh=false;setLimits();computeBends();
  mode='race';hideUI();setHud(true);AU.play('race');AU.int=0;legStart(0,true);AU.sfx('beep');buzz(15);
@@ -1141,9 +1183,10 @@ function legStart(i,first){const L=LEGS[i];RC.prevLeg=first?i:RC.leg;RC.leg=i;RC
  if(L.msg){RC.msg=L.msg;RC.msgT=3}}
 let XL=1,YL=.75,YU=.75;function setLimits(){const port=innerHeight>innerWidth;XL=port?1.1:1.04;YU=port?1.3:.82;YL=port?.8:.78}
 function hurt(n,cause){if(RC.over)return;if(RC.br&&RC.br.t<.5){if(!RC.br.dodged){RC.br.dodged=1;RC.dodges++;RC.score+=50;RC.msg='DODGED!';RC.msgT=.9;AU.sfx('gate');buzz(10)}return}kick(11);RC.caHit=.7;RC.hull-=n*RC.dmgX;if(n>=10){RC.en=Math.max(0,RC.en-15);RC.score=Math.max(0,RC.score-40);RC.hits=(RC.hits||0)+1;if(RC.msgT<.4){RC.msg=pick(['IMPACT // −15% BOOST','HULL HIT // −40','THAT LEFT A MARK']);RC.msgT=.8}}if(!RC.ship.pain)RC.slow=1.5;RC.shake=.35;RC.flash=.35;RC.fc='#ff2b4d';AU.sfx('hit');buzz([45,25,45]);if(RC.hull<=0)raceEnd(false,cause)}
+const MEGA_K={mesa:{k:'mesa',n:'MOUNTAIN',ax:'x',cause:'a Martian mountain. It did not move'},destroyer:{k:'destroyer',n:'DESTROYER',ax:'y',cause:'a star destroyer. It had right of way'},tower:{k:'tower',n:'BUILDING',ax:'x',cause:'a high-rise. Penthouse delivery'},cargo:{k:'cargo',n:'CARGO STACK',ax:'x',cause:'a stack of shipping containers. Fragile, it said'},hulk:{k:'mesa',n:'ASTEROID',ax:'x',cause:'a very large rock'},spire:{k:'tower',n:'SPIRE',ax:'x',cause:'a corporate spire. They will bill you'}};
 const MEGA={0:{k:'mesa',n:'MOUNTAIN',ax:'x',cause:'a Martian mountain. It did not move'},4:{k:'destroyer',n:'DESTROYER',ax:'y',cause:'a star destroyer. It had right of way'},6:{k:'tower',n:'BUILDING',ax:'x',cause:'a Miami high-rise. Penthouse delivery'}};
 function megaDir(k,s){return k==='destroyer'?(s<0?'GO HIGH ▲':'GO LOW ▼'):(s<0?'◀ GO LEFT':'GO RIGHT ▶')}
-function megaTick(dt,pr){const i=RC.leg,M=MEGA[i];RC.megaDone=RC.megaDone||{};
+function megaTick(dt,pr){const i=RC.leg,Lg=LEGS[i];if(Lg.megas||Lg.gauntlet)return legMegaTick(dt,pr,Lg);const M=Lg.mega?MEGA_K[Lg.mega]:null;RC.megaDone=RC.megaDone||{};
  if(M&&!RC.megaDone[i]&&!RC.over){const a=i?LEG_END[i-1]:0,b=LEG_END[i];if(pr>=a+(b-a)*.48){RC.megaDone[i]=1;RC.megaOn=1;const s=R()<.5?-1:1;RC.megaW={M,s,t:1.1};
   RC.E=RC.E.filter(e=>!(e.z>70&&HIT[e.t]));RC.msg='⚠ '+M.n+' AHEAD // '+megaDir(M.k,s)+' // OR BARREL ROLL';RC.msgT=3.2;AU.sfx('warn');buzz([40,40,40,40,40])}}
  const w=RC.megaW;if(w&&w.t>0){w.t-=dt;if(w.t<=0)spawnMega(w)}}
@@ -1162,6 +1205,10 @@ function runSpawn(){const i=RC.leg,r=R(),big=n=>{for(let k=0;k<n;k++)add({t:'roc
  else if(i===1){r<.5?big(1+(R()<.5)):r<.8?las():pad()}
  else if(i===2){r<.35?big(2):r<.85?beam():las()}
  else{r<.5?big(1):r<.75?las():pad()}}
+function legMegaTick(dt,pr,L){if(RC.over)return;const i=RC.leg,a=i?LEG_END[i-1]:0,b=LEG_END[i],u=(pr-a)/(b-a);
+ if(L.gauntlet){RC.gDone=RC.gDone||{};for(let k=0;k<L.gauntlet.length;k++){const at=.25+k*.22;if(u>=at&&!RC.gDone[i+':'+k]){RC.gDone[i+':'+k]=1;const M=MEGA_K[L.gauntlet[k]],s=R()<.5?-1:1;RC.megaW={M,s,t:.3,fast:1};RC.megaOn=1;RC.msg='⚠ '+M.n+' INCOMING // '+megaDir(M.k,s);RC.msgT=1.8;AU.sfx('warn');buzz([30,30,30])}}}
+ else{RC.megaT=(RC.megaT??60)-RC.spd*dt;if(RC.megaT<=0&&!(RC.megaW&&RC.megaW.t>0)&&u>.08&&u<.9){RC.megaT=rr(L.megaGap?L.megaGap[0]:70,L.megaGap?L.megaGap[1]:110);const M=MEGA_K[pick(L.megas)],s=R()<.5?-1:1;RC.megaOn=1;RC.megaW={M,s,t:.45};RC.msg='⚠ '+M.n+' // '+megaDir(M.k,s);RC.msgT=1.8;AU.sfx('warn');buzz([30,30,30])}}
+ const w=RC.megaW;if(w&&w.t>0){w.t-=dt;if(w.t<=0){spawnMega(w);if(w.fast){const e=RC.E[RC.E.length-1];e.fast=1}}}}
 function megaHit(e){const m=.09,inside=RC.px>e.x0-m&&RC.px<e.x1+m&&RC.py>e.y0-m&&RC.py<e.y1+m;RC.megaOn=0;RC.megaW=null;
  if(inside){const rolled=RC.br&&RC.br.t<.5;hurt(RC.mx*(RC.run?.34:.5)/RC.dmgX,e.cause);
   if(rolled){RC.score+=250;RC.msg='YOU BARREL ROLLED THROUGH A '+e.n+'?! +250';RC.msgT=2}
@@ -1187,7 +1234,7 @@ function spawnFrom(L){const m=Object.assign({},L.mix),M=RC.mod;m.repair=.045+(RC
  if(M.rocks)m.rock=(m.rock||0)*M.rocks;if(M.block){m.drone=(m.drone||0)*M.block;if(m.laser)m.laser*=M.block;if(m.beam)m.beam*=M.block}
  let tot=0;for(const k in m)tot+=m[k];let r=R()*tot,ty='rock';for(const k in m){r-=m[k];if(r<=0){ty=k;break}}
  const pr=RC.dist/RC.total,rf=RC.ship.reflex?1.25:1;
- if(ty==='rock'){const big=RC.leg===2;for(let i=0,n=1+(R()*(.7+pr*1.4+(big?.7:0))|0);i<n;i++)add({t:'rock',x:rr(-.9,.9),y:rr(-.65,.65),r:rr(.15,big?.4:.32),hp:big?3:2,sh:Array.from({length:8},()=>rr(.7,1.1)),rot:0,sp:rr(-2,2),z:i*2,fire:!!LEGS[RC.leg].burn,moss:big})}
+ if(ty==='rock'){const big=!!LEGS[RC.leg].bigRocks;for(let i=0,n=1+(R()*(.7+pr*1.4+(big?.7:0))|0);i<n;i++)add({t:'rock',x:rr(-.9,.9),y:rr(-.65,.65),r:rr(.15,big?.4:.32),hp:big?3:2,sh:Array.from({length:8},()=>rr(.7,1.1)),rot:0,sp:rr(-2,2),z:i*2,fire:!!LEGS[RC.leg].burn,moss:big})}
  else if(ty==='drone')add({t:'drone',x:rr(-.8,.8),y:rr(-.55,.55),r:.2,hp:1,f:rr(.6,1.4),ph:R()*6});
  else if(ty==='gate'){if(R()<.5)return;add({t:'gate',x:rr(-.6,.6),y:rr(-.45,.45),r:.34*rf})}
  else if(ty==='coin'){const x0=rr(-.7,.7),y0=rr(-.5,.5),dx=rr(-.06,.06),dy=rr(-.04,.04);for(let i=0;i<5;i++)add({t:'coin',x:x0+dx*i,y:y0+dy*i,r:.09*rf,z:i*2.2})}
@@ -1269,7 +1316,7 @@ function raceUpd(dt){RC.t+=dt;
  if(L.towers){RC.towerT-=RC.spd*dt;if(RC.towerT<=0){RC.towerT=rr(3.5,6.5);for(const s of[-1,1])if(R()<.85)add({t:'tower',x:s*rr(1.9,3.4),y:0,h:L.towers==='mesa'?rr(1.4,3):rr(2.6,6.5),w:rr(.55,1.05),style:L.towers,seed:ri(1,9999),col:pick(['#ff5ab4','#3af0ff','#ffd27a','#b07aff']),r:0})}}
  // assassination target
  const tg=RC.target;
- if(tg&&tg.state===0&&RC.leg>=2){tg.state=1;tg.z=85;RC.msg='The Nephew is here. Gold ship. Get him.';RC.msgT=3;AU.sfx('warn');buzz([30,30,30])}
+ if(tg&&tg.state===0&&RC.leg>=tg.leg&&RC.count<=0){tg.state=1;tg.z=85;RC.msg=tg.n==='THE LAWYER'?'There he goes. Briefcase full of paperwork. Shoot it.':'The Nephew is here. Gold ship. Get him.';RC.msgT=3;AU.sfx('warn');buzz([30,30,30])}
  if(tg&&tg.state===1){tg.z=lerp(tg.z,34+Math.sin(RC.t*.7)*8,dt*.7);tg.x=Math.sin(RC.t*.9)*.6*XL;tg.y=(Math.sin(RC.t*1.3)*.3-.15)*YU/.75;tg.f-=dt;
   if(tg.f<=0&&tg.z<60){tg.f=rr(.8,1.4);const vz=RC.spd+30,tm=tg.z/vz;RC.B.push({x:tg.x,y:tg.y,z:tg.z,vx:(RC.px-tg.x)/tm,vy:(RC.py-tg.y)/tm,vz:-vz,c:'#ffd23f'})}}
  // entities
@@ -1288,7 +1335,7 @@ function raceUpd(dt){RC.t+=dt;
     if(o.t==='well'&&Math.hypot(o.x-e.x,o.y-e.y)<o.core+.1){e.envKill='a black hole';kill(e);break}}
    continue}
   if(e.t==='rival'){const r=RC.rivals[e.ri],rv=25*r.k*(1+pr*.15);e.z-=(RC.spd-rv)*dt*1.2;e.x+=Math.sin(RC.t*1.4+e.ph)*.35*dt;e.x=cl(e.x,-.85*XL,.85*XL);r.p=pr+e.z*.00017;if(e.z>95||e.z<-3){e.dead=1;r.live=0}}
-  else e.z-=(e.t==='drone'?RC.spd-10:e.k==='destroyer'?RC.spd*.62:RC.spd)*dt;
+  else e.z-=(e.t==='drone'?RC.spd-10:e.fast?RC.spd*1.55:e.k==='destroyer'?RC.spd*.62:RC.spd)*dt;
   if(e.t==='mega'){e.mf=Math.max(0,e.mf-dt);if(e.k==='destroyer'&&e.z<80&&e.z>9){e.f-=dt;if(e.f<=0){e.f=rr(.3,.5);e.mf=.12;const mi=Math.floor(R()*5);e.mi=mi;const bx=(mi-2)*.4*XL*.95,by=e.s<0?e.y0:e.y1,vz=RC.spd+30,tm=e.z/vz,ax=RC.px+rr(-.12,.12),ay=RC.py+rr(-.1,.1);e.mx=bx;RC.B.push({x:bx,y:by,z:e.z,vx:(ax-bx)/tm,vy:(ay-by)/tm,vz:-vz,c:'#ff7a20',cause:'destroyer flak'});AU.sfx('shoot')}}}
   if(e.t==='rock')e.rot+=e.sp*dt;
   if(e.t==='drone'){e.x+=Math.sin(RC.t*1.5+e.ph)*.5*dt;e.f-=dt;
@@ -1324,7 +1371,7 @@ function raceUpd(dt){RC.t+=dt;
   if(l.rk){const g=l.tg;if(g&&!g.dead&&(g.t!=='target'||g.state===1)){l.x+=(g.x-l.x)*Math.min(1,dt*5);l.y+=(g.y-l.y)*Math.min(1,dt*5)}
    if(R()<.7){const[sx,sy,s]=P(l.x,l.y,l.z);RC.P.push({x:sx,y:sy,vx:rr(-15,15),vy:rr(-15,15),l:.35,c:'#ffd23f',z:Math.max(1.5,4*s)})}}
   if(tg&&tg.state===1&&Math.abs(tg.z-l.z)<(l.rk?5:3)&&Math.hypot(tg.x-l.x,tg.y-l.y)<tg.r+.08){tg.hp-=l.dmg;l.dead=1;const[sx,sy,s]=P(tg.x,tg.y,tg.z);boomAt(sx,sy,s,'#ffd23f',l.rk?16:3);
-   if(tg.hp<=0){tg.state=2;RC.kills++;RC.score+=500;boomAt(sx,sy,s*1.5,'#ffd23f',50);AU.sfx('boom');AU.sfx('cash');buzz([60,40,90]);RC.shake=.5;RC.msg='Nephew down. The board sends flowers.';RC.msgT=3}continue}
+   if(tg.hp<=0){tg.state=2;RC.kills++;RC.score+=500;boomAt(sx,sy,s*1.5,'#ffd23f',50);AU.sfx('boom');AU.sfx('cash');buzz([60,40,90]);RC.shake=.5;RC.msg=tg.n==='THE LAWYER'?'Lawyer down. Paperwork: shredded.':'Nephew down. The board sends flowers.';RC.msgT=3}continue}
   for(const e of RC.E){if(!HIT[e.t]||e.dead||(l.hs&&l.hs.includes(e)))continue;
    if(Math.abs(e.z-l.z)<(l.rk?4:2.6+dz*.5)&&Math.hypot(e.x-l.x,e.y-l.y)<e.r+(l.rk?.12:.06)){
     if(l.rk){for(const o of RC.E)if(HIT[o.t]&&!o.dead&&Math.abs(o.z-e.z)<6&&Math.hypot(o.x-e.x,o.y-e.y)<.45)damage(o,o===e?l.dmg:3);boom(e,'#ffd23f',20);AU.sfx('boom');buzz(30);l.dead=1;break}
@@ -1374,8 +1421,8 @@ function raceBG(dt){const L=LEGS[RC.leg],Lp=LEGS[RC.prevLeg],b=RC.legBlend,pr=cl
  const p1=skyPlate(RC.leg);ctx.drawImage(p1.c,-p1.D/2,-p1.D/2,p1.D,p1.D);ctx.globalAlpha=1;
  if(M.sun){const sx=M.sun.x*D*.3,sy=-M.sun.y*D*.3;ctx.globalCompositeOperation='lighter';const gr=ctx.createRadialGradient(sx,sy,0,sx,sy,D*.6);gr.addColorStop(0,rgba(M.sun.c,.13));gr.addColorStop(1,rgba(M.sun.c,0));ctx.fillStyle=gr;
   for(let k=0;k<7;k++){const a=k/7*TAU+t*.05,w=.06+.035*Math.sin(t*.7+k);ctx.beginPath();ctx.moveTo(sx,sy);ctx.arc(sx,sy,D*.6,a-w,a+w);ctx.closePath();ctx.fill()}ctx.globalCompositeOperation='source-over'}
- if(RC.leg<=2){const mr=Math.max(3,H*.11*(1-pr*2.2)),mx=-W*.32,my=-H*.24,mg=ctx.createRadialGradient(mx-mr*.3,my-mr*.3,1,mx,my,mr);mg.addColorStop(0,'#ffb08a');mg.addColorStop(1,'#7a2010');ctx.fillStyle=mg;ctx.beginPath();ctx.arc(mx,my,mr,0,TAU);ctx.fill()}
- if(RC.leg<=4){const er=6+pr*pr*H*.34,ey=-er*.35-4,eg=ctx.createRadialGradient(-er*.3,ey-er*.3,1,0,ey,er);eg.addColorStop(0,'#bff');eg.addColorStop(.5,'#2a70ff');eg.addColorStop(1,'#031a5a');ctx.fillStyle=eg;ctx.beginPath();ctx.arc(0,ey,er,0,TAU);ctx.fill();
+ if(!RC.custom&&RC.leg<=2){const mr=Math.max(3,H*.11*(1-pr*2.2)),mx=-W*.32,my=-H*.24,mg=ctx.createRadialGradient(mx-mr*.3,my-mr*.3,1,mx,my,mr);mg.addColorStop(0,'#ffb08a');mg.addColorStop(1,'#7a2010');ctx.fillStyle=mg;ctx.beginPath();ctx.arc(mx,my,mr,0,TAU);ctx.fill()}
+ if(!RC.custom&&RC.leg<=4){const er=6+pr*pr*H*.34,ey=-er*.35-4,eg=ctx.createRadialGradient(-er*.3,ey-er*.3,1,0,ey,er);eg.addColorStop(0,'#bff');eg.addColorStop(.5,'#2a70ff');eg.addColorStop(1,'#031a5a');ctx.fillStyle=eg;ctx.beginPath();ctx.arc(0,ey,er,0,TAU);ctx.fill();
   const ag=ctx.createRadialGradient(0,ey,er,0,ey,er*1.25);ag.addColorStop(0,'rgba(120,220,255,.55)');ag.addColorStop(1,'rgba(120,220,255,0)');ctx.fillStyle=ag;ctx.beginPath();ctx.arc(0,ey,er*1.25,0,TAU);ctx.fill()}
  const fl=L.scen==='fleet'?b:Lp.scen==='fleet'?1-b:0;
  if(fl>0){ctx.globalAlpha=fl;const s=Math.min(W,H)*.75;capShip(ctx,-W*.55,-H*.13,s,1,M.rim,t,0);capShip(ctx,W*.58,-H*.06,s*.85,-1,M.rim,t,3);
@@ -1495,7 +1542,7 @@ function raceDraw3D(dt){R3D.frame(dt);ctx.clearRect(0,0,W,H);const M=LEGS[RC.leg
  ctx.save();ctx.globalCompositeOperation='lighter';ctx.fillStyle=M.mote;for(const m of RC.motes){const p=P(m.x+Math.sin(RC.t*.6+m.ph)*.2,m.y+Math.cos(RC.t*.5+m.ph)*.15,m.z);if(p[0]<-50)continue;ctx.globalAlpha=cl((88-m.z)/30,0,1)*.55;ctx.beginPath();ctx.arc(p[0],p[1],Math.max(.8,3*p[2]),0,TAU);ctx.fill()}ctx.restore();ctx.globalAlpha=1;
  ctx.font='700 11px Orbitron,sans-serif';ctx.textAlign='center';for(const e of RC.E)if(e.t==='bully'&&e.z>-1.5&&e.z<45){const p=P(e.x,e.y-.38,Math.max(.3,e.z));ctx.fillStyle=e.c;ctx.fillText('☠ '+e.n,p[0],p[1])}
  for(const e of RC.E)if(e.t==='rival'&&e.z>2&&e.z<70){const p=P(e.x,e.y-.42,e.z);ctx.fillStyle=RC.rivals[e.ri].c;ctx.fillText(RC.rivals[e.ri].n,p[0],p[1])}
- if(RC.target&&RC.target.state===1){const tg=RC.target,p=P(tg.x,tg.y-.5,tg.z);ctx.fillStyle='#ffd23f';ctx.fillText('THE NEPHEW',p[0],p[1])}
+ if(RC.target&&RC.target.state===1){const tg=RC.target,p=P(tg.x,tg.y-.5,tg.z);ctx.fillStyle=tg.col;ctx.fillText(tg.n,p[0],p[1])}
  ctx.lineCap='round';for(const b of RC.B){const[sx,sy,s]=P(b.x,b.y,b.z);ctx.beginPath();ctx.arc(sx,sy,Math.max(2,6*s),0,TAU);ctx.fillStyle=b.c;ctx.fill();glowStroke(ctx,b.c,1)}
  ctx.save();ctx.globalCompositeOperation='lighter';const lc=NEON[S.pilot.col];for(const l of RC.L){const a=P(l.x,l.y,l.z),c=P(l.x-(l.vx||0)*3,l.y-(l.vy||0)*3,Math.max(.2,l.z-(l.rk?1:l.pierce?6:2.4)));if(a[0]<-50||c[0]<-50)continue;ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(c[0],c[1]);glowStroke(ctx,l.rk?'#ffd23f':l.pierce?'#ff9ad5':lc,l.rk?4:l.pierce?3:2)}
  for(const p of RC.P){ctx.globalAlpha=cl(p.l/.6,0,1);ctx.fillStyle=p.c;ctx.fillRect(p.x-p.z/2,p.y-p.z/2,p.z,p.z)}ctx.restore();ctx.globalAlpha=1;
@@ -1512,7 +1559,7 @@ function raceHUD(){const pr=cl(RC.dist/RC.total,0,1),L=LEGS[RC.leg];
  // attitude indicator — shows the coaster roll; flashes INVERTED when upside down
  {const ax=W-34,ay=SAT+134,r=16,inv=Math.abs(wrapA(RC.roll))>Math.PI*.6;ctx.save();ctx.strokeStyle=inv?'#ff2bd6':'#ffffff88';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(ax,ay,r,0,TAU);ctx.stroke();ctx.translate(ax,ay);ctx.rotate(RC.roll);ctx.beginPath();ctx.moveTo(-r,0);ctx.lineTo(r,0);ctx.stroke();ctx.fillStyle=inv?'#ff2bd6':'#19f3ff';ctx.fillRect(-2,-r+2,4,5);ctx.restore();
   if(inv&&Math.floor(RC.t*3)%2){ctx.font='700 10px Orbitron,sans-serif';ctx.textAlign='right';ctx.fillStyle='#ff2bd6';ctx.fillText('INVERTED',W-56,ay+4)}}
- const tg=RC.target;if(tg&&tg.state===1){ctx.textAlign='center';ctx.font='700 10px Orbitron,monospace';ctx.fillStyle='#ffd23f';ctx.fillText('CONTRACT // THE NEPHEW',W/2,SAT+118);ctx.fillStyle='#ffffff22';ctx.fillRect(W*.3,SAT+123,W*.4,6);ctx.fillStyle='#ffd23f';ctx.fillRect(W*.3,SAT+123,W*.4*tg.hp/tg.mx,6)}
+ const tg=RC.target;if(tg&&tg.state===1){ctx.textAlign='center';ctx.font='700 10px Orbitron,monospace';ctx.fillStyle='#ffd23f';ctx.fillText('CONTRACT // '+tg.n,W/2,SAT+118);ctx.fillStyle='#ffffff22';ctx.fillRect(W*.3,SAT+123,W*.4,6);ctx.fillStyle='#ffd23f';ctx.fillRect(W*.3,SAT+123,W*.4*tg.hp/tg.mx,6)}
  const bw=Math.max(110,Math.min(W-226,220)),bx=W-14-bw,by=H-SAB-96;hbar(bx,by,bw,RC.hull/RC.mx,RC.hull/RC.mx>.3?'#7dff6b':'#ff3355','HULL '+Math.max(0,Math.round(RC.hull)));hbar(bx,by+34,bw,RC.en/100,RC.boost?'#ff2bd6':'#19f3ff','BOOST');
  ctx.textAlign='center';
  if(RC.count>0){const n=Math.ceil(RC.count);ctx.font=`900 ${Math.min(W,H)*.22|0}px Orbitron,sans-serif`;ctx.fillStyle='#ffd23f';ctx.globalAlpha=.35+.65*(RC.count%1||1);ctx.fillText(n,W/2,CY+30);ctx.globalAlpha=1}
@@ -1528,7 +1575,7 @@ function raceScore(rank){const avg=RC.total/Math.max(1,RC.t),hp=cl(RC.hull/RC.mx
   ['Speed',`${avg.toFixed(1)} avg`,Math.round(avg*45)],['Near misses',RC.near,RC.near*30],['Barrel-roll dodges',RC.dodges,RC.dodges*50],
   ['Things destroyed',RC.kills-RC.bullies,(RC.kills-RC.bullies)*80],['Bullies wrecked',RC.bullies,RC.bullies*150],['Gates',RC.gates,RC.gates*100],
   ['Cash grabbed',money(RC.cash),RC.cash],['Hull left',Math.round(hp*100)+'%',Math.round(hp*1000)],['Finish',['1ST','2ND','3RD','4TH'][rank-1],[1500,800,400,0][rank-1]]];
- if(RC.target&&RC.target.state===2)L.push(['Nephew',"handled",1000]);return{L,total:L.reduce((a,r)=>a+r[2],0)}}
+ if(RC.target&&RC.target.state===2)L.push([RC.target.n==='THE LAWYER'?'Lawyer':'Nephew',"handled",1000]);return{L,total:L.reduce((a,r)=>a+r[2],0)}}
 function logScore(cid,sc,rank){S.hs=S.hs||{};const b=S.hs[cid]=S.hs[cid]||[],d=new Date(),e={n:S.pilot.name,s:sc,r:rank,d:`${d.getMonth()+1}/${d.getDate()}`};b.push(e);b.sort((a,c)=>c.s-a.s);b.length=Math.min(b.length,10);const i=b.indexOf(e);return{pos:i,best:i===0,board:b}}
 function scoreCard(SC,H,c){return`<div class=scard><div class=kick style="color:var(--am)">RACE SCORE</div><div class=sbig>${fmt(SC.total)}</div>
  ${H.pos>=0?`<div class="pill${H.best?' hs1':''}" style="margin:4px 0 8px">${H.best?'🏆 NEW HIGH SCORE // '+esc(c.n.toUpperCase()):'#'+(H.pos+1)+' ON THE '+esc(c.n.toUpperCase())+' BOARD'}</div>`:''}
@@ -1556,7 +1603,7 @@ ACT.ticket=()=>scrTicket();
 ACT.wake=()=>scrHub('Clinic stitched you back together. Bill attached.');
 function outcomeWin(){if(RC.run)return runWin();S.runDone=0;const c=RC.c,sh=RC.ship,rank=1+RC.rivals.filter(r=>r.p>=1).length,pm=[1.5,1,.7,.5][rank-1];
  let purse=Math.round(c.pay*pm);const rows=[[`Prize (${['1ST','2ND','3RD','4TH'][rank-1]} ×${pm})`,'+'+money(purse),'p']];
- if(c.mod&&c.mod.target){if(RC.target.state===2){const b=Math.round(c.pay*.5);rows.push(['Nephew bonus','+'+money(b),'p']);purse+=b}else{const lost=Math.round(purse*.7);rows.push(['Job cancelled (he lived)','−'+money(lost),'n']);purse-=lost}}
+ if(c.mod&&c.mod.target){if(RC.target.state===2){const b=Math.round(c.pay*.5);rows.push([RC.target.n==='THE LAWYER'?'Lawyer bonus':'Nephew bonus','+'+money(b),'p']);purse+=b}else{const lost=Math.round(purse*.7);rows.push([RC.target.n==='THE LAWYER'?'Job cancelled (he filed)':'Job cancelled (he lived)','−'+money(lost),'n']);purse-=lost}}
  const spon=Math.round(purse*(sh.pay-1));if(spon)rows.push(['Sponsor + implant bonus','+'+money(spon),'p']);
  rows.push(['Cash you picked up','+'+money(RC.cash),'p']);
  const SC=raceScore(rank),scoreCash=Math.round(SC.total*.15);rows.push(['Score bonus ('+fmt(SC.total)+' pts × ¥0.15)','+'+money(scoreCash),'p']);
